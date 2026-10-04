@@ -4,7 +4,8 @@ A [Pterodactyl](https://github.com/pterodactyl/panel) theme for the [Calagopus](
 ## Features
 - Pterodactyl's top navigation bar and horizontal sub navigation instead of the Calagopus sidebar, with the stock Calagopus app icon / banner on the left
 - Pterodactyl colors, fonts (IBM Plex Sans headers), boxes, uppercase buttons, inputs and the centered 1200px content column
-- Pterodactyl server list rows with the status bar, and the Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons
+- Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups
+- The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons, and Pterodactyl's file list rows
 - Pterodactyl's white login box on the login, register and password reset pages
 - The Calagopus-only features are kept and styled to match: quick actions (search icon), server groups, theme switcher, hiding addresses, routes added by other extensions and the admin's route order
 - Dark mode like Pterodactyl, plus a matching light mode
@@ -33,6 +34,6 @@ The look is recreated from the [Pterodactyl panel](https://github.com/pterodacty
 
 Built for [Calagopus](https://github.com/calagopus/panel) (MIT License).
 
-Includes [IBM Plex Sans](https://github.com/IBM/plex) (SIL Open Font License 1.1) and an icon from [Font Awesome Free](https://fontawesome.com) (CC BY 4.0). See [NOTICE](NOTICE) for the full notices.
+Includes [IBM Plex Sans](https://github.com/IBM/plex) (SIL Open Font License 1.1) and uses icons from [Font Awesome Free](https://fontawesome.com) (CC BY 4.0). See [NOTICE](NOTICE) for the full notices.
 
 This project is not affiliated with or endorsed by Pterodactyl or Calagopus.
