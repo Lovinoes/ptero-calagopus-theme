@@ -181,6 +181,8 @@ html[data-ptero-theme] {
 
   /* the navigation bar and sub navigation add ~6.25rem of chrome above the file manager */
   --file-manager-workspace-height: calc(100dvh - 14.5rem);
+  /* the stock 42rem minimum assumes no bars above the page, so it is lowered by their height */
+  --file-manager-workspace-min-height: 32rem;
 
   /* Pterodactyl blue as the primary color in both schemes */
   --mantine-color-blue-0: var(--ptero-blue-50);
@@ -310,36 +312,21 @@ html[data-ptero-theme] :is(h1, h2, h3, h4, h5, h6) {
   letter-spacing: normal;
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar {
-  background: none;
-  width: 16px;
-  height: 16px;
+/*
+ * Scrollbars: thin, with a Pterodactyl gray thumb on a transparent track. The standard properties are
+ * used (no ::-webkit-scrollbar tricks, which render with arrow buttons in current browsers), and the
+ * width rule has zero specificity, so anything that styles or hides its own scrollbar still wins.
+ */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] {
+  scrollbar-color: var(--ptero-gray-500) transparent;
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar-thumb {
-  border: solid 0 rgb(0 0 0 / 0%);
-  border-right-width: 4px;
-  border-left-width: 4px;
-  border-radius: 9px 4px;
-  box-shadow:
-    inset 0 0 0 1px hsl(211, 10%, 53%),
-    inset 0 0 0 4px hsl(209, 18%, 30%);
+html[data-ptero-theme][data-mantine-color-scheme="light"] {
+  scrollbar-color: var(--mantine-color-gray-5) transparent;
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar-track-piece {
-  margin: 4px 0;
-}
-
-html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar-thumb:horizontal {
-  border-right-width: 0;
-  border-left-width: 0;
-  border-top-width: 4px;
-  border-bottom-width: 4px;
-  border-radius: 4px 9px;
-}
-
-html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar-corner {
-  background: transparent;
+:where(html[data-ptero-theme]) :where(*) {
+  scrollbar-width: thin;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -1165,6 +1152,48 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__sta
 
 html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__stat-limit {
   color: var(--ptero-gray-400);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * File editor and tree view
+ *
+ * Both measure themselves to end exactly at the bottom of the window, which fits the stock sidebar
+ * layout. Here they end 1rem above it, and the full-page editor is aligned with its header (the page
+ * has no side padding of its own). The editor box is rounded like Pterodactyl's CodeMirror editor,
+ * its colors come from editor/monacoTheme.ts.
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] #server-root div.relative:has(> div.absolute.z-1.max-w-full.w-full) {
+  margin-inline: 1rem;
+}
+
+@media (min-width: 1024px) {
+  html[data-ptero-theme] #server-root div.relative:has(> div.absolute.z-1.max-w-full.w-full) {
+    margin-inline: 1.5rem;
+  }
+}
+
+/* the measured height is set inline, the padding keeps the editor itself 1rem short of the window edge */
+html[data-ptero-theme] #server-root div.absolute.z-1.max-w-full.w-full {
+  padding-bottom: 1rem;
+}
+
+html[data-ptero-theme] #server-root div.absolute.z-1.max-w-full.w-full section {
+  overflow: hidden;
+  border-radius: 0.25rem;
+}
+
+html[data-ptero-theme]
+  [data-file-manager-workspace-grid]
+  > [data-file-manager-tree-shell][data-file-manager-tree-collapsed="false"],
+html[data-ptero-theme] [data-file-manager-workspace-grid] > :not([data-file-manager-tree-shell]) {
+  height: calc(var(--file-manager-workspace-height) - 1rem);
+}
+
+@container page (width < 48rem) {
+  html[data-ptero-theme] [data-file-manager-tree-visible="false"] [data-file-manager-editor-group] {
+    height: calc(var(--file-manager-workspace-height) - 2.75rem - var(--file-manager-workspace-gap) - 1rem);
+  }
 }
 
 /* ------------------------------------------------------------------------------------------------

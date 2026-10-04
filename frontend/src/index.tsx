@@ -1,6 +1,7 @@
 import type { ReactElement } from 'react';
 import { Extension, ExtensionContext } from 'shared';
 import Sidebar from '@/elements/navigation/Sidebar.tsx';
+import { attachPteroMonacoTheme } from './editor/monacoTheme.ts';
 import PteroSidebar, { PteroSidebarLinkGate } from './navigation/PteroSidebar.tsx';
 import PteroScope, { applyPteroScope, installBootScope, removePteroScope } from './scope.tsx';
 
@@ -29,6 +30,15 @@ class DevLovinoesPterodactylExtension extends Extension {
     applyPteroScope(window.location.pathname);
 
     ctx.extensionRegistry.enterGlobal((global) => global.prependComponent(PteroScope));
+
+    // Pterodactyl's editor colors (ayu-mirage) for the file editor and diffs on the themed pages
+    ctx.extensionRegistry.enterElements((elements) =>
+      elements.enterMonacoEditor((monacoEditor) =>
+        monacoEditor
+          .addOnMountHandler((editor, monaco) => attachPteroMonacoTheme(editor, monaco))
+          .addDiffOnMountHandler((editor, monaco) => attachPteroMonacoTheme(editor, monaco)),
+      ),
+    );
 
     Sidebar.addRenderInterceptor(
       (element, props) => (<PteroSidebar {...props} original={element} />) as ReactElement<typeof props>,
