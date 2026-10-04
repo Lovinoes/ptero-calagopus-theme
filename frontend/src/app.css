@@ -1493,64 +1493,12 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] #console-infobar .mant
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Authentication pages (Pterodactyl's white login box)
+ * Authentication pages: the normal dark boxes, a little roomier, with the step title centered above
  * --------------------------------------------------------------------------------------------- */
 
 html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root {
-  --mantine-color-text: var(--ptero-gray-800);
-  --mantine-color-dimmed: var(--ptero-gray-500);
-  --mantine-color-placeholder: var(--ptero-gray-400);
-  --mantine-color-default: #fff;
-  --mantine-color-default-hover: var(--ptero-gray-50);
-  --mantine-color-default-color: var(--ptero-gray-800);
-  --mantine-color-default-border: var(--ptero-gray-200);
-  --mantine-color-disabled: var(--ptero-gray-100);
-  --mantine-color-disabled-color: var(--ptero-gray-400);
-  --mantine-color-disabled-border: var(--ptero-gray-200);
-  /* "light" buttons (e.g. "Login" on the register page) need light-scheme colors on the white box */
-  --mantine-color-blue-light: rgb(59 130 246 / 0.1);
-  --mantine-color-blue-light-hover: rgb(59 130 246 / 0.16);
-  --mantine-color-blue-light-color: var(--ptero-blue-600);
-  --mantine-primary-color-light: rgb(59 130 246 / 0.1);
-  --mantine-primary-color-light-hover: rgb(59 130 246 / 0.16);
-  --mantine-primary-color-light-color: var(--ptero-blue-600);
-  --mantine-color-gray-light: rgb(51 64 77 / 0.08);
-  --mantine-color-gray-light-hover: rgb(51 64 77 / 0.12);
-  --mantine-color-gray-light-color: var(--ptero-gray-700);
-  --paper-border-color: transparent;
   padding: 1.5rem;
-  border-radius: 0.5rem;
-  background-color: #fff;
-  color: var(--ptero-gray-800);
   box-shadow: var(--ptero-shadow-lg);
-}
-
-html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root .mantine-Input-wrapper[data-variant="default"] {
-  --input-bg: #fff;
-  --input-bd: var(--ptero-gray-200);
-  --input-color: var(--ptero-gray-800);
-}
-
-html[data-ptero-theme][data-ptero-area="auth"]
-  .mantine-Card-root
-  .mantine-Input-input:hover:not(:disabled, :focus, :focus-within, [data-error]) {
-  border-color: var(--ptero-gray-300);
-}
-
-html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root .mantine-InputWrapper-label {
-  color: var(--ptero-gray-700);
-}
-
-html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root :is(a, .mantine-Anchor-root) {
-  color: var(--ptero-gray-500);
-}
-
-html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root :is(a, .mantine-Anchor-root):hover {
-  color: var(--ptero-gray-700);
-}
-
-html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root .mantine-Divider-root {
-  --divider-color: var(--ptero-gray-200);
 }
 
 html[data-ptero-theme][data-ptero-area="auth"] .mantine-Title-root {

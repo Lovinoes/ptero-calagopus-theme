@@ -6,7 +6,7 @@ A [Pterodactyl](https://github.com/pterodactyl/panel) theme for the [Calagopus](
 - Pterodactyl colors, fonts (IBM Plex Sans headers), boxes, uppercase buttons, inputs and the centered 1200px content column
 - Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups
 - The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons, and Pterodactyl's file list rows
-- Pterodactyl's white login box on the login, register and password reset pages
+- The login, register and password reset pages in the same dark Pterodactyl boxes, with the centered title
 - The Calagopus-only features are kept and styled to match: quick actions (search icon), server groups, theme switcher, hiding addresses, routes added by other extensions and the admin's route order
 - Dark mode like Pterodactyl, plus a matching light mode
 - The admin area and the first-time setup are not touched, they keep the stock Calagopus look
