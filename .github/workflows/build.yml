@@ -1,0 +1,207 @@
+# Checks the theme against the latest Calagopus release on each push to main (or master) and
+# publishes the .c7s.zip as a GitHub release titled "Pterodactyl Theme", tagged by build number.
+#
+# The theme is dropped into a checkout of the panel, the same way the panel installs it, and has to
+# pass the panel's own checks: Biome, the TypeScript check and production build of the frontend
+# (pnpm build:ci), and cargo fmt + clippy for the backend crate. Only then is it packed.
+#
+# Pull requests and manual runs build too, and keep the archive as a downloadable artifact of the
+# run, but only pushes to main (or master) make a release. A change only to files that cannot
+# affect the archive (docs, .gitignore, the Dependabot config) builds and releases nothing. Changes
+# to this workflow still build, so a broken pipeline shows up right away.
+name: Build
+
+on:
+  push:
+    branches: ["main", "master"]
+    paths-ignore: ["**.md", ".gitignore", ".github/dependabot.yml"]
+  pull_request:
+    paths-ignore: ["**.md", ".gitignore", ".github/dependabot.yml"]
+  workflow_dispatch:
+
+# Only the release step needs to write, and it asks for that itself below.
+permissions:
+  contents: read
+
+# Builds of the same branch queue up rather than cancel each other, so every push gets its release.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # The package name from Metadata.toml with underscores, the directory name the panel uses.
+  IDENTIFIER: dev_lovinoes_pterodactyl
+
+jobs:
+  panel:
+    name: Find the latest Calagopus release
+    runs-on: ubuntu-24.04
+    outputs:
+      tag: ${{ steps.latest.outputs.tag }}
+    steps:
+      - id: latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(gh release view --repo calagopus/panel --json tagName --jq .tagName)"
+          if [ -z "$tag" ]; then
+            echo "Could not find the latest Calagopus release." >&2
+            exit 1
+          fi
+          echo "Checking against calagopus/panel $tag"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  frontend:
+    name: Check frontend
+    needs: panel
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: theme
+
+      - uses: actions/checkout@v7
+        with:
+          repository: calagopus/panel
+          ref: ${{ needs.panel.outputs.tag }}
+          path: panel
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 11
+          run_install: false
+
+      - name: Add the theme to the panel
+        run: cp -r theme/frontend "panel/frontend/extensions/$IDENTIFIER"
+
+      # The theme is a new workspace package, so the panel's lockfile has to be extended.
+      - name: Install dependencies
+        working-directory: panel/frontend
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Biome
+        working-directory: panel/frontend
+        run: |
+          pnpm exec biome format --css-parse-tailwind-directives=true "extensions/$IDENTIFIER"
+          pnpm exec biome lint --css-parse-tailwind-directives=true "extensions/$IDENTIFIER"
+          pnpm exec biome check "extensions/$IDENTIFIER"
+
+      - name: Typecheck and build
+        working-directory: panel/frontend
+        run: pnpm build:ci
+
+      - name: Check the theme was bundled
+        working-directory: panel/frontend
+        run: |
+          ls dist/assets/extension-"$IDENTIFIER".*.css > /dev/null 2>&1 || {
+            echo "The panel build contains no stylesheet of the theme." >&2
+            exit 1
+          }
+
+  backend:
+    name: Check backend
+    needs: panel
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: theme
+
+      - uses: actions/checkout@v7
+        with:
+          repository: calagopus/panel
+          ref: ${{ needs.panel.outputs.tag }}
+          path: panel
+
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          cache-workspaces: panel
+          # warnings in the panel itself must not fail this build, the theme crate is checked
+          # strictly by clippy below
+          build-warnings: allow
+
+      - name: Add the theme to the panel
+        run: |
+          mkdir -p "panel/backend-extensions/$IDENTIFIER"
+          cp theme/Cargo.toml theme/Metadata.toml "panel/backend-extensions/$IDENTIFIER/"
+          cp -r theme/src "panel/backend-extensions/$IDENTIFIER/src"
+
+      # The panel embeds the built frontend, a placeholder is enough to compile.
+      - name: Placeholder frontend build
+        run: mkdir -p panel/frontend/dist && echo "Dummy file" > panel/frontend/dist/index.html
+
+      - name: cargo fmt
+        working-directory: panel
+        run: cargo fmt -p "$IDENTIFIER" -- --check
+
+      - name: cargo clippy
+        working-directory: panel
+        run: cargo clippy -p "$IDENTIFIER" --no-deps -- -D warnings
+
+  package:
+    name: Package
+    needs: [panel, frontend, backend]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+
+      - name: Pack
+        run: node scripts/package.mjs
+
+      - name: Check the archive was built
+        run: |
+          ls -l dist
+          if [ ! -f "dist/$IDENTIFIER.c7s.zip" ]; then
+            echo "Expected dist/$IDENTIFIER.c7s.zip, it was not built." >&2
+            exit 1
+          fi
+          unzip -l "dist/$IDENTIFIER.c7s.zip"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: ${{ env.IDENTIFIER }}-${{ github.sha }}
+          path: dist/${{ env.IDENTIFIER }}.c7s.zip
+          if-no-files-found: error
+
+      - name: Release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN: ${{ github.run_number }}
+          PANEL_TAG: ${{ needs.panel.outputs.tag }}
+          # Passed as data, never pasted into the script, so a commit message cannot run anything.
+          COMMITS: ${{ toJSON(github.event.commits) }}
+          HEAD_MESSAGE: ${{ github.event.head_commit.message }}
+        run: |
+          tag="build.${RUN}"
+          archive="dist/${IDENTIFIER}.c7s.zip"
+          # The notes are the first line of every commit in the push, one per line.
+          printf '%s' "$COMMITS" | jq -r '.[]?.message | split("\n")[0] | "- " + .' > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            printf '%s\n' "- ${HEAD_MESSAGE%%$'\n'*}" > release-notes.md
+          fi
+          printf '\nChecked against Calagopus `%s`.\n' "$PANEL_TAG" >> release-notes.md
+
+          # A re-run of the same run keeps its number, so its release already exists: replace
+          # the archive in it rather than fail on the tag being taken.
+          if gh release view "$tag" > /dev/null 2>&1; then
+            gh release upload "$tag" "$archive" --clobber
+          else
+            gh release create "$tag" "$archive" \
+              --target "$GITHUB_SHA" \
+              --title "Pterodactyl Theme" \
+              --notes-file release-notes.md \
+              --latest
+          fi

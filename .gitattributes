@@ -1,0 +1,3 @@
+# keep LF everywhere, Biome and rustfmt check for it
+* text=auto eol=lf
+*.woff2 binary

@@ -1,0 +1,1324 @@
+/*
+ * Pterodactyl theme for Calagopus.
+ *
+ * Every rule in here is scoped to `html[data-ptero-theme]`. The attribute is set by the extension on
+ * every page except the admin area and the first-time setup, so those keep the stock Calagopus look.
+ *
+ * Colors, fonts and measurements are taken from the Pterodactyl panel frontend
+ * (tailwind.config.js, GlobalStylesheet.ts and the individual components).
+ */
+
+/* IBM Plex Sans (SIL Open Font License 1.1, see assets/fonts/OFL.txt), the Pterodactyl heading font */
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 700;
+  src: url("./assets/fonts/ibm-plex-sans-cyrillic-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 700;
+  src: url("./assets/fonts/ibm-plex-sans-cyrillic-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 700;
+  src: url("./assets/fonts/ibm-plex-sans-greek-wght-normal.woff2") format("woff2-variations");
+  unicode-range: U+0370-0377, U+037A-037F, U+0384-038A, U+038C, U+038E-03A1, U+03A3-03FF;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 700;
+  src: url("./assets/fonts/ibm-plex-sans-vietnamese-wght-normal.woff2") format("woff2-variations");
+  unicode-range:
+    U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304,
+    U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 700;
+  src: url("./assets/fonts/ibm-plex-sans-latin-ext-wght-normal.woff2") format("woff2-variations");
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F,
+    U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: "IBM Plex Sans";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 700;
+  src: url("./assets/fonts/ibm-plex-sans-latin-wght-normal.woff2") format("woff2-variations");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC,
+    U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Tokens
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] {
+  /* the Pterodactyl "gray" (a.k.a. "neutral") scale */
+  --ptero-gray-50: hsl(216, 33%, 97%);
+  --ptero-gray-100: hsl(214, 15%, 91%);
+  --ptero-gray-200: hsl(210, 16%, 82%);
+  --ptero-gray-300: hsl(211, 13%, 65%);
+  --ptero-gray-400: hsl(211, 10%, 53%);
+  --ptero-gray-500: hsl(211, 12%, 43%);
+  --ptero-gray-600: hsl(209, 14%, 37%);
+  --ptero-gray-700: hsl(209, 18%, 30%);
+  --ptero-gray-800: hsl(209, 20%, 25%);
+  --ptero-gray-900: hsl(210, 24%, 16%);
+  --ptero-black: #131a20;
+
+  --ptero-blue-50: #eff6ff;
+  --ptero-blue-100: #dbeafe;
+  --ptero-blue-200: #bfdbfe;
+  --ptero-blue-300: #93c5fd;
+  --ptero-blue-400: #60a5fa;
+  --ptero-blue-500: #3b82f6;
+  --ptero-blue-600: #2563eb;
+  --ptero-blue-700: #1d4ed8;
+  --ptero-blue-800: #1e40af;
+  --ptero-blue-900: #1e3a8a;
+
+  --ptero-cyan-500: #06b6d4;
+  --ptero-cyan-600: #0891b2;
+
+  --ptero-red-400: #f87171;
+  --ptero-red-500: #ef4444;
+  --ptero-red-600: #dc2626;
+  --ptero-green-500: #22c55e;
+  --ptero-green-600: #16a34a;
+  --ptero-yellow-500: #eab308;
+  --ptero-yellow-600: #ca8a04;
+
+  --ptero-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --ptero-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --ptero-shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  --ptero-font-sans:
+    ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --ptero-font-header: "IBM Plex Sans", "Roboto", system-ui, sans-serif;
+  --ptero-max-width: 1200px;
+
+  /* fonts */
+  --mantine-font-family: var(--ptero-font-sans);
+  --mantine-font-family-headings: var(--ptero-font-header);
+  --font-sans: var(--ptero-font-sans);
+
+  /* Pterodactyl uses small, 4px radii almost everywhere */
+  --mantine-radius-default: 0.25rem;
+  --mantine-radius-xs: 0.125rem;
+  --mantine-radius-sm: 0.25rem;
+  --mantine-radius-md: 0.25rem;
+  --mantine-radius-lg: 0.5rem;
+  --mantine-radius-xl: 0.75rem;
+
+  /* headings, Pterodactyl uses medium weight headers */
+  --mantine-heading-font-weight: 500;
+  --mantine-h1-font-size: 1.5rem;
+  --mantine-h1-font-weight: 500;
+  --mantine-h1-line-height: 1.5;
+  --mantine-h2-font-size: 1.25rem;
+  --mantine-h2-font-weight: 500;
+  --mantine-h2-line-height: 1.5;
+  --mantine-h3-font-size: 1.125rem;
+  --mantine-h3-font-weight: 500;
+  --mantine-h4-font-size: 1rem;
+  --mantine-h4-font-weight: 500;
+  --mantine-h5-font-size: 0.875rem;
+  --mantine-h5-font-weight: 500;
+  --mantine-h6-font-size: 0.75rem;
+  --mantine-h6-font-weight: 500;
+
+  /* tailwind tokens used by Calagopus utility classes */
+  --color-neutral-50: var(--ptero-gray-50);
+  --color-neutral-100: var(--ptero-gray-100);
+  --color-neutral-200: var(--ptero-gray-200);
+  --color-neutral-300: var(--ptero-gray-300);
+  --color-neutral-400: var(--ptero-gray-400);
+  --color-neutral-500: var(--ptero-gray-500);
+  --color-neutral-600: var(--ptero-gray-600);
+  --color-neutral-700: var(--ptero-gray-700);
+  --color-neutral-800: var(--ptero-gray-800);
+  --color-neutral-850: hsl(210, 22%, 20%);
+  --color-neutral-900: var(--ptero-gray-900);
+  --color-neutral-950: var(--ptero-black);
+  --color-gray-50: var(--ptero-gray-50);
+  --color-gray-100: var(--ptero-gray-100);
+  --color-gray-200: var(--ptero-gray-200);
+  --color-gray-300: var(--ptero-gray-300);
+  --color-gray-400: var(--ptero-gray-400);
+  --color-gray-500: var(--ptero-gray-500);
+  --color-gray-600: var(--ptero-gray-600);
+  --color-gray-700: var(--ptero-gray-700);
+  --color-gray-800: var(--ptero-gray-800);
+  --color-gray-900: var(--ptero-gray-900);
+
+  /* the Pterodactyl status bar colors */
+  --color-server-status-running: var(--ptero-green-500);
+  --color-server-status-offline: var(--ptero-red-500);
+  --color-server-status-starting: var(--ptero-yellow-500);
+  --color-server-status-stopping: var(--ptero-yellow-500);
+
+  /* the navigation bar and sub navigation add ~6.25rem of chrome above the file manager */
+  --file-manager-workspace-height: calc(100dvh - 14.5rem);
+
+  /* Pterodactyl blue as the primary color in both schemes */
+  --mantine-color-blue-0: var(--ptero-blue-50);
+  --mantine-color-blue-1: var(--ptero-blue-100);
+  --mantine-color-blue-2: var(--ptero-blue-200);
+  --mantine-color-blue-3: var(--ptero-blue-300);
+  --mantine-color-blue-4: var(--ptero-blue-400);
+  --mantine-color-blue-5: var(--ptero-blue-500);
+  --mantine-color-blue-6: var(--ptero-blue-600);
+  --mantine-color-blue-7: var(--ptero-blue-700);
+  --mantine-color-blue-8: var(--ptero-blue-800);
+  --mantine-color-blue-9: var(--ptero-blue-900);
+
+  letter-spacing: 0.015em;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] {
+  /* remap the Mantine dark scale onto the Pterodactyl grays */
+  --mantine-color-dark-0: var(--ptero-gray-100);
+  --mantine-color-dark-1: var(--ptero-gray-200);
+  --mantine-color-dark-2: var(--ptero-gray-300);
+  --mantine-color-dark-3: var(--ptero-gray-400);
+  --mantine-color-dark-4: var(--ptero-gray-500);
+  --mantine-color-dark-5: var(--ptero-gray-600);
+  --mantine-color-dark-6: var(--ptero-gray-700);
+  --mantine-color-dark-7: var(--ptero-gray-800);
+  --mantine-color-dark-8: var(--ptero-gray-900);
+  --mantine-color-dark-9: var(--ptero-black);
+
+  --mantine-color-body: var(--ptero-gray-800);
+  --mantine-color-text: var(--ptero-gray-200);
+  --mantine-color-bright: var(--ptero-gray-50);
+  --mantine-color-dimmed: var(--ptero-gray-300);
+  --mantine-color-placeholder: var(--ptero-gray-400);
+  --mantine-color-anchor: var(--ptero-blue-400);
+  --mantine-color-default: var(--ptero-gray-700);
+  --mantine-color-default-hover: var(--ptero-gray-600);
+  --mantine-color-default-color: var(--ptero-gray-100);
+  --mantine-color-default-border: var(--ptero-gray-500);
+  --mantine-color-disabled: var(--ptero-gray-700);
+  --mantine-color-disabled-color: var(--ptero-gray-400);
+  --mantine-color-disabled-border: var(--ptero-gray-600);
+
+  --mantine-color-blue-filled: var(--ptero-blue-500);
+  --mantine-color-blue-filled-hover: var(--ptero-blue-600);
+  --mantine-color-blue-light: rgb(59 130 246 / 0.15);
+  --mantine-color-blue-light-hover: rgb(59 130 246 / 0.2);
+  --mantine-color-blue-light-color: var(--ptero-blue-300);
+  --mantine-color-blue-outline: var(--ptero-blue-400);
+  --mantine-color-blue-text: var(--ptero-blue-400);
+  --mantine-color-red-filled: var(--ptero-red-500);
+  --mantine-color-red-filled-hover: var(--ptero-red-600);
+  --mantine-color-green-filled: var(--ptero-green-500);
+  --mantine-color-green-filled-hover: var(--ptero-green-600);
+  --mantine-color-gray-filled: var(--ptero-gray-500);
+  --mantine-color-gray-filled-hover: var(--ptero-gray-600);
+  --mantine-color-yellow-filled: var(--ptero-yellow-500);
+  --mantine-color-yellow-filled-hover: var(--ptero-yellow-600);
+  --mantine-primary-color-filled: var(--ptero-blue-500);
+  --mantine-primary-color-filled-hover: var(--ptero-blue-600);
+  --mantine-primary-color-light: rgb(59 130 246 / 0.15);
+  --mantine-primary-color-light-hover: rgb(59 130 246 / 0.2);
+  --mantine-primary-color-light-color: var(--ptero-blue-300);
+
+  /* charts, Pterodactyl draws its graphs in cyan */
+  --chart-grid-color: rgb(255 255 255 / 0.08);
+  --chart-tick-color: var(--ptero-gray-300);
+  --chart-series-1: #22d3ee;
+  --chart-series-2: #facc15;
+  --chart-series-3: #a78bfa;
+  --chart-series-4: #4ade80;
+
+  color-scheme: dark;
+}
+
+/*
+ * Pterodactyl has no light mode, this one is built from the same blue-tinted grays: a soft gray
+ * page, white boxes with a light border and shadow, and muted instead of pitch-black text.
+ */
+html[data-ptero-theme][data-mantine-color-scheme="light"] {
+  --mantine-color-gray-0: hsl(216, 33%, 97%);
+  --mantine-color-gray-1: hsl(214, 24%, 95%);
+  --mantine-color-gray-2: hsl(214, 18%, 91%);
+  --mantine-color-gray-3: hsl(212, 17%, 86%);
+  --mantine-color-gray-4: hsl(210, 16%, 80%);
+  --mantine-color-gray-5: hsl(211, 13%, 65%);
+  --mantine-color-gray-6: hsl(211, 10%, 53%);
+  --mantine-color-gray-7: hsl(211, 12%, 43%);
+  --mantine-color-gray-8: hsl(209, 14%, 37%);
+  --mantine-color-gray-9: hsl(209, 20%, 25%);
+
+  --mantine-color-body: hsl(214, 20%, 93%);
+  --mantine-color-text: var(--ptero-gray-800);
+  --mantine-color-bright: var(--ptero-gray-900);
+  --mantine-color-dimmed: var(--ptero-gray-500);
+  --mantine-color-placeholder: var(--ptero-gray-400);
+  --mantine-color-default: #fff;
+  --mantine-color-default-hover: hsl(216, 33%, 97%);
+  --mantine-color-default-color: var(--ptero-gray-800);
+  --mantine-color-default-border: hsl(212, 17%, 86%);
+  --mantine-color-anchor: var(--ptero-blue-600);
+  --mantine-color-blue-filled: var(--ptero-blue-500);
+  --mantine-color-blue-filled-hover: var(--ptero-blue-600);
+  --mantine-primary-color-filled: var(--ptero-blue-500);
+  --mantine-primary-color-filled-hover: var(--ptero-blue-600);
+  --mantine-color-red-filled: var(--ptero-red-500);
+  --mantine-color-red-filled-hover: var(--ptero-red-600);
+  --mantine-color-green-filled: var(--ptero-green-500);
+  --mantine-color-green-filled-hover: var(--ptero-green-600);
+  --mantine-color-gray-filled: var(--ptero-gray-500);
+  --mantine-color-gray-filled-hover: var(--ptero-gray-600);
+
+  --chart-series-1: var(--ptero-cyan-600);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Base
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] body {
+  font-family: var(--ptero-font-sans);
+}
+
+html[data-ptero-theme] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--ptero-font-header);
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar {
+  background: none;
+  width: 16px;
+  height: 16px;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar-thumb {
+  border: solid 0 rgb(0 0 0 / 0%);
+  border-right-width: 4px;
+  border-left-width: 4px;
+  border-radius: 9px 4px;
+  box-shadow:
+    inset 0 0 0 1px hsl(211, 10%, 53%),
+    inset 0 0 0 4px hsl(209, 18%, 30%);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar-track-piece {
+  margin: 4px 0;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar-thumb:horizontal {
+  border-right-width: 0;
+  border-left-width: 0;
+  border-top-width: 4px;
+  border-bottom-width: 4px;
+  border-radius: 4px 9px;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] ::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Layout: top navigation bar, sub navigation and the centered 1200px content column
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] div:has(> [data-ptero-nav]) {
+  display: block;
+}
+
+html[data-ptero-theme] .ptero-nav {
+  width: 100%;
+}
+
+html[data-ptero-theme] .ptero-navbar {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--ptero-gray-900);
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme] .ptero-navbar-inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: var(--ptero-max-width);
+  height: 3.5rem;
+  margin-inline: auto;
+}
+
+/* like Pterodactyl, the bars scroll sideways on small screens instead of wrapping */
+html[data-ptero-theme] :is(.ptero-navbar, .ptero-subnav) {
+  scrollbar-width: none;
+}
+
+html[data-ptero-theme] :is(.ptero-navbar, .ptero-subnav)::-webkit-scrollbar {
+  display: none;
+}
+
+html[data-ptero-theme] .ptero-navbar-logo {
+  flex: 1 0 auto;
+}
+
+/* the stock Calagopus app icon + name (or banner), sized to fit the 3.5rem bar */
+html[data-ptero-theme] .ptero-navbar-logo > a {
+  display: flex;
+  align-items: center;
+  height: 3.5rem;
+  padding-inline: 1rem;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+html[data-ptero-theme] .ptero-navbar-logo > a > div {
+  width: auto;
+  height: 3.5rem;
+  margin-top: 0;
+}
+
+/* the app name next to the icon keeps the exact stock Calagopus look (not the Pterodactyl fonts) */
+html[data-ptero-theme] .ptero-navbar-logo > a > div > img + h1 {
+  font-family: "Helvetica", "Arial", "sans-serif";
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: normal;
+  color: #c9c9c9;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-logo > a > div > img + h1 {
+  color: #000;
+}
+
+/* the banner variant, rendered as wide as in the stock sidebar */
+html[data-ptero-theme] .ptero-navbar-logo > a > div:not(:has(> h1)) {
+  display: flex;
+  align-items: center;
+}
+
+html[data-ptero-theme] .ptero-navbar-logo > a > div:not(:has(> h1)) > img {
+  width: 14.5rem;
+  max-height: 3rem;
+  object-fit: contain;
+}
+
+html[data-ptero-theme] .ptero-navbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+html[data-ptero-theme] .ptero-navbar-right > a,
+html[data-ptero-theme] .ptero-navbar-right > button {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-inline: 1.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--ptero-gray-300);
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 150ms;
+}
+
+@media (max-width: 40rem) {
+  html[data-ptero-theme] .ptero-navbar-right > a,
+  html[data-ptero-theme] .ptero-navbar-right > button {
+    padding-inline: 1rem;
+  }
+}
+
+html[data-ptero-theme] .ptero-navbar-right > a:hover,
+html[data-ptero-theme] .ptero-navbar-right > a:active,
+html[data-ptero-theme] .ptero-navbar-right > button:hover,
+html[data-ptero-theme] .ptero-navbar-right > button:active,
+html[data-ptero-theme] .ptero-navbar-right > button[aria-expanded="true"] {
+  color: var(--ptero-gray-100);
+  background-color: var(--ptero-black);
+}
+
+html[data-ptero-theme] .ptero-navbar-right > a:hover,
+html[data-ptero-theme] .ptero-navbar-right > a:active,
+html[data-ptero-theme] .ptero-navbar-right > a.active,
+html[data-ptero-theme] .ptero-navbar-right > button:hover,
+html[data-ptero-theme] .ptero-navbar-right > button:active,
+html[data-ptero-theme] .ptero-navbar-right > button[aria-expanded="true"] {
+  box-shadow: inset 0 -2px var(--ptero-cyan-600);
+}
+
+html[data-ptero-theme] .ptero-navbar-right > a:focus-visible,
+html[data-ptero-theme] .ptero-navbar-right > button:focus-visible {
+  outline: 2px solid var(--ptero-cyan-600);
+  outline-offset: -2px;
+}
+
+html[data-ptero-theme] .ptero-navbar-avatar {
+  display: flex;
+  align-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+html[data-ptero-theme] .ptero-subnav {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow);
+}
+
+html[data-ptero-theme] .ptero-subnav-inner {
+  display: flex;
+  align-items: center;
+  max-width: var(--ptero-max-width);
+  margin-inline: auto;
+  padding-inline: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* spacers, spinners and dividers of the stock sidebar have no place in a horizontal bar */
+html[data-ptero-theme] .ptero-subnav-inner > :not(a) {
+  display: none;
+}
+
+html[data-ptero-theme] .ptero-subnav-inner > a {
+  display: inline-block;
+  width: auto;
+  flex: none;
+  text-decoration: none;
+}
+
+html[data-ptero-theme] .ptero-subnav-inner > a ~ a {
+  margin-left: 0.5rem;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root {
+  width: auto;
+  height: auto;
+  padding: 0.75rem 1rem;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  color: var(--ptero-gray-300) !important;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-transform: none;
+  letter-spacing: inherit;
+  white-space: nowrap;
+  box-shadow: none;
+  transition: all 150ms;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root:hover,
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root.active {
+  color: var(--ptero-gray-100) !important;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root.active {
+  box-shadow: inset 0 -2px var(--ptero-cyan-600);
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root:active {
+  transform: none;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-label {
+  width: auto !important;
+  overflow: visible;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-label > svg {
+  display: none;
+}
+
+/* light scheme: light bars, so the light variant of the app icon / banner stays readable */
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar {
+  background-color: #fff;
+  color: var(--ptero-gray-800);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > a,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > button {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > a:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > a:active,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > button:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > button:active,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > button[aria-expanded="true"] {
+  color: var(--ptero-gray-800);
+  background-color: var(--ptero-gray-100);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav {
+  border-top: 1px solid var(--ptero-gray-100);
+  background-color: #fff;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine-Button-root {
+  color: var(--ptero-gray-500) !important;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine-Button-root:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine-Button-root.active {
+  color: var(--ptero-gray-800) !important;
+}
+
+/* center the page content in a 1200px column, like Pterodactyl's ContentContainer */
+html[data-ptero-theme] [data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div {
+  max-width: calc(var(--ptero-max-width) + 3rem);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+/* the copyright line sits centered below the content */
+html[data-ptero-theme] [data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div > div:last-child {
+  margin-inline: auto;
+  align-items: center;
+}
+
+html[data-ptero-theme] [data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div > div:last-child > * {
+  justify-content: center;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Boxes (Pterodactyl ContentBox / GreyRowBox / TitledGreyBox)
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Card-root {
+  --paper-border-color: transparent;
+  background-color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Card-root.cursor-pointer:hover {
+  --paper-border-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] .mantine-Card-root.cursor-pointer {
+  transition:
+    border-color 150ms,
+    background-color 150ms;
+}
+
+/* cards nested inside cards are "chips", keep them flat */
+html[data-ptero-theme] .mantine-Card-root .mantine-Card-root {
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Card-root .mantine-Card-root {
+  background-color: var(--ptero-gray-600);
+}
+
+/* TitleCard -> TitledGreyBox */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] #title-card-header {
+  background-color: var(--ptero-gray-900);
+  border-bottom-color: var(--ptero-black) !important;
+}
+
+html[data-ptero-theme] #title-card-header {
+  padding: 0.75rem;
+}
+
+html[data-ptero-theme] #title-card-header > .mantine-Title-root {
+  font-family: var(--ptero-font-sans);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  text-transform: uppercase;
+}
+
+html[data-ptero-theme] #title-card-icon {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme] #title-card-header + div {
+  padding: 0.75rem;
+}
+
+/* modals, drawers and popovers */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] :is(.mantine-Modal-content, .mantine-Modal-header) {
+  background-color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Modal-content {
+  box-shadow:
+    0 0 0 4px rgb(51 64 77 / 0.8),
+    var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme] .mantine-Modal-title {
+  font-family: var(--ptero-font-header);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--mantine-color-bright);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Modal-overlay {
+  --overlay-bg: rgb(31 41 51 / 0.5) !important;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  :is(.mantine-Popover-dropdown, .mantine-Combobox-dropdown, .mantine-HoverCard-dropdown) {
+  border-color: var(--ptero-gray-500);
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Combobox-option:hover,
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Combobox-option[data-combobox-selected] {
+  background-color: var(--ptero-gray-500);
+}
+
+/* Pterodactyl dropdown menus are white */
+html[data-ptero-theme] .mantine-Menu-dropdown {
+  --mantine-color-text: var(--ptero-gray-700);
+  --mantine-color-dimmed: var(--ptero-gray-500);
+  --mantine-color-red-text: var(--ptero-red-600);
+  --mantine-color-red-light-hover: rgb(239 68 68 / 0.1);
+  border: 1px solid var(--ptero-gray-700);
+  border-radius: 0.25rem;
+  background-color: #fff;
+  color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme] .mantine-Menu-item {
+  color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme] .mantine-Menu-item[data-color="red"] {
+  color: var(--ptero-red-600);
+}
+
+html[data-ptero-theme] .mantine-Menu-item:where(:hover, [data-hovered]):where(:not(:disabled, [data-disabled])) {
+  background-color: var(--ptero-gray-100);
+}
+
+html[data-ptero-theme] .mantine-Menu-item[data-color="red"]:where(:hover, [data-hovered]) {
+  background-color: rgb(239 68 68 / 0.1);
+}
+
+html[data-ptero-theme] .mantine-Menu-item:where(:disabled, [data-disabled]) {
+  color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme] .mantine-Menu-label {
+  color: var(--ptero-gray-500);
+  text-transform: uppercase;
+}
+
+html[data-ptero-theme] .mantine-Menu-divider {
+  border-color: var(--ptero-gray-200);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tooltip-tooltip {
+  background-color: var(--ptero-gray-900);
+  color: var(--ptero-gray-100);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Buttons (Pterodactyl's uppercase buttons with a slightly darker border)
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] .mantine-Button-root {
+  font-family: var(--ptero-font-sans);
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+  transition: all 150ms;
+}
+
+html[data-ptero-theme] .mantine-Button-root[data-variant="filled"]:not(:disabled, [data-disabled]) {
+  border-color: color-mix(in srgb, var(--button-bg) 80%, #000) !important;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Inputs (Pterodactyl's 2px bordered inputs and small uppercase labels)
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Input-wrapper[data-variant="default"] {
+  --input-bg: var(--ptero-gray-600);
+  --input-bd: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] .mantine-Input-wrapper[data-variant="default"] .mantine-Input-input {
+  border-width: 2px;
+  transition:
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-input:hover:not(:disabled, :focus, :focus-within, [data-error]) {
+  border-color: var(--ptero-gray-400);
+}
+
+html[data-ptero-theme]
+  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-input:is(:focus, :focus-within):not([data-error]) {
+  border-color: var(--ptero-blue-300);
+  box-shadow: 0 0 0 2px rgb(96 165 250 / 0.5);
+}
+
+html[data-ptero-theme] .mantine-InputWrapper-label {
+  margin-bottom: 0.25rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-InputWrapper-label {
+  color: var(--ptero-gray-200);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Tabs (the in-page sub navigations), styled like the Pterodactyl sub navigation
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] .mantine-Tabs-list {
+  --tabs-color: var(--ptero-cyan-600);
+}
+
+html[data-ptero-theme] .mantine-Tabs-tab {
+  font-size: 0.875rem;
+  transition: color 150ms;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-tab {
+  color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-tab:hover,
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-tab[data-active] {
+  color: var(--ptero-gray-100);
+  background-color: transparent;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Alerts (Pterodactyl's thick left border)
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] .mantine-Alert-root {
+  border-left: 0.5rem solid var(--alert-color);
+  border-radius: 0.375rem;
+  box-shadow: var(--ptero-shadow);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Dashboard server list (Pterodactyl ServerRow)
+ * --------------------------------------------------------------------------------------------- */
+
+/* one server per row */
+html[data-ptero-theme] #dashboard-root .grid:has(> div > div > a[href^="/server/"] > .mantine-Card-root) {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root {
+  --radius-xl: 0.25rem;
+  --radius-lg: 0.25rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.75rem 1rem 1rem;
+  box-shadow: none;
+}
+
+/* the status stripe moves to the right edge and becomes a pill, like in Pterodactyl */
+html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > .absolute:first-child {
+  inset: 0 0 auto auto;
+  width: 0.5rem;
+  height: calc(100% - 0.5rem);
+  margin: 0.25rem;
+  border-radius: 9999px;
+  opacity: 0.5;
+  transition: opacity 150ms;
+}
+
+html[data-ptero-theme] #dashboard-root a[href^="/server/"]:hover > .mantine-Card-root > .absolute:first-child {
+  opacity: 0.75;
+}
+
+/* the round server icon in front of the name */
+html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root::before {
+  content: "";
+  flex: none;
+  width: 4rem;
+  height: 3rem;
+  border-radius: 9999px;
+  background-color: var(--ptero-gray-500);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='hsl(210, 16%25, 82%25)' d='M64 32C28.7 32 0 60.7 0 96l0 64c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-64c0-35.3-28.7-64-64-64L64 32zm216 72a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm56 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zM64 288c-35.3 0-64 28.7-64 64l0 64c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-64c0-35.3-28.7-64-64-64L64 288zm216 72a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm56 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z'/%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 1rem 1rem;
+}
+
+html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > div:not(.absolute) {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > div:not(.absolute) .text-xl {
+  font-size: 1.125rem;
+  font-weight: 400;
+  line-height: 1.75rem;
+}
+
+/* the divider between name and resource usage is not needed side by side */
+html[data-ptero-theme]
+  #dashboard-root
+  a[href^="/server/"]
+  > .mantine-Card-root
+  > div:last-child
+  > .mantine-Divider-root {
+  display: none;
+}
+
+/* allocation chips become plain text, like Pterodactyl's ethernet line */
+html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root .mantine-Card-root {
+  background-color: transparent;
+  --paper-border-color: transparent;
+}
+
+html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > div:last-child svg {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > div:last-child .mantine-Divider-root {
+  border-color: transparent;
+}
+
+@media (max-width: 40rem) {
+  html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root::before {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Server console
+ * --------------------------------------------------------------------------------------------- */
+
+/*
+ * The power buttons use Pterodactyl's newer button style: semibold, not uppercase, no border.
+ * Start is the primary (blue) button, restart the gray "text" button and stop the danger button.
+ */
+html[data-ptero-theme] #console-infobar {
+  --mantine-color-green-filled: var(--ptero-blue-600);
+  --mantine-color-green-filled-hover: var(--ptero-blue-500);
+  --mantine-color-gray-filled: var(--ptero-gray-500);
+  --mantine-color-gray-filled-hover: var(--ptero-gray-400);
+  --mantine-color-red-filled: var(--ptero-red-600);
+  --mantine-color-red-filled-hover: var(--ptero-red-500);
+}
+
+html[data-ptero-theme] #console-infobar .mantine-Button-root {
+  border-color: transparent !important;
+  font-size: 1rem;
+  font-weight: 600 !important;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+html[data-ptero-theme] #console-infobar .mantine-Button-root:is(:disabled, [data-disabled]):not([data-loading]) {
+  background-color: color-mix(in srgb, var(--button-bg) 75%, transparent) !important;
+  color: rgb(255 255 255 / 0.6) !important;
+  cursor: not-allowed;
+}
+
+html[data-ptero-theme] #console-infobar .mantine-Title-root {
+  color: var(--mantine-color-bright);
+  line-height: 1.625;
+}
+
+/* stat cards -> Pterodactyl StatBlock */
+html[data-ptero-theme] .mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root) {
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root) {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root) {
+  /* only the icon box uses this, colored (yellow/red) icons for high usage stay colored */
+  --mantine-color-blue-filled: var(--ptero-gray-700);
+  --mantine-primary-color-filled: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme] .mantine-Card-root > .flex.flex-row > .mantine-ThemeIcon-root {
+  width: 3rem;
+  height: 3rem;
+  min-width: 3rem;
+  border-radius: 0.5rem;
+  color: var(--ptero-gray-100);
+  box-shadow: var(--ptero-shadow-md);
+  transition: background-color 500ms;
+}
+
+html[data-ptero-theme]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > div
+  > span:first-child {
+  font-family: var(--ptero-font-header);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > div
+  > span:first-child {
+  color: var(--ptero-gray-200);
+}
+
+html[data-ptero-theme] .mantine-Card-root > .flex.flex-row:has(> .mantine-ThemeIcon-root) > div > span {
+  font-weight: 600;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > span {
+  color: var(--ptero-gray-50);
+}
+
+/* the terminal is black with a darker command input, like Pterodactyl */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] #server-root .mantine-Card-root.font-mono.isolate {
+  background-color: var(--ptero-black);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  #server-root
+  .mantine-Card-root.font-mono.isolate
+  .mantine-Input-wrapper[data-variant="default"] {
+  --input-bg: var(--ptero-gray-900);
+  --input-bd: transparent;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  #server-root
+  .mantine-Card-root.font-mono.isolate
+  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-input:is(:focus, :focus-within) {
+  border-color: transparent transparent var(--ptero-cyan-500);
+  box-shadow: none;
+}
+
+/* graphs -> Pterodactyl chart_container: gray box with a thick bottom border */
+html[data-ptero-theme] #server-root .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.min-h-60) {
+  border-bottom: 4px solid var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  #server-root
+  .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.min-h-60) {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme] #server-root .mantine-Card-root > div.border-b.px-4.py-3:has(+ div.min-h-60) {
+  padding-block: 0.5rem;
+  border-bottom-width: 0;
+}
+
+html[data-ptero-theme] #server-root .mantine-Card-root > div.border-b.px-4.py-3:has(+ div.min-h-60) h3 {
+  font-family: var(--ptero-font-header);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Dashboard header: Pterodactyl's server list has no page heading, the tabs lead the page
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-ptero-area="dashboard"]
+  #dashboard-root
+  div.mb-4:has(> .mantine-Title-root:only-child):has(+ .mantine-Tabs-root) {
+  display: none;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Switches and checkboxes (Pterodactyl's gray toggle and checkbox)
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Switch-input:not(:checked) + .mantine-Switch-track {
+  border-color: var(--ptero-gray-700);
+  background-color: var(--ptero-gray-400);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Checkbox-input:not(:checked, [data-indeterminate]) {
+  border-color: var(--ptero-gray-300);
+  background-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] .mantine-Checkbox-input:is(:checked, [data-indeterminate]) {
+  border-color: transparent;
+  background-color: var(--ptero-blue-400);
+}
+
+html[data-ptero-theme] .mantine-Checkbox-input {
+  border-radius: 0.125rem;
+}
+
+/* footer link, Pterodactyl's muted copyright line */
+html[data-ptero-theme]
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root)
+  > div
+  > div:last-child
+  .mantine-Anchor-root {
+  color: var(--ptero-gray-500);
+  text-decoration: none;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root)
+  > div
+  > div:last-child
+  .mantine-Anchor-root:hover {
+  color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root)
+  > div
+  > div:last-child
+  .mantine-Anchor-root:hover {
+  color: var(--ptero-gray-700);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Light scheme components
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Card-root {
+  --paper-border-color: hsl(212, 17%, 88%);
+  background-color: #fff;
+  box-shadow: var(--ptero-shadow);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Card-root.cursor-pointer:hover {
+  --paper-border-color: var(--mantine-color-gray-5);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Card-root .mantine-Card-root {
+  background-color: var(--mantine-color-gray-0);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] #title-card-header {
+  background-color: var(--mantine-color-gray-0);
+  border-bottom-color: var(--mantine-color-gray-3) !important;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] #title-card-header > .mantine-Title-root,
+html[data-ptero-theme][data-mantine-color-scheme="light"] #title-card-icon {
+  color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Input-wrapper[data-variant="default"] {
+  --input-bg: #fff;
+  --input-bd: var(--mantine-color-gray-4);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-input:hover:not(:disabled, :focus, :focus-within, [data-error]) {
+  border-color: var(--mantine-color-gray-5);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-InputWrapper-label {
+  color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-tab {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-tab:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-tab[data-active] {
+  color: var(--ptero-gray-800);
+  background-color: transparent;
+}
+
+/* stat blocks: white box with a slate icon tile */
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+.mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root) {
+  background-color: #fff;
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root) {
+  --mantine-color-blue-filled: var(--ptero-gray-600);
+  --mantine-primary-color-filled: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > div
+  > span:first-child {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > span {
+  color: var(--ptero-gray-900);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  #dashboard-root
+  a[href^="/server/"]
+  > .mantine-Card-root::before {
+  background-color: var(--mantine-color-gray-2);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='hsl(209, 14%25, 37%25)' d='M64 32C28.7 32 0 60.7 0 96l0 64c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-64c0-35.3-28.7-64-64-64L64 32zm216 72a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm56 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zM64 288c-35.3 0-64 28.7-64 64l0 64c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-64c0-35.3-28.7-64-64-64L64 288zm216 72a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm56 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z'/%3E%3C/svg%3E");
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  #dashboard-root
+  a[href^="/server/"]
+  > .mantine-Card-root
+  > div:last-child
+  svg {
+  color: var(--ptero-gray-400);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  #server-root
+  .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.min-h-60) {
+  border-bottom-color: var(--mantine-color-gray-3);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] #console-infobar .mantine-Title-root {
+  color: var(--ptero-gray-900);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Authentication pages (Pterodactyl's white login box)
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root {
+  --mantine-color-text: var(--ptero-gray-800);
+  --mantine-color-dimmed: var(--ptero-gray-500);
+  --mantine-color-placeholder: var(--ptero-gray-400);
+  --mantine-color-default: #fff;
+  --mantine-color-default-hover: var(--ptero-gray-50);
+  --mantine-color-default-color: var(--ptero-gray-800);
+  --mantine-color-default-border: var(--ptero-gray-200);
+  --mantine-color-disabled: var(--ptero-gray-100);
+  --mantine-color-disabled-color: var(--ptero-gray-400);
+  --mantine-color-disabled-border: var(--ptero-gray-200);
+  /* "light" buttons (e.g. "Login" on the register page) need light-scheme colors on the white box */
+  --mantine-color-blue-light: rgb(59 130 246 / 0.1);
+  --mantine-color-blue-light-hover: rgb(59 130 246 / 0.16);
+  --mantine-color-blue-light-color: var(--ptero-blue-600);
+  --mantine-primary-color-light: rgb(59 130 246 / 0.1);
+  --mantine-primary-color-light-hover: rgb(59 130 246 / 0.16);
+  --mantine-primary-color-light-color: var(--ptero-blue-600);
+  --mantine-color-gray-light: rgb(51 64 77 / 0.08);
+  --mantine-color-gray-light-hover: rgb(51 64 77 / 0.12);
+  --mantine-color-gray-light-color: var(--ptero-gray-700);
+  --paper-border-color: transparent;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background-color: #fff;
+  color: var(--ptero-gray-800);
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root .mantine-Input-wrapper[data-variant="default"] {
+  --input-bg: #fff;
+  --input-bd: var(--ptero-gray-200);
+  --input-color: var(--ptero-gray-800);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"]
+  .mantine-Card-root
+  .mantine-Input-input:hover:not(:disabled, :focus, :focus-within, [data-error]) {
+  border-color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root .mantine-InputWrapper-label {
+  color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root :is(a, .mantine-Anchor-root) {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root :is(a, .mantine-Anchor-root):hover {
+  color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root .mantine-Divider-root {
+  --divider-color: var(--ptero-gray-200);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Title-root {
+  color: var(--mantine-color-bright);
+}
+
+/* the step title above the box, Pterodactyl's centered "Login to Continue" */
+html[data-ptero-theme][data-ptero-area="auth"] div:has(> .mantine-Title-root):not(.mantine-Card-root *) {
+  padding-block: 0.5rem;
+  text-align: center;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] div:not(.mantine-Card-root *) > .mantine-Title-root {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] h1 {
+  font-size: 1.875rem;
+  font-weight: 500;
+}

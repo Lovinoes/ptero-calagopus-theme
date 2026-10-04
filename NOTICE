@@ -1,0 +1,59 @@
+ptero-calagopus-theme
+Copyright (c) 2026 Lovinoes, licensed under the MIT License (see LICENSE).
+
+This theme recreates the look of the Pterodactyl panel for Calagopus. It contains or is based on
+the following third-party work.
+
+--------------------------------------------------------------------------------------------------
+Pterodactyl Panel - https://github.com/pterodactyl/panel
+--------------------------------------------------------------------------------------------------
+
+The colors, measurements and component styles of this theme are taken from the Pterodactyl panel
+frontend. Pterodactyl is licensed under the MIT License:
+
+  Pterodactyl®
+  Copyright © Dane Everitt <dane@daneeveritt.com> and contributors
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+
+Pterodactyl® is a registered trademark of its owner. This project is not affiliated with or
+endorsed by Pterodactyl.
+
+--------------------------------------------------------------------------------------------------
+Calagopus Panel - https://github.com/calagopus/panel
+--------------------------------------------------------------------------------------------------
+
+This is an extension for the Calagopus panel and builds on its extension API and components.
+Calagopus is licensed under the MIT License, Copyright (c) Calagopus, 0x7d8. This project is not
+affiliated with or endorsed by Calagopus.
+
+--------------------------------------------------------------------------------------------------
+IBM Plex Sans - https://github.com/IBM/plex
+--------------------------------------------------------------------------------------------------
+
+frontend/src/assets/fonts/*.woff2 are IBM Plex Sans (variable, from the @fontsource-variable
+package), Copyright 2019 IBM Corp., licensed under the SIL Open Font License, Version 1.1. The full
+license is in frontend/src/assets/fonts/OFL.txt.
+
+--------------------------------------------------------------------------------------------------
+Font Awesome Free - https://fontawesome.com
+--------------------------------------------------------------------------------------------------
+
+The server icon embedded in frontend/src/app.css is the "server" icon of Font Awesome Free by
+Fonticons, Inc., licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
