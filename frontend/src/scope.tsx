@@ -3,6 +3,8 @@ import { useLocation } from 'react-router';
 
 export type PteroArea = 'auth' | 'dashboard' | 'account' | 'server';
 
+export const PACKAGE_NAME = 'dev.lovinoes.pterodactyl';
+
 const BOOT_STYLE_ID = 'ptero-theme-boot';
 
 const isWithin = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`);
@@ -35,6 +37,14 @@ export function applyPteroScope(pathname: string) {
     root.removeAttribute('data-ptero-theme');
     root.removeAttribute('data-ptero-area');
   }
+}
+
+/** Whether the theme styles the current page: the extension is enabled and the page is not excluded. */
+export function isPteroThemeActive(): boolean {
+  return (
+    !!window.extensionContext?.extensions.some((extension) => extension.packageName === PACKAGE_NAME) &&
+    document.documentElement.hasAttribute('data-ptero-theme')
+  );
 }
 
 export function removePteroScope() {

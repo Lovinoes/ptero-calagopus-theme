@@ -219,7 +219,7 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] {
   --mantine-color-default: var(--ptero-gray-700);
   --mantine-color-default-hover: var(--ptero-gray-600);
   --mantine-color-default-color: var(--ptero-gray-100);
-  --mantine-color-default-border: var(--ptero-gray-500);
+  --mantine-color-default-border: var(--ptero-gray-600);
   --mantine-color-disabled: var(--ptero-gray-700);
   --mantine-color-disabled-color: var(--ptero-gray-400);
   --mantine-color-disabled-border: var(--ptero-gray-600);
@@ -638,6 +638,34 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Card-root .man
   background-color: var(--ptero-gray-600);
 }
 
+/*
+ * Tables -> Pterodactyl's row lists (e.g. the file manager's FileObjectRow): gray-700 rows separated
+ * by a 1px gap of the page background instead of light lines, and no light outer border. Only colors
+ * change, the row heights stay the same (the file manager list is virtualized).
+ */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-table {
+  --table-border-color: var(--ptero-gray-800);
+  --table-hover-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] div:has(> .mantine-TableScrollContainer-scrollContainer) {
+  border-color: var(--ptero-gray-800) !important;
+  background-color: var(--ptero-gray-700) !important;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-thead {
+  background-color: var(--ptero-gray-800);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-th {
+  color: var(--ptero-gray-300);
+}
+
+/* the remaining separators (dividers, section borders) are subtle instead of light */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Divider-root {
+  --divider-color: var(--ptero-gray-600);
+}
+
 /* TitleCard -> TitledGreyBox */
 html[data-ptero-theme][data-mantine-color-scheme="dark"] #title-card-header {
   background-color: var(--ptero-gray-900);
@@ -836,98 +864,307 @@ html[data-ptero-theme] .mantine-Alert-root {
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Dashboard server list (Pterodactyl ServerRow)
+ * Dashboard server list: Pterodactyl's ServerRow (rendered by dashboard/PteroServerItem.tsx)
+ * The values are Pterodactyl's GreyRowBox / StatusIndicatorBox / ServerRow tailwind classes.
  * --------------------------------------------------------------------------------------------- */
 
-/* one server per row */
-html[data-ptero-theme] #dashboard-root .grid:has(> div > div > a[href^="/server/"] > .mantine-Card-root) {
+/* one server per row, 0.5rem apart (mt-2), in the server list as well as inside server groups */
+html[data-ptero-theme] .grid:has(> .ptero-server-row-wrapper),
+html[data-ptero-theme] .grid:has(> * > .ptero-server-row-wrapper),
+html[data-ptero-theme] .grid:has(> * > * > .ptero-server-row-wrapper) {
   grid-template-columns: minmax(0, 1fr);
+  grid-auto-rows: auto;
   gap: 0.5rem;
 }
 
-html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root {
-  --radius-xl: 0.25rem;
-  --radius-lg: 0.25rem;
-  flex-direction: row;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.75rem 1rem 1rem;
-  box-shadow: none;
+html[data-ptero-theme] .ptero-server-row-wrapper {
+  min-width: 0;
 }
 
-/* the status stripe moves to the right edge and becomes a pill, like in Pterodactyl */
-html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > .absolute:first-child {
-  inset: 0 0 auto auto;
+/*
+ * Server groups (Calagopus only): the group header looks like Pterodactyl's TitledGreyBox header,
+ * the server rows sit directly below it, edge to edge, like the normal list.
+ */
+html[data-ptero-theme] .mantine-Card-root:has(> #server-group-item-header) {
+  --radius-xl: 0.25rem;
+  background-color: transparent;
+  box-shadow: none;
+  --paper-border-color: transparent;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] #server-group-item-header {
+  border-radius: 0.25rem 0.25rem 0 0;
+  border-bottom-color: var(--ptero-black);
+  background-color: var(--ptero-gray-900);
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme] .mantine-Card-root:has(> #server-group-item-header) > div:not(#server-group-item-header) > .p-3 {
+  padding: 0.5rem 0 0;
+}
+
+/* GreyRowBox + StatusIndicatorBox: grid grid-cols-12 gap-4 relative, bg-neutral-700 p-4 rounded */
+html[data-ptero-theme] .ptero-server-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: center;
+  overflow: hidden;
+  padding: 1rem;
+  border: 1px solid transparent;
+  border-radius: 0.25rem;
+  background-color: var(--ptero-gray-700);
+  color: var(--ptero-gray-200);
+  text-decoration: none;
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+html[data-ptero-theme] .ptero-server-row:hover {
+  border-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] .ptero-server-row.ptero-server-row--selected {
+  border-color: var(--ptero-blue-500);
+}
+
+/* flex items-center col-span-12 sm:col-span-5 lg:col-span-6 */
+html[data-ptero-theme] .ptero-server-row__main {
+  display: flex;
+  grid-column: span 12 / span 12;
+  align-items: center;
+  min-width: 0;
+}
+
+/* .icon: rounded-full w-16 flex items-center justify-center bg-neutral-500 p-3, mr-4 */
+html[data-ptero-theme] .ptero-server-row__icon {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  margin-right: 1rem;
+  padding: 0.75rem;
+  border-radius: 9999px;
+  background-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] .ptero-server-row__details {
+  min-width: 0;
+}
+
+/* text-lg break-words */
+html[data-ptero-theme] .ptero-server-row__name {
+  font-size: 1.125rem;
+  line-height: 1.75rem;
+  overflow-wrap: break-word;
+}
+
+html[data-ptero-theme] .ptero-server-row__hint {
+  margin-left: 0.5rem;
+  color: var(--ptero-gray-400);
+}
+
+/* text-sm text-neutral-300 break-words line-clamp-2 */
+html[data-ptero-theme] .ptero-server-row__description {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--ptero-gray-300);
+  overflow-wrap: break-word;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+/* the Calagopus row actions (selection, groups, power), kept compact at the end of the name column */
+html[data-ptero-theme] .ptero-server-row__actions {
+  display: flex;
+  flex: none;
+  gap: 0.25rem;
+  align-items: center;
+  margin-left: auto;
+  padding-left: 0.5rem;
+}
+
+/* flex-1 ml-4 lg:block lg:col-span-2 hidden */
+html[data-ptero-theme] .ptero-server-row__allocation {
+  display: none;
+  min-width: 0;
+  margin-left: 1rem;
+}
+
+/* hidden col-span-7 lg:col-span-4 sm:flex items-baseline justify-center */
+html[data-ptero-theme] .ptero-server-row__resources {
+  display: none;
+  grid-column: span 7 / span 7;
+  align-items: baseline;
+  justify-content: center;
+}
+
+/* flex-1 ml-4 sm:block */
+html[data-ptero-theme] .ptero-server-row__stat {
+  flex: 1 1 0%;
+  margin-left: 1rem;
+}
+
+html[data-ptero-theme] .ptero-server-row__stat-line {
+  display: flex;
+  justify-content: center;
+}
+
+/* text-neutral-500, alarm: text-red-400 */
+html[data-ptero-theme] .ptero-server-row__stat-icon {
+  flex: none;
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] .ptero-server-row__stat-icon[data-alarm] {
+  color: var(--ptero-red-400);
+}
+
+/* text-sm ml-2 text-neutral-400, alarm: text-white */
+html[data-ptero-theme] .ptero-server-row__stat-value {
+  margin-left: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--ptero-gray-400);
+  white-space: nowrap;
+}
+
+html[data-ptero-theme] .ptero-server-row__stat-value[data-alarm] {
+  color: #fff;
+}
+
+/* text-xs text-neutral-600 text-center mt-1 */
+html[data-ptero-theme] .ptero-server-row__stat-limit {
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--ptero-gray-600);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* flex-1 text-center > rounded px-2 py-1 text-xs */
+html[data-ptero-theme] .ptero-server-row__badge-wrapper {
+  flex: 1 1 0%;
+  text-align: center;
+}
+
+html[data-ptero-theme] .ptero-server-row__badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  background-color: var(--ptero-gray-500);
+  color: var(--ptero-gray-100);
+}
+
+html[data-ptero-theme] .ptero-server-row__badge[data-color="red"] {
+  background-color: var(--ptero-red-500);
+  color: #fee2e2;
+}
+
+html[data-ptero-theme] .ptero-server-row__badge[data-color="yellow"] {
+  background-color: var(--ptero-yellow-500);
+  color: #fef9c3;
+}
+
+/* .status-bar: w-2 absolute right-0 z-20 rounded-full m-1 opacity-50, height calc(100% - 0.5rem) */
+html[data-ptero-theme] .ptero-server-row__status-bar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 20;
   width: 0.5rem;
   height: calc(100% - 0.5rem);
   margin: 0.25rem;
   border-radius: 9999px;
+  background-color: var(--ptero-red-500);
   opacity: 0.5;
-  transition: opacity 150ms;
+  transition: all 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-html[data-ptero-theme] #dashboard-root a[href^="/server/"]:hover > .mantine-Card-root > .absolute:first-child {
+html[data-ptero-theme] .ptero-server-row[data-status="running"] > .ptero-server-row__status-bar {
+  background-color: var(--ptero-green-500);
+}
+
+html[data-ptero-theme]
+  .ptero-server-row:is([data-status="starting"], [data-status="stopping"])
+  > .ptero-server-row__status-bar {
+  background-color: var(--ptero-yellow-500);
+}
+
+html[data-ptero-theme] .ptero-server-row:hover > .ptero-server-row__status-bar {
   opacity: 0.75;
 }
 
-/* the round server icon in front of the name */
-html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root::before {
-  content: "";
-  flex: none;
-  width: 4rem;
-  height: 3rem;
-  border-radius: 9999px;
-  background-color: var(--ptero-gray-500);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='hsl(210, 16%25, 82%25)' d='M64 32C28.7 32 0 60.7 0 96l0 64c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-64c0-35.3-28.7-64-64-64L64 32zm216 72a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm56 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zM64 288c-35.3 0-64 28.7-64 64l0 64c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-64c0-35.3-28.7-64-64-64L64 288zm216 72a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm56 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z'/%3E%3C/svg%3E");
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: 1rem 1rem;
+@media (min-width: 640px) {
+  html[data-ptero-theme] .ptero-server-row__main {
+    grid-column: span 5 / span 5;
+  }
+
+  html[data-ptero-theme] .ptero-server-row__resources {
+    display: flex;
+  }
 }
 
-html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > div:not(.absolute) {
-  flex: 1 1 0%;
-  min-width: 0;
+@media (min-width: 1024px) {
+  html[data-ptero-theme] .ptero-server-row__main {
+    grid-column: span 6 / span 6;
+  }
+
+  html[data-ptero-theme] .ptero-server-row__allocation {
+    display: block;
+    grid-column: span 2 / span 2;
+  }
+
+  html[data-ptero-theme] .ptero-server-row__resources {
+    grid-column: span 4 / span 4;
+  }
 }
 
-html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > div:not(.absolute) .text-xl {
-  font-size: 1.125rem;
-  font-weight: 400;
-  line-height: 1.75rem;
+/* light scheme */
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row {
+  background-color: #fff;
+  color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow);
 }
 
-/* the divider between name and resource usage is not needed side by side */
-html[data-ptero-theme]
-  #dashboard-root
-  a[href^="/server/"]
-  > .mantine-Card-root
-  > div:last-child
-  > .mantine-Divider-root {
-  display: none;
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row:hover {
+  border-color: var(--mantine-color-gray-4);
 }
 
-/* allocation chips become plain text, like Pterodactyl's ethernet line */
-html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root .mantine-Card-root {
-  background-color: transparent;
-  --paper-border-color: transparent;
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row.ptero-server-row--selected {
+  border-color: var(--ptero-blue-500);
 }
 
-html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > div:last-child svg {
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__icon {
+  background-color: var(--mantine-color-gray-2);
+  color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__description {
   color: var(--ptero-gray-500);
 }
 
-html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root > div:last-child .mantine-Divider-root {
-  border-color: transparent;
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__stat-icon:not([data-alarm]) {
+  color: var(--ptero-gray-400);
 }
 
-@media (max-width: 40rem) {
-  html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root {
-    flex-direction: column;
-    align-items: stretch;
-  }
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__stat-value {
+  color: var(--ptero-gray-600);
+}
 
-  html[data-ptero-theme] #dashboard-root a[href^="/server/"] > .mantine-Card-root::before {
-    display: none;
-  }
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__stat-value[data-alarm] {
+  color: var(--ptero-red-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__stat-limit {
+  color: var(--ptero-gray-400);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -1213,23 +1450,6 @@ html[data-ptero-theme][data-mantine-color-scheme="light"]
   > div
   > span {
   color: var(--ptero-gray-900);
-}
-
-html[data-ptero-theme][data-mantine-color-scheme="light"]
-  #dashboard-root
-  a[href^="/server/"]
-  > .mantine-Card-root::before {
-  background-color: var(--mantine-color-gray-2);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='hsl(209, 14%25, 37%25)' d='M64 32C28.7 32 0 60.7 0 96l0 64c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-64c0-35.3-28.7-64-64-64L64 32zm216 72a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm56 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0zM64 288c-35.3 0-64 28.7-64 64l0 64c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-64c0-35.3-28.7-64-64-64L64 288zm216 72a24 24 0 1 1 0 48 24 24 0 1 1 0-48zm56 24a24 24 0 1 1 48 0 24 24 0 1 1 -48 0z'/%3E%3C/svg%3E");
-}
-
-html[data-ptero-theme][data-mantine-color-scheme="light"]
-  #dashboard-root
-  a[href^="/server/"]
-  > .mantine-Card-root
-  > div:last-child
-  svg {
-  color: var(--ptero-gray-400);
 }
 
 html[data-ptero-theme][data-mantine-color-scheme="light"]

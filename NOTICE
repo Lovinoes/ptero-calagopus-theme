@@ -55,5 +55,5 @@ license is in frontend/src/assets/fonts/OFL.txt.
 Font Awesome Free - https://fontawesome.com
 --------------------------------------------------------------------------------------------------
 
-The server icon embedded in frontend/src/app.css is the "server" icon of Font Awesome Free by
-Fonticons, Inc., licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
+The theme uses icons of Font Awesome Free by Fonticons, Inc. (through the panel's own Font Awesome
+packages), licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/).
