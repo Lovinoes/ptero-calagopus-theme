@@ -704,8 +704,9 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Modal-overlay 
   --overlay-bg: rgb(31 41 51 / 0.5) !important;
 }
 
+/* sub menus of the context menus are popovers with role="menu", they get the white menu style below */
 html[data-ptero-theme][data-mantine-color-scheme="dark"]
-  :is(.mantine-Popover-dropdown, .mantine-Combobox-dropdown, .mantine-HoverCard-dropdown) {
+:is(.mantine-Popover-dropdown:not([role="menu"]), .mantine-Combobox-dropdown, .mantine-HoverCard-dropdown) {
   border-color: var(--ptero-gray-500);
   background-color: var(--ptero-gray-600);
 }
@@ -715,8 +716,8 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Combobox-optio
   background-color: var(--ptero-gray-500);
 }
 
-/* Pterodactyl dropdown menus are white */
-html[data-ptero-theme] .mantine-Menu-dropdown {
+/* Pterodactyl dropdown menus are white (including the sub menus, which are popovers with role="menu") */
+html[data-ptero-theme] :is(.mantine-Menu-dropdown, .mantine-Popover-dropdown[role="menu"]) {
   --mantine-color-text: var(--ptero-gray-700);
   --mantine-color-dimmed: var(--ptero-gray-500);
   --mantine-color-red-text: var(--ptero-red-600);
