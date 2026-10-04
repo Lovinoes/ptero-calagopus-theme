@@ -29,6 +29,10 @@ To work on the theme in a [Calagopus development environment](https://calagopus.
 
 ## Credits
 
-The look is recreated from the [Pterodactyl panel](https://github.com/pterodactyl/panel) (MIT License, © Dane Everitt and contributors). Built for [Calagopus](https://github.com/calagopus/panel) (MIT License). Includes [IBM Plex Sans](https://github.com/IBM/plex) (SIL Open Font License 1.1) and an icon from [Font Awesome Free](https://fontawesome.com) (CC BY 4.0). See [NOTICE](NOTICE) for the full notices.
+The look is recreated from the [Pterodactyl panel](https://github.com/pterodactyl/panel) (MIT License, © Dane Everitt and contributors).
+
+Built for [Calagopus](https://github.com/calagopus/panel) (MIT License).
+
+Includes [IBM Plex Sans](https://github.com/IBM/plex) (SIL Open Font License 1.1) and an icon from [Font Awesome Free](https://fontawesome.com) (CC BY 4.0). See [NOTICE](NOTICE) for the full notices.
 
 This project is not affiliated with or endorsed by Pterodactyl or Calagopus.
