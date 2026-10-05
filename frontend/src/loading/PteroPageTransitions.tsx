@@ -20,6 +20,8 @@ const normalize = (pathname: string) => pathname.replace(/\/+$/, '') || '/';
 
 let tabTarget: string | null = null;
 let replaying = false;
+// the attribute stays while any tab switch is still running (a quick second click starts another)
+let runningTransitions = 0;
 
 /** The new page is there and done loading (no spinner of a list or of the whole page left). */
 function pageReady(target: string, previousPages: Element[]) {
@@ -51,12 +53,16 @@ function onClick(event: MouseEvent) {
   if (!(link instanceof HTMLAnchorElement)) return;
 
   const target = normalize(link.pathname);
+
+  // clicks the browser handles itself (new tab or window) and the tab that is already open
+  if (!replaying && (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey)) return;
+  if (link.target && link.target !== '_self') return;
+  if (target === normalize(window.location.pathname)) return;
+
   tabTarget = target;
 
-  // the click that is replayed below, or one the browser handles itself (new tab or window)
-  if (replaying || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-  if (link.target && link.target !== '_self') return;
-  if (target === normalize(window.location.pathname) || resolvePteroArea(window.location.pathname) === null) return;
+  // the click replayed below goes to the router as it is
+  if (replaying || resolvePteroArea(window.location.pathname) === null) return;
   if (typeof document.startViewTransition !== 'function') return;
 
   // the router may only navigate once the browser took its picture of the current page
@@ -67,6 +73,7 @@ function onClick(event: MouseEvent) {
   const maxWait = Math.min(getPteroThemeSettings().loadingBarDelay, MAX_HOLD);
   const root = document.documentElement;
 
+  runningTransitions++;
   root.setAttribute('data-ptero-tab-transition', '');
 
   const transition = document.startViewTransition(() => {
@@ -84,7 +91,10 @@ function onClick(event: MouseEvent) {
     .catch(() => {
       // a skipped transition still navigated, there is nothing to undo
     })
-    .finally(() => root.removeAttribute('data-ptero-tab-transition'));
+    .finally(() => {
+      runningTransitions--;
+      if (runningTransitions === 0) root.removeAttribute('data-ptero-tab-transition');
+    });
 }
 
 /** Remembers which page a tab click opens and keeps the current page up while it loads. */

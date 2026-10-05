@@ -40,7 +40,7 @@ import { useServerStats } from '@/plugins/server/useServerStats.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useUserStore } from '@/stores/user.ts';
-import { isPteroThemeActive } from '../scope.tsx';
+import { usePteroThemeActive } from '../scope.tsx';
 import { useExtTranslations } from '../translations.ts';
 
 type Props = ComponentProps<typeof ServerItem>;
@@ -53,11 +53,7 @@ const isAlarmState = (current: number, limitMiB: number) => limitMiB > 0 && curr
  * active (extension disabled without a rebuild) the stock card is rendered instead.
  */
 export default function PteroServerItem(props: Props) {
-  if (!isPteroThemeActive()) {
-    return <ServerItem {...props} />;
-  }
-
-  return <PteroServerRow {...props} />;
+  return usePteroThemeActive() ? <PteroServerRow {...props} /> : <ServerItem {...props} />;
 }
 
 function PteroServerRow({

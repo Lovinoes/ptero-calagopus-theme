@@ -52,6 +52,17 @@ export function isPteroThemeActive(): boolean {
   return isPteroExtensionEnabled() && document.documentElement.hasAttribute('data-ptero-theme');
 }
 
+/**
+ * The same for components while they render. It follows the route the panel is rendering, the
+ * data-ptero-theme attribute is only updated after that render (PteroScope), so coming from the admin
+ * area it would still be missing.
+ */
+export function usePteroThemeActive(): boolean {
+  const { pathname } = useLocation();
+
+  return isPteroExtensionEnabled() && resolvePteroArea(pathname) !== null;
+}
+
 export function removePteroScope() {
   document.documentElement.removeAttribute('data-ptero-theme');
   document.documentElement.removeAttribute('data-ptero-area');

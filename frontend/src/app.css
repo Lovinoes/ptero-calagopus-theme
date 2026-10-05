@@ -437,10 +437,32 @@ html[data-ptero-theme] .mantine-Table-table + div.absolute.inset-0 {
 }
 
 /*
+ * Showing a tab again reloads its lists in the background (loading/backgroundRefresh.ts), their rows
+ * stay as they are for that moment. A reload that is still running afterwards shows up as above.
+ */
+html[data-ptero-theme][data-ptero-refreshing]
+  .mantine-TableScrollContainer-scrollContainer
+  div[style*="min-height"]:has(> .mantine-Table-table) {
+  min-height: 0 !important;
+  animation: none;
+}
+
+html[data-ptero-theme][data-ptero-refreshing] .mantine-Table-table.opacity-50.pointer-events-none {
+  opacity: 1;
+  animation: none;
+}
+
+html[data-ptero-theme][data-ptero-refreshing] .mantine-Table-table + div.absolute.inset-0 {
+  visibility: hidden;
+  animation: none;
+}
+
+/*
  * Server pages with a list (Subusers, Backups, Databases, Schedules, ...) show their search and buttons
  * in the header while the list loads for the first time, and once it turns out empty they move into
  * the "No ..." box in the middle of the page. The header buttons wait (keeping their space) until the
- * list has loaded, so they never jump from the top right into the middle.
+ * list has loaded, so they never jump from the top right into the middle. Not while someone uses the
+ * search field in there, a search that found nothing also reloads an empty list.
  */
 html[data-ptero-theme]
   #server-root
@@ -448,7 +470,7 @@ html[data-ptero-theme]
     .mantine-Table-table.pointer-events-none > .mantine-Table-tbody:empty
   )
   > .mantine-Group-root:has(> div > .mantine-Title-root)
-  > .mantine-Group-root {
+  > .mantine-Group-root:not(:focus-within, :has(input:not(:placeholder-shown))) {
   visibility: hidden;
 }
 
@@ -1860,4 +1882,92 @@ html[data-ptero-theme][data-ptero-area="auth"] div:not(.mantine-Card-root *) > .
 html[data-ptero-theme][data-ptero-area="auth"] h1 {
   font-size: 1.875rem;
   font-weight: 500;
+}
+
+/* what an admin picked to sit above the login pages, see auth/PteroAuthHeader.tsx */
+html[data-ptero-theme] .ptero-auth-header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.25rem;
+  user-select: none;
+}
+
+html[data-ptero-theme] .ptero-auth-header[data-banner] {
+  flex-direction: column;
+  width: 100%;
+}
+
+html[data-ptero-theme] .ptero-auth-header__icon {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+}
+
+html[data-ptero-theme] .ptero-auth-header__banner {
+  width: 100%;
+  height: auto;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .ptero-auth-header__name {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Captchas (Turnstile, hCaptcha, reCAPTCHA, ...): the panel puts the widget below the box, on its own.
+ * It becomes the bottom part of the box instead, so the form and its check read as one.
+ */
+html[data-ptero-theme][data-ptero-area="auth"]
+  .mantine-Stack-root
+  > .mantine-Card-root:has(+ div.flex.w-full.items-center.justify-center) {
+  border-bottom-color: transparent;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/*
+ * The same 1px border as the box (visible in the light scheme), so both line up. Positioned like the box,
+ * so it is painted over the box's shadow and the two read as one surface.
+ */
+html[data-ptero-theme][data-ptero-area="auth"]
+  .mantine-Stack-root
+  > .mantine-Card-root
+  + div.flex.w-full.items-center.justify-center {
+  position: relative;
+  margin-top: calc(var(--stack-gap, var(--mantine-spacing-md)) * -1);
+  padding: 0 1.5rem 1.5rem;
+  border: 1px solid transparent;
+  border-top: 0;
+  border-radius: 0 0 0.25rem 0.25rem;
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-mantine-color-scheme="dark"]
+  .mantine-Stack-root
+  > .mantine-Card-root
+  + div.flex.w-full.items-center.justify-center {
+  background-color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-mantine-color-scheme="light"]
+  .mantine-Stack-root
+  > .mantine-Card-root
+  + div.flex.w-full.items-center.justify-center {
+  border-color: hsl(212, 17%, 88%);
+  background-color: #fff;
+}
+
+/* links in the footer keep its muted color, they only light up and underline on hover */
+html[data-ptero-theme] [data-ptero-copyright] a {
+  color: inherit;
+  transition: color 150ms;
+}
+
+html[data-ptero-theme] [data-ptero-copyright] a:hover {
+  color: var(--mantine-color-text);
 }

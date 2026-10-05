@@ -34,6 +34,22 @@ pub enum FooterPosition {
     Hidden,
 }
 
+/// What sits above the login, register and password pages.
+#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum AuthHeader {
+    /// the panel's choice: the banner when one is uploaded, the icon and name otherwise
+    #[default]
+    Default,
+    IconName,
+    Icon,
+    Name,
+    /// the uploaded banner, the icon when there is none
+    Banner,
+    BannerName,
+    Hidden,
+}
+
 #[derive(ToSchema, Serialize, Deserialize, Clone, Debug)]
 pub struct ExtensionSettingsData {
     /// Pterodactyl's page fade, dialog and tooltip animations
@@ -49,6 +65,8 @@ pub struct ExtensionSettingsData {
     /// Replaces the copyright line, empty keeps the panel's own one. Supports {app}, {url}, {year}
     /// and [links](https://example.com)
     pub footer_text: compact_str::CompactString,
+    #[schema(inline)]
+    pub auth_header: AuthHeader,
 }
 
 impl Default for ExtensionSettingsData {
@@ -60,6 +78,7 @@ impl Default for ExtensionSettingsData {
             loading_bar_delay: DEFAULT_LOADING_BAR_DELAY,
             footer_position: FooterPosition::Bottom,
             footer_text: compact_str::CompactString::default(),
+            auth_header: AuthHeader::Default,
         }
     }
 }
@@ -79,7 +98,8 @@ impl SettingsSerializeExt for ExtensionSettingsData {
                 self.loading_bar_delay.to_compact_string(),
             )
             .write_serde_setting("footer_position", &self.footer_position)?
-            .write_raw_setting("footer_text", self.footer_text.clone()))
+            .write_raw_setting("footer_text", self.footer_text.clone())
+            .write_serde_setting("auth_header", &self.auth_header)?)
     }
 }
 
@@ -118,6 +138,9 @@ impl SettingsDeserializeExt for ExtensionSettingsDataDeserializer {
                 .take_raw_setting("footer_text")
                 .filter(|text| text.chars().count() <= MAX_FOOTER_TEXT_LENGTH)
                 .unwrap_or(defaults.footer_text),
+            auth_header: deserializer
+                .read_serde_setting("auth_header")
+                .unwrap_or(defaults.auth_header),
         }))
     }
 }

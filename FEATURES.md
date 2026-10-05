@@ -29,6 +29,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - Pterodactyl's file list rows, and the file editor in Pterodactyl's ayu-mirage colors (dark mode)
 - The image viewer shows the image centered, at its own size or scaled down to fit, with zooming and panning
 - The login, register and password reset pages in the same dark Pterodactyl boxes, with the centered title
+- Captchas (Turnstile, hCaptcha, reCAPTCHA, ...) sit at the bottom of the login box instead of on their own below it
 - The Calagopus-only features (quick actions, server groups, hiding addresses and more) styled to match
 
 ## Animations and loading
@@ -36,6 +37,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - Pages fade in, dialogs and tooltips pop in like on Pterodactyl
 - Switching between the tabs of a page (e.g. Backups / System Backups, Allocations / Firewall, Mounts / Devices) keeps the page on screen until the new tab has loaded instead of reloading the whole page
 - Lists only dim and show a spinner when loading takes a moment
+- Coming back to a tab reloads its data quietly, without the loading bar or loading lists
 - The buttons of a list page wait until the list has loaded, so they don't jump into the "No ..." box of an empty list
 - The page fade and the loading bar's motion follow the browser's reduced motion setting
 
@@ -44,7 +46,8 @@ In **Admin → Extensions → Pterodactyl Theme**:
 - Turn the animations off or change their speed (very slow to very fast)
 - Turn the loading bar off, and change how long loading has to take before the loading bar and the spinners of lists show up
 - Put the footer at the bottom of the window, right below the content (like Pterodactyl) or hide it
-- Write your own footer text with the variables {app} (panel name), {url} (panel address) and {year} (current year) and links like [text](https://example.com)
+- Write your own footer text with the variables {app} (panel name), {url} (panel address) and {year} (current year) and links like [text](https://example.com), links keep the footer's color
+- Choose what sits above the login pages: the panel's default, icon and name, only the icon, only the name, the uploaded banner, banner and name, or nothing
 
 ## Admin area
 - The admin area and the first-time setup are not touched

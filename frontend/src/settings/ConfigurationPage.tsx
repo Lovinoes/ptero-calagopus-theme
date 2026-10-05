@@ -17,9 +17,10 @@ import { getAdminThemeSettings, updateAdminThemeSettings } from './api.ts';
 import {
   defaultPteroThemeSettings,
   type PteroAnimationSpeed,
+  type PteroAuthHeader,
   type PteroFooterPosition,
   type PteroThemeSettings,
-  pteroThemeSettingsSchema,
+  pteroThemeSettingsFormSchema,
 } from './schema.ts';
 import { setPteroThemeSettings } from './store.ts';
 
@@ -34,7 +35,7 @@ export default function ConfigurationPage() {
   const form = useForm<PteroThemeSettings>({
     initialValues: defaultPteroThemeSettings,
     validateInputOnBlur: true,
-    validate: zod4Resolver(pteroThemeSettingsSchema),
+    validate: zod4Resolver(pteroThemeSettingsFormSchema),
   });
 
   useEffect(() => {
@@ -59,6 +60,16 @@ export default function ConfigurationPage() {
     { value: 'bottom', label: tExt('settings.footerPosition.bottom', {}) },
     { value: 'content', label: tExt('settings.footerPosition.content', {}) },
     { value: 'hidden', label: tExt('settings.footerPosition.hidden', {}) },
+  ];
+
+  const authHeaderOptions: { value: PteroAuthHeader; label: string }[] = [
+    { value: 'default', label: tExt('settings.authHeader.default', {}) },
+    { value: 'icon_name', label: tExt('settings.authHeader.iconName', {}) },
+    { value: 'icon', label: tExt('settings.authHeader.icon', {}) },
+    { value: 'name', label: tExt('settings.authHeader.name', {}) },
+    { value: 'banner', label: tExt('settings.authHeader.banner', {}) },
+    { value: 'banner_name', label: tExt('settings.authHeader.bannerName', {}) },
+    { value: 'hidden', label: tExt('settings.authHeader.hidden', {}) },
   ];
 
   const doSave = (values: PteroThemeSettings) => {
@@ -133,6 +144,14 @@ export default function ConfigurationPage() {
             maxLength={255}
             disabled={!loaded || form.values.footerPosition === 'hidden'}
             {...form.getInputProps('footerText')}
+          />
+
+          <Select
+            label={tExt('settings.authHeader.label', {})}
+            description={tExt('settings.authHeader.description', {})}
+            data={authHeaderOptions}
+            disabled={!loaded}
+            {...form.getInputProps('authHeader')}
           />
 
           <AdminCan action='extensions.manage' cantSave>

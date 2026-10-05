@@ -28,7 +28,7 @@ import { useServerListShowOthers } from '@/plugins/server/useServerListShowOther
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useUserStore } from '@/stores/user.ts';
-import { isPteroThemeActive } from '../scope.tsx';
+import { usePteroThemeActive } from '../scope.tsx';
 
 type Server = z.infer<typeof serverSchema>;
 
@@ -76,7 +76,7 @@ function mergeOrder(order: string[], shown: string[], reordered: string[]) {
 
 /** The panel's own page when the theme is turned off, this replacement is compiled in either way. */
 export default function PteroDashboardHomeAll() {
-  return isPteroThemeActive() ? <PteroServerList /> : <DashboardHomeAll />;
+  return usePteroThemeActive() ? <PteroServerList /> : <DashboardHomeAll />;
 }
 
 function PteroServerList() {

@@ -1,10 +1,13 @@
 import type { ReactElement } from 'react';
 import { Extension, ExtensionContext } from 'shared';
 import { axiosInstance } from '@/api/axios.ts';
+import AppIcon from '@/elements/AppIcon.tsx';
 import { Modal } from '@/elements/modals/Modal.tsx';
 import Sidebar from '@/elements/navigation/Sidebar.tsx';
+import PteroAuthHeader from './auth/PteroAuthHeader.tsx';
 import { attachPteroMonacoTheme } from './editor/monacoTheme.ts';
 import { getPteroDialogTransition } from './loading/animations.ts';
+import { trackBackgroundRefreshes } from './loading/backgroundRefresh.ts';
 import PteroPageTransitions, { trackTabNavigation } from './loading/PteroPageTransitions.tsx';
 import PteroProgressBar, { trackRequests } from './loading/PteroProgressBar.tsx';
 import PteroSidebar, { PteroSidebarLinkGate } from './navigation/PteroSidebar.tsx';
@@ -27,7 +30,7 @@ const bootCheck = window.setInterval(() => {
 }, 25);
 
 class DevLovinoesPterodactylExtension extends Extension {
-  // admin area -> Extensions -> Pterodactyl Theme: animations and the loading bar
+  // admin area -> Extensions -> Pterodactyl Theme: animations, loading, footer and the login pages
   public cardConfigurationPage: React.FC | null = ConfigurationPage;
   public cardComponent: React.FC | null = null;
 
@@ -48,7 +51,8 @@ class DevLovinoesPterodactylExtension extends Extension {
     // switching between the tabs of a page doesn't replay the page fade
     trackTabNavigation();
 
-    // Pterodactyl's loading bar follows the API requests
+    // Pterodactyl's loading bar follows the API requests, not the refreshes when a tab is shown again
+    trackBackgroundRefreshes();
     trackRequests(axiosInstance);
 
     // Pterodactyl's dialog animation, on the themed pages only and only where a dialog sets none itself
@@ -65,6 +69,12 @@ class DevLovinoesPterodactylExtension extends Extension {
           .addOnMountHandler((editor, monaco) => attachPteroMonacoTheme(editor, monaco))
           .addDiffOnMountHandler((editor, monaco) => attachPteroMonacoTheme(editor, monaco)),
       ),
+    );
+
+    // what sits above the login pages (icon, name, banner or nothing) is a theme setting
+    AppIcon.addRenderInterceptor(
+      (element, props) =>
+        (<PteroAuthHeader original={element} className={props.className} />) as ReactElement<typeof props>,
     );
 
     Sidebar.addRenderInterceptor(

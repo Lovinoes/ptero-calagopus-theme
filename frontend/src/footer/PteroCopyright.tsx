@@ -1,11 +1,10 @@
 import classNames from 'classnames';
 import { type ReactNode, useLayoutEffect, useRef } from 'react';
-import { useLocation } from 'react-router';
 import Copyright from '@/elements/Copyright.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import Anchor from '@/elements/typography/Anchor.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
-import { isPteroExtensionEnabled, resolvePteroArea } from '../scope.tsx';
+import { usePteroThemeActive } from '../scope.tsx';
 import { usePteroThemeSettings } from '../settings/store.ts';
 
 /**
@@ -80,12 +79,11 @@ function useFooterSpace(ref: React.RefObject<HTMLDivElement | null>, enabled: bo
 }
 
 export default function PteroCopyright({ className }: { className?: string }) {
-  const { pathname } = useLocation();
   const { footerText } = usePteroThemeSettings();
   const app = useGlobalStore((state) => state.settings.app);
   const ref = useRef<HTMLDivElement>(null);
 
-  const themed = isPteroExtensionEnabled() && resolvePteroArea(pathname) !== null;
+  const themed = usePteroThemeActive();
   useFooterSpace(ref, themed);
 
   if (!themed) {

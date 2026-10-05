@@ -64,6 +64,10 @@ mod put {
         #[garde(length(chars, max = 255))]
         #[schema(max_length = 255)]
         footer_text: Option<compact_str::CompactString>,
+
+        #[garde(skip)]
+        #[schema(inline)]
+        auth_header: Option<crate::settings::AuthHeader>,
     }
 
     #[derive(ToSchema, Serialize)]
@@ -111,6 +115,9 @@ mod put {
         }
         if let Some(footer_text) = data.footer_text {
             extension_settings.footer_text = footer_text;
+        }
+        if let Some(auth_header) = data.auth_header {
+            extension_settings.auth_header = auth_header;
         }
 
         let updated = extension_settings.clone();

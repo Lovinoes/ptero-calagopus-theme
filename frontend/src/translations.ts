@@ -44,6 +44,18 @@ const translations = defineTranslations({
         description:
           "Replaces the copyright line, leave it empty for the panel's own one. Variables: {variables} (the panel name, the panel address and the current year). Links: {links}",
       },
+      authHeader: {
+        label: 'Above the Login Pages',
+        description:
+          'What sits above the login, register and password pages. The banner and the icon are the ones uploaded in the panel settings, without a banner the icon is shown.',
+        default: 'Panel default (the banner if uploaded, otherwise icon and name)',
+        iconName: 'Icon and name',
+        icon: 'Icon only',
+        name: 'Name only',
+        banner: 'Banner',
+        bannerName: 'Banner and name',
+        hidden: 'Nothing',
+      },
       toast: {
         saved: 'The theme settings have been saved.',
       },

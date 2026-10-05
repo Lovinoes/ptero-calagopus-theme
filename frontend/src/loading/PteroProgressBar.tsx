@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router';
 import { resolvePteroArea } from '../scope.tsx';
 import { usePteroThemeSettings } from '../settings/store.ts';
+import { isBackgroundRefresh, onTabReturn } from './backgroundRefresh.ts';
 
 // a request that never settles (no response, no error) must not keep the bar up forever
 const WATCHDOG = 30_000;
@@ -37,6 +38,8 @@ function shouldTrack(config: TrackableConfig) {
   // Pterodactyl skips the resource polling as well; transfers with their own progress are skipped too
   if (config.url?.includes('/resources')) return false;
   if (config.onUploadProgress || config.onDownloadProgress) return false;
+  // the refreshes of a tab that is hidden or was just shown again, see backgroundRefresh.ts
+  if (isBackgroundRefresh()) return false;
 
   return true;
 }
@@ -107,6 +110,19 @@ export default function PteroProgressBar() {
   };
 
   useEffect(() => clearTimers, []);
+
+  // timers barely run in a hidden tab, so a bar that was finishing then could still be up on return
+  useEffect(
+    () =>
+      onTabReturn(() => {
+        if (pendingRequests > 0) return;
+
+        clearTimers();
+        setShown(false);
+        setProgress(null);
+      }),
+    [],
+  );
 
   // only the loading state starts and finishes the bar (progress and the delay are read without
   // re-running), the progress itself is driven by the effect below
