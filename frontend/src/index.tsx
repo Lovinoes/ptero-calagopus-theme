@@ -5,6 +5,7 @@ import { Modal } from '@/elements/modals/Modal.tsx';
 import Sidebar from '@/elements/navigation/Sidebar.tsx';
 import { attachPteroMonacoTheme } from './editor/monacoTheme.ts';
 import { getPteroDialogTransition } from './loading/animations.ts';
+import PteroPageTransitions, { trackTabNavigation } from './loading/PteroPageTransitions.tsx';
 import PteroProgressBar, { trackRequests } from './loading/PteroProgressBar.tsx';
 import PteroSidebar, { PteroSidebarLinkGate } from './navigation/PteroSidebar.tsx';
 import PteroScope, { applyPteroScope, installBootScope, isPteroThemeActive, removePteroScope } from './scope.tsx';
@@ -41,8 +42,11 @@ class DevLovinoesPterodactylExtension extends Extension {
     loadPteroThemeSettings();
 
     ctx.extensionRegistry.enterGlobal((global) =>
-      global.prependComponent(PteroScope).prependComponent(PteroProgressBar),
+      global.prependComponent(PteroScope).prependComponent(PteroProgressBar).prependComponent(PteroPageTransitions),
     );
+
+    // switching between the tabs of a page doesn't replay the page fade
+    trackTabNavigation();
 
     // Pterodactyl's loading bar follows the API requests
     trackRequests(axiosInstance);

@@ -57,6 +57,13 @@ mod put {
         #[garde(range(max = 10000))]
         #[schema(maximum = 10000)]
         loading_bar_delay: Option<u32>,
+
+        #[garde(skip)]
+        #[schema(inline)]
+        footer_position: Option<crate::settings::FooterPosition>,
+        #[garde(length(chars, max = 255))]
+        #[schema(max_length = 255)]
+        footer_text: Option<compact_str::CompactString>,
     }
 
     #[derive(ToSchema, Serialize)]
@@ -98,6 +105,12 @@ mod put {
         }
         if let Some(loading_bar_delay) = data.loading_bar_delay {
             extension_settings.loading_bar_delay = loading_bar_delay;
+        }
+        if let Some(footer_position) = data.footer_position {
+            extension_settings.footer_position = footer_position;
+        }
+        if let Some(footer_text) = data.footer_text {
+            extension_settings.footer_text = footer_text;
         }
 
         let updated = extension_settings.clone();

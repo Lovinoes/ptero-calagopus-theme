@@ -9,6 +9,7 @@ import TitleCard from '@/elements/data-display/TitleCard.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import Switch from '@/elements/input/Switch.tsx';
+import TextInput from '@/elements/input/TextInput.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useExtTranslations } from '../translations.ts';
@@ -16,6 +17,7 @@ import { getAdminThemeSettings, updateAdminThemeSettings } from './api.ts';
 import {
   defaultPteroThemeSettings,
   type PteroAnimationSpeed,
+  type PteroFooterPosition,
   type PteroThemeSettings,
   pteroThemeSettingsSchema,
 } from './schema.ts';
@@ -51,6 +53,12 @@ export default function ConfigurationPage() {
     { value: 'normal', label: tExt('settings.animationSpeed.normal', {}) },
     { value: 'fast', label: tExt('settings.animationSpeed.fast', {}) },
     { value: 'very_fast', label: tExt('settings.animationSpeed.veryFast', {}) },
+  ];
+
+  const footerOptions: { value: PteroFooterPosition; label: string }[] = [
+    { value: 'bottom', label: tExt('settings.footerPosition.bottom', {}) },
+    { value: 'content', label: tExt('settings.footerPosition.content', {}) },
+    { value: 'hidden', label: tExt('settings.footerPosition.hidden', {}) },
   ];
 
   const doSave = (values: PteroThemeSettings) => {
@@ -103,8 +111,28 @@ export default function ConfigurationPage() {
             allowDecimal={false}
             allowNegative={false}
             suffix=' ms'
-            disabled={!loaded || !form.values.loadingBar}
+            disabled={!loaded}
             {...form.getInputProps('loadingBarDelay')}
+          />
+
+          <Select
+            label={tExt('settings.footerPosition.label', {})}
+            description={tExt('settings.footerPosition.description', {})}
+            data={footerOptions}
+            disabled={!loaded}
+            {...form.getInputProps('footerPosition')}
+          />
+
+          <TextInput
+            label={tExt('settings.footerText.label', {})}
+            description={tExt('settings.footerText.description', {
+              variables: '{app}, {url}, {year}',
+              links: '[text](https://example.com)',
+            })}
+            placeholder='[Calagopus](https://calagopus.com) © 2025 - {year}'
+            maxLength={255}
+            disabled={!loaded || form.values.footerPosition === 'hidden'}
+            {...form.getInputProps('footerText')}
           />
 
           <AdminCan action='extensions.manage' cantSave>

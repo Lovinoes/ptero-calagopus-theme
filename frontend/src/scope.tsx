@@ -39,12 +39,17 @@ export function applyPteroScope(pathname: string) {
   }
 }
 
+/**
+ * Whether this extension is enabled. The core components it replaces (overrides.ts) are compiled into
+ * the panel either way, so they check this to fall back to the stock component.
+ */
+export function isPteroExtensionEnabled(): boolean {
+  return !!window.extensionContext?.extensions.some((extension) => extension.packageName === PACKAGE_NAME);
+}
+
 /** Whether the theme styles the current page: the extension is enabled and the page is not excluded. */
 export function isPteroThemeActive(): boolean {
-  return (
-    !!window.extensionContext?.extensions.some((extension) => extension.packageName === PACKAGE_NAME) &&
-    document.documentElement.hasAttribute('data-ptero-theme')
-  );
+  return isPteroExtensionEnabled() && document.documentElement.hasAttribute('data-ptero-theme');
 }
 
 export function removePteroScope() {

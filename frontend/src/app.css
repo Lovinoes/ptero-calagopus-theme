@@ -98,6 +98,7 @@ html[data-ptero-theme] {
   --ptero-blue-800: #1e40af;
   --ptero-blue-900: #1e3a8a;
 
+  --ptero-cyan-400: #22d3ee;
   --ptero-cyan-500: #06b6d4;
   --ptero-cyan-600: #0891b2;
 
@@ -370,16 +371,85 @@ html[data-ptero-theme] .ptero-progress__fill {
 
   /*
    * every page fades in when it is opened (only opacity, so nothing inside is laid out differently),
-   * admins can change its speed or turn it off, see settings/store.ts
+   * admins can change its speed or turn it off, see settings/store.ts. A page opened through one of
+   * its tabs shows up right away, see loading/PteroPageTransitions.tsx
    */
   html[data-ptero-theme]:not([data-ptero-animations="off"])
     [data-ptero-nav]
     ~ :is(#dashboard-root, #server-root)
     > div
     > div:first-child
-    > * {
+    > :not([data-ptero-page="still"]) {
     animation: ptero-fade-in calc(150ms * var(--ptero-animation-scale, 1)) ease-in;
   }
+}
+
+/* a tab switch cross-fades from the old to the new tab, see loading/PteroPageTransitions.tsx */
+html[data-ptero-tab-transition]::view-transition-old(root),
+html[data-ptero-tab-transition]::view-transition-new(root) {
+  animation-duration: calc(150ms * var(--ptero-animation-scale, 1));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-ptero-tab-transition]::view-transition-old(root),
+  html[data-ptero-tab-transition]::view-transition-new(root) {
+    animation: none;
+  }
+}
+
+/*
+ * Lists (tables) refetch their rows when a page or tab is opened. The panel dims them, puts a spinner
+ * on top and makes the table taller right away, so every quick refetch flickers. Like the loading bar
+ * this only shows up once loading takes longer than the delay an admin set (--ptero-loading-delay).
+ * Animations (not transitions) hold it back, as a freshly opened page starts out loading.
+ */
+@keyframes ptero-loading-dim {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0.5;
+  }
+}
+
+/* only the start state matters, it keeps the table at its own height until the delay is over */
+@keyframes ptero-loading-hold {
+  from {
+    min-height: 0;
+  }
+}
+
+html[data-ptero-theme]
+  .mantine-TableScrollContainer-scrollContainer
+  div[style*="min-height"]:has(> .mantine-Table-table) {
+  animation: ptero-loading-hold 0s var(--ptero-loading-delay, 250ms) backwards;
+}
+
+html[data-ptero-theme] .mantine-Table-table.opacity-50.pointer-events-none {
+  animation: ptero-loading-dim calc(150ms * var(--ptero-animation-scale, 1)) ease-in var(--ptero-loading-delay, 250ms)
+    backwards;
+}
+
+html[data-ptero-theme] .mantine-Table-table + div.absolute.inset-0 {
+  animation: ptero-fade-in calc(150ms * var(--ptero-animation-scale, 1)) ease-in var(--ptero-loading-delay, 250ms)
+    backwards;
+}
+
+/*
+ * Server pages with a list (Subusers, Backups, Databases, Schedules, ...) show their search and buttons
+ * in the header while the list loads for the first time, and once it turns out empty they move into
+ * the "No ..." box in the middle of the page. The header buttons wait (keeping their space) until the
+ * list has loaded, so they never jump from the top right into the middle.
+ */
+html[data-ptero-theme]
+  #server-root
+  div:has(> .mantine-Group-root > div > .mantine-Title-root):has(
+    .mantine-Table-table.pointer-events-none > .mantine-Table-tbody:empty
+  )
+  > .mantine-Group-root:has(> div > .mantine-Title-root)
+  > .mantine-Group-root {
+  visibility: hidden;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -650,6 +720,84 @@ html[data-ptero-theme] [data-ptero-nav] ~ :is(#dashboard-root, #server-root) > d
   justify-content: center;
 }
 
+/*
+ * Footer, admin settings (data-ptero-footer, see settings/store.ts, the text in footer/PteroCopyright.tsx):
+ * "bottom" keeps it at the bottom of the window while the page is shorter than the window, "content"
+ * leaves it right below the content like Pterodactyl, "hidden" removes it. The stock layout does
+ * "bottom" through a chain of h-full parents, which the top navigation bar replaces with a flex column.
+ * The file manager and the editor reach down to the bottom of the window, so the footer sits at the
+ * bottom there with "content" as well, below them (they leave room for it, --ptero-footer-space).
+ */
+html[data-ptero-theme]:is(
+  [data-ptero-footer="bottom"],
+  [data-ptero-footer="content"]:has(
+    #server-root :is([data-file-manager-workspace-grid], div.absolute.z-1.max-w-full.w-full)
+  )
+) div:has(> [data-ptero-nav]) {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 100dvh;
+}
+
+html[data-ptero-theme]:is(
+    [data-ptero-footer="bottom"],
+    [data-ptero-footer="content"]:has(
+      #server-root :is([data-file-manager-workspace-grid], div.absolute.z-1.max-w-full.w-full)
+    )
+  )
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root) {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+/* the full width, the centered column's auto margins would otherwise shrink it to its content */
+html[data-ptero-theme]:is(
+    [data-ptero-footer="bottom"],
+    [data-ptero-footer="content"]:has(
+      #server-root :is([data-file-manager-workspace-grid], div.absolute.z-1.max-w-full.w-full)
+    )
+  )
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root)
+  > div {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+html[data-ptero-theme][data-ptero-footer="hidden"]
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root)
+  > div
+  > div:last-child {
+  display: none;
+}
+
+/* the login pages: the box stays in the middle, empty space above and below it pushes the footer down */
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="bottom"] div.m-auto:has(> [data-ptero-copyright]) {
+  flex: 1 0 auto;
+  margin-block: 0;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="bottom"]
+  div.m-auto:has(> [data-ptero-copyright])::before,
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="bottom"]
+  div.m-auto:has(> [data-ptero-copyright])::after {
+  content: "";
+  flex: 1 0 0;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="bottom"] div.m-auto > [data-ptero-copyright] {
+  order: 1;
+  margin-bottom: 1rem;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="hidden"] div.m-auto > [data-ptero-copyright] {
+  display: none;
+}
+
 /* ------------------------------------------------------------------------------------------------
  * Boxes (Pterodactyl ContentBox / GreyRowBox / TitledGreyBox)
  * --------------------------------------------------------------------------------------------- */
@@ -798,6 +946,72 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tooltip-toolti
   color: var(--ptero-gray-100);
 }
 
+/*
+ * Code -> Pterodactyl's dark <Code>: a gray-900 box instead of the gray-700 of boxes and dialogs, in
+ * which it disappeared. Long lines of a code block (e.g. the backup metadata) wrap instead of running
+ * out of the dialog.
+ */
+html[data-ptero-theme] .mantine-Code-root {
+  border-radius: 0.25rem;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Code-root {
+  background-color: var(--code-bg, var(--ptero-gray-900));
+}
+
+html[data-ptero-theme] .mantine-Code-root[data-block] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Folder picker (Export to Files, Copy, Extract) -> like the file list: the path in a dark header bar,
+ * the folders as rows with the yellow folder icon of the file list, separated by thin lines.
+ */
+html[data-ptero-theme] div.rounded-md:has(> div.overflow-y-auto.max-h-52) {
+  border-radius: 0.25rem;
+}
+
+html[data-ptero-theme] div.rounded-md:has(> div.overflow-y-auto.max-h-52) > div.overflow-y-auto > button + button {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+html[data-ptero-theme] div.rounded-md:has(> div.overflow-y-auto.max-h-52) > div.overflow-y-auto > button > svg {
+  color: var(--mantine-color-yellow-5);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] div.rounded-md:has(> div.overflow-y-auto.max-h-52) {
+  border-color: var(--ptero-gray-900);
+}
+
+/* header (path) and footer (pages) bars */
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  div.rounded-md:has(> div.overflow-y-auto.max-h-52)
+  > div:not(.overflow-y-auto) {
+  border-color: var(--ptero-black);
+  background-color: var(--ptero-gray-900);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  div.rounded-md:has(> div.overflow-y-auto.max-h-52)
+  > div.overflow-y-auto {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  div.rounded-md:has(> div.overflow-y-auto.max-h-52)
+  > div.overflow-y-auto
+  > button {
+  border-color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  div.rounded-md:has(> div.overflow-y-auto.max-h-52)
+  > div.overflow-y-auto
+  > button:hover {
+  background-color: var(--ptero-gray-500);
+}
+
 /* ------------------------------------------------------------------------------------------------
  * Buttons (Pterodactyl's uppercase buttons with a slightly darker border)
  * --------------------------------------------------------------------------------------------- */
@@ -874,6 +1088,74 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-tab:hover
 html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-tab[data-active] {
   color: var(--ptero-gray-100);
   background-color: transparent;
+}
+
+/*
+ * The tabs of a page (All Servers / Grouped Servers, Backups / System Backups, ...) sit in a small
+ * Pterodactyl box as buttons, instead of a full width line that looked like the head of a table.
+ * Only these tabs are links, the tabs inside the file editor and the database explorer stay as they are.
+ */
+html[data-ptero-theme] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
+  flex-wrap: nowrap;
+  gap: 0.25rem;
+  width: fit-content;
+  max-width: 100%;
+  padding: 0.25rem;
+  overflow-x: auto;
+  border-radius: 0.25rem;
+  scrollbar-width: none;
+}
+
+html[data-ptero-theme] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab)::before {
+  display: none;
+}
+
+html[data-ptero-theme] .mantine-Tabs-list > a > .mantine-Tabs-tab {
+  height: 2rem;
+  margin: 0;
+  padding-inline: 0.875rem;
+  border: 0;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  transition:
+    color 150ms,
+    background-color 150ms;
+}
+
+html[data-ptero-theme] .mantine-Tabs-list > a > .mantine-Tabs-tab[data-active] .mantine-Tabs-tabSection {
+  color: var(--ptero-cyan-400);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
+  background-color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-list > a > .mantine-Tabs-tab:hover {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-list > a > .mantine-Tabs-tab[data-active] {
+  color: var(--ptero-gray-50);
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
+  background-color: #fff;
+  box-shadow: var(--ptero-shadow);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-list > a > .mantine-Tabs-tab:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-list > a > .mantine-Tabs-tab[data-active] {
+  background-color: var(--ptero-gray-100);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Tabs-list
+  > a
+  > .mantine-Tabs-tab[data-active]
+  .mantine-Tabs-tabSection {
+  color: var(--ptero-cyan-600);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -1194,7 +1476,8 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-server-row__sta
  * File editor and tree view
  *
  * Both measure themselves to end exactly at the bottom of the window, which fits the stock sidebar
- * layout. Here they end 1rem above it, and the full-page editor is aligned with its header (the page
+ * layout. Here they end above the footer (--ptero-footer-space, measured in footer/PteroCopyright.tsx),
+ * or 1rem above the bottom without one, and the full-page editor is aligned with its header (the page
  * has no side padding of its own). The editor box is rounded like Pterodactyl's CodeMirror editor,
  * its colors come from editor/monacoTheme.ts.
  * --------------------------------------------------------------------------------------------- */
@@ -1209,9 +1492,9 @@ html[data-ptero-theme] #server-root div.relative:has(> div.absolute.z-1.max-w-fu
   }
 }
 
-/* the measured height is set inline, the padding keeps the editor itself 1rem short of the window edge */
+/* the measured height is set inline, the padding keeps the editor itself clear of the footer */
 html[data-ptero-theme] #server-root div.absolute.z-1.max-w-full.w-full {
-  padding-bottom: 1rem;
+  padding-bottom: max(1rem, var(--ptero-footer-space, 0px));
 }
 
 html[data-ptero-theme] #server-root div.absolute.z-1.max-w-full.w-full section {
@@ -1223,7 +1506,7 @@ html[data-ptero-theme]
   [data-file-manager-workspace-grid]
   > [data-file-manager-tree-shell][data-file-manager-tree-collapsed="false"],
 html[data-ptero-theme] [data-file-manager-workspace-grid] > :not([data-file-manager-tree-shell]) {
-  height: calc(var(--file-manager-workspace-height) - 1rem);
+  height: calc(var(--file-manager-workspace-height) - max(1rem, var(--ptero-footer-space, 0px)));
 }
 
 /*
@@ -1236,11 +1519,6 @@ html[data-ptero-theme] [data-file-manager-image-preview] {
   width: 100%;
 }
 
-/* on the full-page viewer it covers the page footer underneath it, like the code editor does */
-html[data-ptero-theme] #server-root div.absolute.z-1.max-w-full.w-full > [data-file-manager-image-preview] {
-  background-color: var(--mantine-color-body);
-}
-
 html[data-ptero-theme] [data-file-manager-image-preview] .react-transform-component {
   display: flex;
   align-items: center;
@@ -1251,7 +1529,12 @@ html[data-ptero-theme] [data-file-manager-image-preview] .react-transform-compon
 
 @container page (width < 48rem) {
   html[data-ptero-theme] [data-file-manager-tree-visible="false"] [data-file-manager-editor-group] {
-    height: calc(var(--file-manager-workspace-height) - 2.75rem - var(--file-manager-workspace-gap) - 1rem);
+    height: calc(
+      var(--file-manager-workspace-height) -
+      2.75rem -
+      var(--file-manager-workspace-gap) -
+      max(1rem, var(--ptero-footer-space, 0px))
+    );
   }
 }
 

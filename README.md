@@ -13,7 +13,7 @@ You need Calagopus 1.2.3 or newer.
 
 ## Configuration
 
-Open **Admin → Extensions → Pterodactyl Theme** to turn the animations off or change their speed, and to turn the loading bar off or change how long loading has to take before it shows up.
+Open **Admin → Extensions → Pterodactyl Theme** to turn the animations off or change their speed, to turn the loading bar off or change how long loading has to take before it shows up, and to choose where the footer goes and what it says.
 
 ## Building
 

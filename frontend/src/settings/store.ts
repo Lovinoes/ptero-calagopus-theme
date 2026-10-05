@@ -20,7 +20,8 @@ function readCache(): PteroThemeSettings {
   try {
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
-      const parsed = pteroThemeSettingsSchema.safeParse(JSON.parse(cached));
+      // settings added in a later version are missing from an older cache, they start out as defaults
+      const parsed = pteroThemeSettingsSchema.safeParse({ ...defaultPteroThemeSettings, ...JSON.parse(cached) });
       if (parsed.success) return parsed.data;
     }
   } catch {
@@ -55,7 +56,7 @@ export function usePteroThemeSettings(): PteroThemeSettings {
   return useSyncExternalStore(subscribe, getPteroThemeSettings);
 }
 
-/** The CSS animations (page fade) read the settings from the root element, see app.css. */
+/** The CSS (page fade, loading lists, footer) reads the settings from the root element, see app.css. */
 export function applyPteroThemeSettings() {
   const root = document.documentElement;
 
@@ -64,7 +65,13 @@ export function applyPteroThemeSettings() {
   } else {
     root.setAttribute('data-ptero-animations', 'off');
   }
-  root.style.setProperty('--ptero-animation-scale', String(pteroAnimationScale[current.animationSpeed]));
+  // 0 when the animations are off, so the loading spinners of lists simply appear after the delay
+  root.style.setProperty(
+    '--ptero-animation-scale',
+    String(current.animations ? pteroAnimationScale[current.animationSpeed] : 0),
+  );
+  root.style.setProperty('--ptero-loading-delay', `${current.loadingBarDelay}ms`);
+  root.setAttribute('data-ptero-footer', current.footerPosition);
 }
 
 export function setPteroThemeSettings(settings: PteroThemeSettings) {

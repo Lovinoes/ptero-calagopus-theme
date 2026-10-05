@@ -27,9 +27,22 @@ const translations = defineTranslations({
         description: 'Show the blue bar at the top of the page while a page is loading.',
       },
       loadingBarDelay: {
-        label: 'Loading Bar Delay',
+        label: 'Loading Delay',
         description:
-          'How long (in milliseconds) loading has to take before the bar shows up, so quick page changes do not flicker.',
+          'How long (in milliseconds) loading has to take before the loading bar and the spinners of lists show up, so quick page changes do not flicker.',
+      },
+      footerPosition: {
+        label: 'Footer',
+        description: 'Where the copyright line goes on every page.',
+        bottom: 'At the bottom of the window',
+        content: 'Right below the content (like Pterodactyl)',
+        hidden: 'Hidden',
+      },
+      footerText: {
+        label: 'Footer Text',
+        // {variables} and {links} are filled in by the configuration page, so the syntax shows up literally
+        description:
+          "Replaces the copyright line, leave it empty for the panel's own one. Variables: {variables} (the panel name, the panel address and the current year). Links: {links}",
       },
       toast: {
         saved: 'The theme settings have been saved.',
