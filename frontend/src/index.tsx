@@ -6,6 +6,7 @@ import { Modal } from '@/elements/modals/Modal.tsx';
 import Sidebar from '@/elements/navigation/Sidebar.tsx';
 import PteroAuthHeader from './auth/PteroAuthHeader.tsx';
 import { attachPteroMonacoTheme } from './editor/monacoTheme.ts';
+import { handlePteroCall } from './extensionApi/calls.ts';
 import { getPteroDialogTransition } from './loading/animations.ts';
 import { trackBackgroundRefreshes } from './loading/backgroundRefresh.ts';
 import PteroPageTransitions, { trackTabNavigation } from './loading/PteroPageTransitions.tsx';
@@ -83,6 +84,11 @@ class DevLovinoesPterodactylExtension extends Extension {
     Sidebar.Link.addRenderInterceptor(
       (element, props) => (<PteroSidebarLinkGate original={element} linkProps={props} />) as ReactElement<typeof props>,
     );
+  }
+
+  // what other extensions can ask the theme (navigation bar icons, its settings), see EXTENSIONS.md
+  public processCall(ctx: ExtensionContext, name: string, args: object): unknown {
+    return handlePteroCall(ctx, name, args);
   }
 }
 

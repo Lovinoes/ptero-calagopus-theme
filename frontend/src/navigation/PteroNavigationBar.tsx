@@ -12,7 +12,8 @@ import {
   faUserCog,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Menu, Tooltip, useMantineColorScheme } from '@mantine/core';
+import { Menu, Tooltip, type TransitionOverride, useMantineColorScheme } from '@mantine/core';
+import { Component, type ReactNode } from 'react';
 import { Link, matchPath, NavLink, useLocation } from 'react-router';
 import AppIcon from '@/elements/AppIcon.tsx';
 import Avatar from '@/elements/data-display/Avatar.tsx';
@@ -25,6 +26,7 @@ import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import { useQuickActionsStore } from '@/stores/quickActions.ts';
+import { type PteroNavbarItem, useNavbarItems } from '../extensionApi/navbarItems.ts';
 import { usePteroTooltipTransition } from '../loading/animations.ts';
 
 const isDashboardPath = (pathname: string) =>
@@ -32,11 +34,82 @@ const isDashboardPath = (pathname: string) =>
 
 const isAccountPath = (pathname: string) => pathname === '/account' || pathname.startsWith('/account/');
 
+/** The page of `to` (without its ?query and #hash) and the pages below it, `/` only matches itself. */
+function isWithin(pathname: string, to: string) {
+  const base = to.split(/[?#]/, 1)[0].replace(/\/+$/, '');
+  if (base === '') return pathname === '/';
+
+  return pathname === base || pathname.startsWith(`${base}/`);
+}
+
+/** An icon of another extension that fails to render is left out, instead of taking down the whole bar. */
+class NavbarItemBoundary extends Component<
+  { item: PteroNavbarItem; children: ReactNode },
+  { item: PteroNavbarItem; failed: boolean }
+> {
+  override state = { item: this.props.item, failed: false };
+
+  // a replacement with the same id gets a new try
+  static getDerivedStateFromProps(props: { item: PteroNavbarItem }, state: { item: PteroNavbarItem }) {
+    return props.item === state.item ? null : { item: props.item, failed: false };
+  }
+
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+
+  override componentDidCatch(error: Error) {
+    console.error(`[pterodactyl theme] navbar item "${this.props.item.id}" failed to render`, error);
+  }
+
+  override render() {
+    return this.state.failed ? null : this.props.children;
+  }
+}
+
+/** An icon another extension added, see extensionApi/navbarItems.ts. */
+function ExtensionNavbarItem({
+  item,
+  pathname,
+  transitionProps,
+}: {
+  item: PteroNavbarItem;
+  pathname: string;
+  transitionProps: TransitionOverride;
+}) {
+  let active = false;
+  try {
+    active = item.isActive ? item.isActive(pathname) : item.to ? isWithin(pathname, item.to) : false;
+  } catch (error) {
+    console.error(`[pterodactyl theme] isActive of navbar item "${item.id}" failed`, error);
+  }
+
+  const className = active ? 'active' : undefined;
+
+  return (
+    <Tooltip label={item.label} position='bottom' transitionProps={transitionProps}>
+      {item.to ? (
+        <Link to={item.to} aria-label={item.label} className={className}>
+          {item.icon}
+        </Link>
+      ) : item.href ? (
+        <a href={item.href} target='_blank' rel='noopener noreferrer' aria-label={item.label} className={className}>
+          {item.icon}
+        </a>
+      ) : (
+        <button type='button' aria-label={item.label} className={className} onClick={item.onClick}>
+          {item.icon}
+        </button>
+      )}
+    </Tooltip>
+  );
+}
+
 /**
  * The top bar of Pterodactyl: the stock Calagopus app icon / banner on the left and Pterodactyl's
  * five icons on the right (search, dashboard, admin, account, sign out). The Calagopus-only settings
  * (theme, hiding addresses) live in the menu of the account avatar, and on a server page the admin
- * icon leads to that server in the admin area.
+ * icon leads to that server in the admin area. Other extensions can add icons before the avatar.
  */
 export default function PteroNavigationBar() {
   const { t } = useTranslations();
@@ -49,6 +122,7 @@ export default function PteroNavigationBar() {
   const [redactAddresses, setRedactAddresses] = useRedactAddresses();
   const deviceOverrideCount = useDeviceOverrideCount();
   const tooltipTransition = usePteroTooltipTransition();
+  const extensionItems = useNavbarItems();
   const { confirmLogout, logoutModal } = useLogoutConfirmation();
 
   if (!user) {
@@ -111,6 +185,13 @@ export default function PteroNavigationBar() {
               </Link>
             </Tooltip>
           )}
+
+          {!suspended &&
+            extensionItems.map((item) => (
+              <NavbarItemBoundary key={item.id} item={item}>
+                <ExtensionNavbarItem item={item} pathname={pathname} transitionProps={tooltipTransition} />
+              </NavbarItemBoundary>
+            ))}
 
           <Menu position='bottom-end' shadow='md' width={240} withinPortal>
             <Menu.Target>

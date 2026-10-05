@@ -49,6 +49,10 @@ In **Admin → Extensions → Pterodactyl Theme**:
 - Write your own footer text with the variables {app} (panel name), {url} (panel address) and {year} (current year) and links like [text](https://example.com), links keep the footer's color
 - Choose what sits above the login pages: the panel's default, icon and name, only the icon, only the name, the uploaded banner, banner and name, or nothing
 
+## Other extensions
+- Pages, footer components and other additions of other extensions keep working and get the Pterodactyl look
+- Other extensions can add icons to the top navigation bar, read the theme settings and style their own parts with the theme's colors, see [EXTENSIONS.md](EXTENSIONS.md)
+
 ## Admin area
 - The admin area and the first-time setup are not touched
 - The theme can be turned off and on in **Admin → Extensions** without a rebuild

@@ -576,6 +576,7 @@ html[data-ptero-theme] .ptero-navbar-right > button {
   color: var(--ptero-gray-300);
   font: inherit;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
   transition: all 150ms;
 }

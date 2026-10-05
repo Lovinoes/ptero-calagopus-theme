@@ -1,7 +1,7 @@
 # ptero-calagopus-theme
 A [Pterodactyl](https://github.com/pterodactyl/panel) theme for the [Calagopus](https://github.com/calagopus/panel) panel
 
-Makes the user side of Calagopus look like the classic Pterodactyl panel, while the admin area keeps the stock Calagopus look. See [FEATURES.md](FEATURES.md) for everything it changes.
+Makes the user side of Calagopus look like the classic Pterodactyl panel, while the admin area keeps the stock Calagopus look. See [FEATURES.md](FEATURES.md) for everything it changes, and [EXTENSIONS.md](EXTENSIONS.md) for making other extensions work with it.
 
 ## Installation
 
