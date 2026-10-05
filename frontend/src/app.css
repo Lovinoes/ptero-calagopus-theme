@@ -330,6 +330,59 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] {
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Loading bar and page transitions (Pterodactyl's ProgressBar and PageContentBlock fade)
+ * --------------------------------------------------------------------------------------------- */
+
+@keyframes ptero-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* 2px cyan bar at the very top, see loading/PteroProgressBar.tsx */
+html[data-ptero-theme] .ptero-progress {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 10000;
+  height: 2px;
+  pointer-events: none;
+}
+
+html[data-ptero-theme] .ptero-progress__fill {
+  height: 100%;
+  background-color: #22d3ee;
+  box-shadow: 0 -2px 10px 2px hsl(178, 78%, 57%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html[data-ptero-theme] .ptero-progress__fill {
+    transition:
+      width 250ms ease-in-out,
+      opacity 150ms ease-in;
+    animation: ptero-fade-in 150ms ease-in;
+  }
+
+  /*
+   * every page fades in when it is opened (only opacity, so nothing inside is laid out differently),
+   * admins can change its speed or turn it off, see settings/store.ts
+   */
+  html[data-ptero-theme]:not([data-ptero-animations="off"])
+    [data-ptero-nav]
+    ~ :is(#dashboard-root, #server-root)
+    > div
+    > div:first-child
+    > * {
+    animation: ptero-fade-in calc(150ms * var(--ptero-animation-scale, 1)) ease-in;
+  }
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Layout: top navigation bar, sub navigation and the centered 1200px content column
  * --------------------------------------------------------------------------------------------- */
 
@@ -454,6 +507,7 @@ html[data-ptero-theme] .ptero-navbar-right > button[aria-expanded="true"] {
 html[data-ptero-theme] .ptero-navbar-right > a:hover,
 html[data-ptero-theme] .ptero-navbar-right > a:active,
 html[data-ptero-theme] .ptero-navbar-right > a.active,
+html[data-ptero-theme] .ptero-navbar-right > button.active,
 html[data-ptero-theme] .ptero-navbar-right > button:hover,
 html[data-ptero-theme] .ptero-navbar-right > button:active,
 html[data-ptero-theme] .ptero-navbar-right > button[aria-expanded="true"] {
@@ -626,22 +680,36 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Card-root .man
 }
 
 /*
- * Tables -> Pterodactyl's row lists (e.g. the file manager's FileObjectRow): gray-700 rows separated
- * by a 1px gap of the page background instead of light lines, and no light outer border. Only colors
- * change, the row heights stay the same (the file manager list is virtualized).
+ * Tables -> one Pterodactyl box: the header is a dark bar like the TitledGreyBox header (neutral-900
+ * with a black bottom border, small uppercase labels), the rows are neutral-700 separated by a 1px gap
+ * of the page background instead of light lines. Only colors change, the row heights stay the same
+ * (the file manager list is virtualized).
  */
 html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-table {
   --table-border-color: var(--ptero-gray-800);
   --table-hover-color: var(--ptero-gray-600);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] div:has(> .mantine-TableScrollContainer-scrollContainer) {
-  border-color: var(--ptero-gray-800) !important;
+/* the stand-alone table box (tables inside a card have no box of their own) */
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+div[style*="border"]:has(> .mantine-TableScrollContainer-scrollContainer) {
+  border-color: transparent !important;
+  border-radius: 0.25rem !important;
   background-color: var(--ptero-gray-700) !important;
+  box-shadow: var(--ptero-shadow-md);
 }
 
 html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-thead {
-  background-color: var(--ptero-gray-800);
+  --table-border-color: var(--ptero-black);
+  background-color: var(--ptero-gray-900);
+}
+
+/* smaller labels, but the line height of the original 0.875rem text so the header keeps its height */
+html[data-ptero-theme] .mantine-Table-th {
+  font-size: 0.75rem;
+  line-height: calc(0.875rem * var(--mantine-line-height));
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
 }
 
 html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-th {
@@ -704,9 +772,9 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Modal-overlay 
   --overlay-bg: rgb(31 41 51 / 0.5) !important;
 }
 
-/* sub menus of the context menus are popovers with role="menu", they get the white menu style below */
+/* dropdowns, popovers and menus (also the sub menus of right-click menus, popovers with role="menu") */
 html[data-ptero-theme][data-mantine-color-scheme="dark"]
-:is(.mantine-Popover-dropdown:not([role="menu"]), .mantine-Combobox-dropdown, .mantine-HoverCard-dropdown) {
+:is(.mantine-Popover-dropdown, .mantine-Menu-dropdown, .mantine-Combobox-dropdown, .mantine-HoverCard-dropdown) {
   border-color: var(--ptero-gray-500);
   background-color: var(--ptero-gray-600);
 }
@@ -716,46 +784,13 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Combobox-optio
   background-color: var(--ptero-gray-500);
 }
 
-/* Pterodactyl dropdown menus are white (including the sub menus, which are popovers with role="menu") */
 html[data-ptero-theme] :is(.mantine-Menu-dropdown, .mantine-Popover-dropdown[role="menu"]) {
-  --mantine-color-text: var(--ptero-gray-700);
-  --mantine-color-dimmed: var(--ptero-gray-500);
-  --mantine-color-red-text: var(--ptero-red-600);
-  --mantine-color-red-light-hover: rgb(239 68 68 / 0.1);
-  border: 1px solid var(--ptero-gray-700);
   border-radius: 0.25rem;
-  background-color: #fff;
-  color: var(--ptero-gray-700);
   box-shadow: var(--ptero-shadow-lg);
 }
 
-html[data-ptero-theme] .mantine-Menu-item {
-  color: var(--ptero-gray-700);
-}
-
-html[data-ptero-theme] .mantine-Menu-item[data-color="red"] {
-  color: var(--ptero-red-600);
-}
-
-html[data-ptero-theme] .mantine-Menu-item:where(:hover, [data-hovered]):where(:not(:disabled, [data-disabled])) {
-  background-color: var(--ptero-gray-100);
-}
-
-html[data-ptero-theme] .mantine-Menu-item[data-color="red"]:where(:hover, [data-hovered]) {
-  background-color: rgb(239 68 68 / 0.1);
-}
-
-html[data-ptero-theme] .mantine-Menu-item:where(:disabled, [data-disabled]) {
-  color: var(--ptero-gray-300);
-}
-
 html[data-ptero-theme] .mantine-Menu-label {
-  color: var(--ptero-gray-500);
   text-transform: uppercase;
-}
-
-html[data-ptero-theme] .mantine-Menu-divider {
-  border-color: var(--ptero-gray-200);
 }
 
 html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tooltip-tooltip {
@@ -1189,6 +1224,29 @@ html[data-ptero-theme]
   > [data-file-manager-tree-shell][data-file-manager-tree-collapsed="false"],
 html[data-ptero-theme] [data-file-manager-workspace-grid] > :not([data-file-manager-tree-shell]) {
   height: calc(var(--file-manager-workspace-height) - 1rem);
+}
+
+/*
+ * Image viewer: the panel lets the viewer shrink to the width of the image, which crops it into a
+ * thin strip at the left. It fills the editor area instead, and the image sits in the middle at its
+ * own size (or scaled down to fit), zooming and panning still work as before.
+ */
+html[data-ptero-theme] [data-file-manager-image-preview] {
+  flex: 1 1 0%;
+  width: 100%;
+}
+
+/* on the full-page viewer it covers the page footer underneath it, like the code editor does */
+html[data-ptero-theme] #server-root div.absolute.z-1.max-w-full.w-full > [data-file-manager-image-preview] {
+  background-color: var(--mantine-color-body);
+}
+
+html[data-ptero-theme] [data-file-manager-image-preview] .react-transform-component {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
 }
 
 @container page (width < 48rem) {

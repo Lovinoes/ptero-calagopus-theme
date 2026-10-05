@@ -157,7 +157,11 @@ jobs:
         with:
           node-version: "24"
 
+      # Every build gets its own version (major.minor.<run number>), otherwise the panel would not
+      # offer an uploaded build as an update of an installed one with the same version.
       - name: Pack
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
         run: node scripts/package.mjs
 
       - name: Check the archive was built

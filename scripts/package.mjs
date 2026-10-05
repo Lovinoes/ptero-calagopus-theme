@@ -50,7 +50,9 @@ const cargo = read('Cargo.toml');
 if (tomlString(cargo, 'name') !== identifier) {
   fail(`Cargo.toml [package] name must be "${identifier}", the package name with underscores`);
 }
-if (!tomlString(cargo, 'version')) fail('Cargo.toml has no version');
+const cargoVersion = tomlString(cargo, 'version');
+if (!cargoVersion) fail('Cargo.toml has no version');
+if (!/^\d+\.\d+\.\d+$/.test(cargoVersion)) fail(`Cargo.toml version "${cargoVersion}" must be major.minor.patch`);
 if (!read('src/lib.rs').includes('pub struct ExtensionStruct')) fail('src/lib.rs has no `pub struct ExtensionStruct`');
 
 const entrypoint = ['frontend/src/index.ts', 'frontend/src/index.tsx'].find((file) => fs.existsSync(path.join(ROOT, file)));
@@ -62,9 +64,18 @@ if (typeof packageJson.dependencies !== 'object' || packageJson.dependencies ===
   fail('frontend/package.json needs a "dependencies" object');
 }
 
+// The panel only offers an uploaded extension as an update when its version differs from the
+// installed one, so CI packs every build as major.minor.<build number> (BUILD_NUMBER). Local builds
+// keep the version from Cargo.toml.
+const buildNumber = process.env.BUILD_NUMBER;
+if (buildNumber !== undefined && !/^\d+$/.test(buildNumber)) fail(`BUILD_NUMBER "${buildNumber}" must be a number`);
+
+const version = buildNumber ? cargoVersion.replace(/\d+$/, String(Number(buildNumber))) : cargoVersion;
+const packedCargo = cargo.replace(/^(\s*version\s*=\s*)"[^"]*"/m, `$1"${version}"`);
+
 // --- archive contents ----------------------------------------------------------------------------
 
-/** @type {{ name: string, source: string | null }[]} */
+/** @type {{ name: string, source: string | null, content?: Buffer }[]} */
 const entries = [];
 const directories = new Set();
 
@@ -101,7 +112,8 @@ function addTree(prefix, directory) {
 
 entries.push({ name: 'Metadata.toml', source: 'Metadata.toml' });
 
-addFile('backend/Cargo.toml', 'Cargo.toml');
+addDirectory('backend');
+entries.push({ name: 'backend/Cargo.toml', source: 'Cargo.toml', content: Buffer.from(packedCargo, 'utf8') });
 addFile('backend/LICENSE', 'LICENSE');
 addFile('backend/NOTICE', 'NOTICE');
 addDirectory('backend/src');
@@ -128,7 +140,7 @@ let offset = 0;
 for (const entry of entries) {
   const name = Buffer.from(entry.name, 'utf8');
   const isDirectory = entry.source === null;
-  const data = isDirectory ? Buffer.alloc(0) : fs.readFileSync(path.join(ROOT, entry.source));
+  const data = isDirectory ? Buffer.alloc(0) : (entry.content ?? fs.readFileSync(path.join(ROOT, entry.source)));
   const compressed = isDirectory ? data : zlib.deflateRawSync(data, { level: 9 });
   const method = isDirectory ? 0 : 8;
   const crc = isDirectory ? 0 : zlib.crc32(data);
@@ -187,4 +199,4 @@ const output = path.join(outputDirectory, `${identifier}.c7s.zip`);
 fs.mkdirSync(outputDirectory, { recursive: true });
 fs.writeFileSync(output, Buffer.concat([...localParts, centralDirectory, end]));
 
-console.log(`packed ${packageName} (panel ${panelVersion}) with ${entries.length} entries into ${path.relative(ROOT, output)}`);
+console.log(`packed ${packageName} ${version} (panel ${panelVersion}) with ${entries.length} entries into ${path.relative(ROOT, output)}`);

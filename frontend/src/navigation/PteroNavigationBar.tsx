@@ -1,5 +1,4 @@
 import {
-  faArrowUpRightFromSquare,
   faCheck,
   faCircleHalfStroke,
   faCogs,
@@ -9,8 +8,8 @@ import {
   faRotateLeft,
   faSearch,
   faSignOutAlt,
-  faSliders,
   faSun,
+  faUserCog,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu, Tooltip, useMantineColorScheme } from '@mantine/core';
@@ -26,13 +25,18 @@ import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import { useQuickActionsStore } from '@/stores/quickActions.ts';
+import { usePteroTooltipTransition } from '../loading/animations.ts';
 
 const isDashboardPath = (pathname: string) =>
   pathname === '/' || pathname === '/all' || pathname === '/grouped' || pathname === '/grouped/';
 
+const isAccountPath = (pathname: string) => pathname === '/account' || pathname.startsWith('/account/');
+
 /**
- * The top bar of Pterodactyl: the stock Calagopus app icon / banner on the left, icon links on the right.
- * Calagopus-only features (quick actions, theme, hiding addresses) are folded into the same icon row.
+ * The top bar of Pterodactyl: the stock Calagopus app icon / banner on the left and Pterodactyl's
+ * five icons on the right (search, dashboard, admin, account, sign out). The Calagopus-only settings
+ * (theme, hiding addresses) live in the menu of the account avatar, and on a server page the admin
+ * icon leads to that server in the admin area.
  */
 export default function PteroNavigationBar() {
   const { t } = useTranslations();
@@ -44,6 +48,7 @@ export default function PteroNavigationBar() {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const [redactAddresses, setRedactAddresses] = useRedactAddresses();
   const deviceOverrideCount = useDeviceOverrideCount();
+  const tooltipTransition = usePteroTooltipTransition();
   const { confirmLogout, logoutModal } = useLogoutConfirmation();
 
   if (!user) {
@@ -53,6 +58,8 @@ export default function PteroNavigationBar() {
   const suspended = Boolean(user.suspended);
   const accountHidden = suspended || !isNamedRoutePathAccessible(routeOrder, '/');
   const serverId = matchPath({ path: '/server/:id', end: false }, pathname)?.params.id;
+  const adminServerLink = !!serverId && isAdmin(user, 'servers.read');
+  const adminLabel = adminServerLink ? t('pages.server.viewAdmin.title', {}) : t('pages.account.admin.title', {});
   const displayName = user.nameFirst && user.nameLast ? `${user.nameFirst} ${user.nameLast}` : user.username;
   const logoutLabel = impersonating
     ? t('elements.sidebar.button.stopImpersonating', {})
@@ -69,7 +76,11 @@ export default function PteroNavigationBar() {
 
         <div className='ptero-navbar-right'>
           {!suspended && (
-            <Tooltip label={t('elements.quickActions.trigger', {})} position='bottom'>
+            <Tooltip
+              label={t('elements.quickActions.trigger', {})}
+              position='bottom'
+              transitionProps={tooltipTransition}
+            >
               <button
                 type='button'
                 aria-label={t('elements.quickActions.trigger', {})}
@@ -81,7 +92,7 @@ export default function PteroNavigationBar() {
           )}
 
           {!suspended && (
-            <Tooltip label={t('pages.account.home.title', {})} position='bottom'>
+            <Tooltip label={t('pages.account.home.title', {})} position='bottom' transitionProps={tooltipTransition}>
               <NavLink
                 to='/'
                 aria-label={t('pages.account.home.title', {})}
@@ -93,39 +104,30 @@ export default function PteroNavigationBar() {
             </Tooltip>
           )}
 
-          {!suspended && serverId && isAdmin(user, 'servers.read') && (
-            <Tooltip label={t('pages.server.viewAdmin.title', {})} position='bottom'>
-              <Link to={`/admin/servers/${serverId}`} aria-label={t('pages.server.viewAdmin.title', {})}>
-                <FontAwesomeIcon icon={faArrowUpRightFromSquare} />
-              </Link>
-            </Tooltip>
-          )}
-
           {!suspended && isAdmin(user) && (
-            <Tooltip label={t('pages.account.admin.title', {})} position='bottom'>
-              <Link to='/admin' aria-label={t('pages.account.admin.title', {})}>
+            <Tooltip label={adminLabel} position='bottom' transitionProps={tooltipTransition}>
+              <Link to={adminServerLink ? `/admin/servers/${serverId}` : '/admin'} aria-label={adminLabel}>
                 <FontAwesomeIcon icon={faCogs} />
               </Link>
             </Tooltip>
           )}
 
-          {!accountHidden && (
-            <Tooltip label={t('pages.account.account.title', {})} position='bottom'>
-              <NavLink to='/account' aria-label={t('pages.account.account.title', {})}>
+          <Menu position='bottom-end' shadow='md' width={240} withinPortal>
+            <Menu.Target>
+              <button type='button' aria-label={displayName} className={isAccountPath(pathname) ? 'active' : undefined}>
                 <span className='ptero-navbar-avatar'>
                   <Avatar size={20} src={user.avatar} name={displayName} />
                 </span>
-              </NavLink>
-            </Tooltip>
-          )}
-
-          <Menu position='bottom-end' shadow='md' width={220} withinPortal>
-            <Menu.Target>
-              <button type='button' aria-label={t('elements.sidebar.button.theme', {})}>
-                <FontAwesomeIcon icon={faSliders} />
               </button>
             </Menu.Target>
             <Menu.Dropdown>
+              <Menu.Label>{displayName}</Menu.Label>
+              {!accountHidden && (
+                <Menu.Item component={Link} to='/account' leftSection={<FontAwesomeIcon icon={faUserCog} />}>
+                  {t('pages.account.account.title', {})}
+                </Menu.Item>
+              )}
+              {!accountHidden && <Menu.Divider />}
               <Menu.Label>{t('elements.sidebar.button.theme', {})}</Menu.Label>
               <Menu.Item
                 leftSection={<FontAwesomeIcon icon={faCircleHalfStroke} />}
@@ -167,7 +169,7 @@ export default function PteroNavigationBar() {
             </Menu.Dropdown>
           </Menu>
 
-          <Tooltip label={logoutLabel} position='bottom'>
+          <Tooltip label={logoutLabel} position='bottom' transitionProps={tooltipTransition}>
             <button type='button' aria-label={logoutLabel} onClick={confirmLogout}>
               <FontAwesomeIcon icon={faSignOutAlt} />
             </button>
