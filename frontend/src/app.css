@@ -160,7 +160,7 @@ html[data-ptero-theme] {
   --color-neutral-600: var(--ptero-gray-600);
   --color-neutral-700: var(--ptero-gray-700);
   --color-neutral-800: var(--ptero-gray-800);
-  --color-neutral-850: hsl(210, 22%, 20%);
+  --color-neutral-850: color-mix(in srgb, var(--ptero-gray-800), var(--ptero-gray-900));
   --color-neutral-900: var(--ptero-gray-900);
   --color-neutral-950: var(--ptero-black);
   --color-gray-50: var(--ptero-gray-50);
@@ -299,6 +299,27 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] {
   --chart-series-1: var(--ptero-cyan-600);
 }
 
+/*
+ * The "Darker" color palette of the dark scheme (theme settings): deeper, neutral grays, after the
+ * palette of Pterodactyl's dark theme extension (one cool blue-grey hue, stepped only in lightness).
+ * Everything takes its colors from this scale, so swapping it recolors every page. Each step keeps its
+ * role: 800 the page, 700 the boxes, 600 inputs and menus, 900 the bars and headers, black the console.
+ * The steps are spaced so every text and line keeps at least the contrast it has in the default palette.
+ */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] {
+  --ptero-gray-50: oklch(0.97 0.005 264);
+  --ptero-gray-100: oklch(0.93 0.008 264);
+  --ptero-gray-200: oklch(0.86 0.01 264);
+  --ptero-gray-300: oklch(0.74 0.015 264);
+  --ptero-gray-400: oklch(0.58 0.017 264);
+  --ptero-gray-500: oklch(0.48 0.016 264);
+  --ptero-gray-600: oklch(0.375 0.015 264);
+  --ptero-gray-700: oklch(0.275 0.013 264);
+  --ptero-gray-800: oklch(0.195 0.012 264);
+  --ptero-gray-900: oklch(0.17 0.011 264);
+  --ptero-black: oklch(0.145 0.01 264);
+}
+
 /* ------------------------------------------------------------------------------------------------
  * Base
  * --------------------------------------------------------------------------------------------- */
@@ -371,30 +392,31 @@ html[data-ptero-theme] .ptero-progress__fill {
 
   /*
    * every page fades in when it is opened (only opacity, so nothing inside is laid out differently),
-   * admins can change its speed or turn it off, see settings/store.ts. A page opened through one of
-   * its tabs shows up right away, see loading/PteroPageTransitions.tsx
+   * admins can change its speed or turn it off, see settings/store.ts. A page opened through one of its
+   * tabs keeps its header and tabs still, only the content below the tabs fades in once it shows, see
+   * loading/PteroPageTransitions.tsx
    */
   html[data-ptero-theme]:not([data-ptero-animations="off"])
     [data-ptero-nav]
     ~ :is(#dashboard-root, #server-root)
     > div
     > div:first-child
-    > :not([data-ptero-page="still"]) {
+    > :not([data-ptero-page="still"]),
+  html[data-ptero-theme]:not([data-ptero-animations="off"])
+    [data-ptero-nav]
+    ~ :is(#dashboard-root, #server-root)
+    [data-ptero-tab-content] {
     animation: ptero-fade-in calc(150ms * var(--ptero-animation-scale, 1)) ease-in;
   }
 }
 
-/* a tab switch cross-fades from the old to the new tab, see loading/PteroPageTransitions.tsx */
-html[data-ptero-tab-transition]::view-transition-old(root),
-html[data-ptero-tab-transition]::view-transition-new(root) {
-  animation-duration: calc(150ms * var(--ptero-animation-scale, 1));
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html[data-ptero-tab-transition]::view-transition-old(root),
-  html[data-ptero-tab-transition]::view-transition-new(root) {
-    animation: none;
-  }
+/*
+ * the picture of the old tab that covers the page while the new tab loads (loading/PteroPageTransitions.tsx),
+ * a still picture: nothing in it plays its animations again
+ */
+html[data-ptero-theme] .ptero-tab-hold * {
+  animation: none !important;
+  transition: none !important;
 }
 
 /*
@@ -692,6 +714,49 @@ html[data-ptero-theme] .ptero-subnav .mantine-Button-label > svg {
   display: none;
 }
 
+/* Pterodactyl's external link icon to the server in the admin area, at the end of the bar */
+html[data-ptero-theme] .ptero-subnav-inner > a.ptero-subnav-admin {
+  padding: 0.75rem 1rem;
+  color: var(--ptero-gray-300);
+  line-height: 1.25rem;
+  transition: all 150ms;
+}
+
+html[data-ptero-theme] .ptero-subnav-inner > a.ptero-subnav-admin:hover {
+  color: var(--ptero-gray-100);
+}
+
+html[data-ptero-theme] .ptero-subnav-inner > a.ptero-subnav-admin:focus-visible {
+  outline: 2px solid var(--ptero-cyan-600);
+  outline-offset: -2px;
+}
+
+/*
+ * The panel adds the links of a server once it has loaded, the icon waits for them, so it doesn't show
+ * up on its own first and then jump to the end. Until then the bar keeps the height of its links.
+ */
+html[data-ptero-theme] .ptero-subnav-inner:not(:has(> a:not(.ptero-subnav-admin))) > a.ptero-subnav-admin {
+  display: none;
+}
+
+html[data-ptero-theme] .ptero-subnav-inner:has([data-testid="loader"]) {
+  min-height: 2.75rem;
+}
+
+/*
+ * The darker palette's bars are flat: the top bar and the sub navigation both in the darkest gray, each
+ * closed by a thin line instead of a shadow, so they read as one clean header above the page. The lines
+ * are inset shadows, the bars keep their height.
+ */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-navbar {
+  box-shadow: inset 0 -1px var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-subnav {
+  background-color: var(--ptero-gray-900);
+  box-shadow: inset 0 -1px var(--ptero-gray-700);
+}
+
 /* light scheme: light bars, so the light variant of the app icon / banner stays readable */
 html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar {
   background-color: #fff;
@@ -724,6 +789,14 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine
 html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine-Button-root:hover,
 html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine-Button-root.active {
   color: var(--ptero-gray-800) !important;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav-inner > a.ptero-subnav-admin {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav-inner > a.ptero-subnav-admin:hover {
+  color: var(--ptero-gray-800);
 }
 
 /* center the page content in a 1200px column, like Pterodactyl's ContentContainer */
@@ -928,7 +1001,7 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"] :is(.mantine-Modal-cont
 
 html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Modal-content {
   box-shadow:
-    0 0 0 4px rgb(51 64 77 / 0.8),
+    0 0 0 4px color-mix(in srgb, var(--ptero-gray-800) 80%, transparent),
     var(--ptero-shadow-lg);
 }
 
@@ -940,7 +1013,7 @@ html[data-ptero-theme] .mantine-Modal-title {
 }
 
 html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Modal-overlay {
-  --overlay-bg: rgb(31 41 51 / 0.5) !important;
+  --overlay-bg: color-mix(in srgb, var(--ptero-gray-900) 50%, transparent) !important;
 }
 
 /* dropdowns, popovers and menus (also the sub menus of right-click menus, popovers with role="menu") */
@@ -1657,6 +1730,42 @@ html[data-ptero-theme][data-mantine-color-scheme="dark"]
   color: var(--ptero-gray-50);
 }
 
+/*
+ * The value of a stat card (console/PteroStatCard.tsx) is cut off when it is too long for the card,
+ * like Pterodactyl's StatBlock, instead of scrolling sideways. The details (the network speeds) sit on
+ * their own line below it, in the small gray text they had next to the value.
+ */
+html[data-ptero-theme] .ptero-stat-value,
+html[data-ptero-theme] .ptero-stat-value > button,
+html[data-ptero-theme] .ptero-stat-details {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Right below the value: the tall line of the value leaves empty space under its text, the details move
+ * up into it. Smaller line heights would cut off letters like "y" and "p", as both lines clip their text.
+ */
+html[data-ptero-theme] .ptero-stat-details {
+  margin-top: -0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  color: var(--mantine-color-dimmed);
+}
+
+/*
+ * xterm measures its glyphs in the DOM and corrects every row with its own letter-spacing, which
+ * replaces the inherited 0.015em instead of adding to it. With the page's letter-spacing the text then
+ * ends up narrower than the cells and the selection drifts away from it, so terminals keep the normal one.
+ */
+html[data-ptero-theme] .xterm {
+  letter-spacing: normal;
+}
+
 /* the terminal is black with a darker command input, like Pterodactyl */
 html[data-ptero-theme][data-mantine-color-scheme="dark"] #server-root .mantine-Card-root.font-mono.isolate {
   background-color: var(--ptero-black);
@@ -1701,6 +1810,233 @@ html[data-ptero-theme] #server-root .mantine-Card-root > div.border-b.px-4.py-3:
 }
 
 /* ------------------------------------------------------------------------------------------------
+ * Activity log of a server and of the account: Pterodactyl's ActivityLogContainer and ActivityLogEntry
+ * (rendered by activity/PteroActivityLog.tsx), the values are its tailwind classes
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] .ptero-activity {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background-color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow-md);
+}
+
+/* an empty log or an error, like the tables (p-2.5) */
+html[data-ptero-theme] .ptero-activity__message {
+  padding: 0.625rem;
+}
+
+/* grid grid-cols-10 py-4 border-b-2 border-gray-800 last:border-0 */
+html[data-ptero-theme] .ptero-activity-entry {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  padding-block: 1rem;
+  border-bottom: 2px solid var(--ptero-gray-800);
+}
+
+html[data-ptero-theme] .ptero-activity-entry:last-child {
+  border-bottom: 0;
+}
+
+/* hidden sm:flex sm:col-span-1 items-center justify-center select-none */
+html[data-ptero-theme] .ptero-activity-entry__avatar {
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* col-span-10 sm:col-span-9 flex */
+html[data-ptero-theme] .ptero-activity-entry__body {
+  display: flex;
+  grid-column: span 10 / span 10;
+  min-width: 0;
+}
+
+/* flex-1 px-4 sm:px-0 */
+html[data-ptero-theme] .ptero-activity-entry__content {
+  flex: 1 1 0%;
+  min-width: 0;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  html[data-ptero-theme] .ptero-activity-entry__avatar {
+    display: flex;
+    grid-column: span 1 / span 1;
+  }
+
+  html[data-ptero-theme] .ptero-activity-entry__body {
+    grid-column: span 9 / span 9;
+  }
+
+  html[data-ptero-theme] .ptero-activity-entry__content {
+    padding-inline: 0;
+  }
+}
+
+/* flex items-center text-gray-50: "user — event" */
+html[data-ptero-theme] .ptero-activity-entry__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--ptero-gray-50);
+  overflow-wrap: anywhere;
+}
+
+/* the user links to the log filtered by them, it lights up like Pterodactyl's links in the log */
+html[data-ptero-theme] a.ptero-activity-entry__actor {
+  color: inherit;
+  text-decoration: none;
+  transition: color 75ms;
+}
+
+html[data-ptero-theme] a.ptero-activity-entry__actor:hover {
+  color: var(--ptero-cyan-400);
+}
+
+html[data-ptero-theme] .ptero-activity-entry__separator {
+  color: var(--ptero-gray-400);
+}
+
+/* .icons: flex space-x-1 mx-2 text-gray-400, group-hover:text-gray-300 */
+html[data-ptero-theme] .ptero-activity-entry__icons {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  font-size: 0.875rem;
+  color: var(--ptero-gray-400);
+  transition: color 100ms;
+}
+
+html[data-ptero-theme] .ptero-activity-entry:hover .ptero-activity-entry__icons {
+  color: var(--ptero-gray-300);
+}
+
+/* mt-1 flex items-center text-sm: "IP | 5 minutes ago" */
+html[data-ptero-theme] .ptero-activity-entry__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--ptero-gray-200);
+}
+
+/* ActivityLogMetaButton: self-center md:px-4, a gray icon button (text-gray-400, hover:text-gray-50) */
+html[data-ptero-theme] .ptero-activity-entry__actions {
+  display: flex;
+  flex: none;
+  gap: 0.25rem;
+  align-items: center;
+  align-self: center;
+  padding-right: 1rem;
+}
+
+html[data-ptero-theme] .ptero-activity-entry__actions .mantine-ActionIcon-root {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ptero-gray-400);
+  transition: color 100ms;
+}
+
+html[data-ptero-theme] .ptero-activity-entry:hover .ptero-activity-entry__actions .mantine-ActionIcon-root {
+  color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme] .ptero-activity-entry__actions .mantine-ActionIcon-root:hover {
+  background: transparent;
+  color: var(--ptero-gray-50);
+}
+
+/*
+ * Loading (a page, a search) looks like the tables: after the loading delay the entries dim and a
+ * spinner shows, a log that is still empty makes room for it. Not while a tab is shown again
+ * (data-ptero-refreshing, see loading/backgroundRefresh.ts).
+ */
+html[data-ptero-theme] .ptero-activity[data-loading]:has(> .ptero-activity__entries:empty) {
+  min-height: 10rem;
+  animation: ptero-loading-hold 0s var(--ptero-loading-delay, 250ms) backwards;
+}
+
+html[data-ptero-theme] .ptero-activity[data-loading] > .ptero-activity__entries {
+  opacity: 0.5;
+  pointer-events: none;
+  animation: ptero-loading-dim calc(150ms * var(--ptero-animation-scale, 1)) ease-in var(--ptero-loading-delay, 250ms)
+    backwards;
+}
+
+html[data-ptero-theme] .ptero-activity__loader {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: ptero-fade-in calc(150ms * var(--ptero-animation-scale, 1)) ease-in var(--ptero-loading-delay, 250ms)
+    backwards;
+}
+
+html[data-ptero-theme][data-ptero-refreshing] .ptero-activity[data-loading]:has(> .ptero-activity__entries:empty) {
+  min-height: 0;
+  animation: none;
+}
+
+html[data-ptero-theme][data-ptero-refreshing] .ptero-activity[data-loading] > .ptero-activity__entries {
+  opacity: 1;
+  animation: none;
+}
+
+html[data-ptero-theme][data-ptero-refreshing] .ptero-activity__loader {
+  visibility: hidden;
+  animation: none;
+}
+
+/* light scheme: the white boxes of the light scheme */
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity {
+  border: 1px solid hsl(212, 17%, 88%);
+  background-color: #fff;
+  box-shadow: var(--ptero-shadow);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity-entry {
+  border-bottom-color: var(--mantine-color-gray-2);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity-entry__headline {
+  color: var(--ptero-gray-900);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] a.ptero-activity-entry__actor:hover {
+  color: var(--ptero-cyan-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity-entry__meta {
+  color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity-entry:hover .ptero-activity-entry__icons {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .ptero-activity-entry:hover
+  .ptero-activity-entry__actions
+  .mantine-ActionIcon-root {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .ptero-activity-entry__actions
+  .mantine-ActionIcon-root:hover {
+  color: var(--ptero-gray-800);
+}
+
+/* ------------------------------------------------------------------------------------------------
  * Dashboard header: Pterodactyl's server list has no page heading, the tabs lead the page
  * --------------------------------------------------------------------------------------------- */
 
@@ -1731,35 +2067,6 @@ html[data-ptero-theme] .mantine-Checkbox-input:is(:checked, [data-indeterminate]
 
 html[data-ptero-theme] .mantine-Checkbox-input {
   border-radius: 0.125rem;
-}
-
-/* footer link, Pterodactyl's muted copyright line */
-html[data-ptero-theme]
-  [data-ptero-nav]
-  ~ :is(#dashboard-root, #server-root)
-  > div
-  > div:last-child
-  .mantine-Anchor-root {
-  color: var(--ptero-gray-500);
-  text-decoration: none;
-}
-
-html[data-ptero-theme][data-mantine-color-scheme="dark"]
-  [data-ptero-nav]
-  ~ :is(#dashboard-root, #server-root)
-  > div
-  > div:last-child
-  .mantine-Anchor-root:hover {
-  color: var(--ptero-gray-300);
-}
-
-html[data-ptero-theme][data-mantine-color-scheme="light"]
-  [data-ptero-nav]
-  ~ :is(#dashboard-root, #server-root)
-  > div
-  > div:last-child
-  .mantine-Anchor-root:hover {
-  color: var(--ptero-gray-700);
 }
 
 /* ------------------------------------------------------------------------------------------------

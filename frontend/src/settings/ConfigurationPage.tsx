@@ -18,6 +18,7 @@ import {
   defaultPteroThemeSettings,
   type PteroAnimationSpeed,
   type PteroAuthHeader,
+  type PteroColorPalette,
   type PteroFooterPosition,
   type PteroThemeSettings,
   pteroThemeSettingsFormSchema,
@@ -62,6 +63,11 @@ export default function ConfigurationPage() {
     { value: 'hidden', label: tExt('settings.footerPosition.hidden', {}) },
   ];
 
+  const colorPaletteOptions: { value: PteroColorPalette; label: string }[] = [
+    { value: 'default', label: tExt('settings.colorPalette.default', {}) },
+    { value: 'darker', label: tExt('settings.colorPalette.darker', {}) },
+  ];
+
   const authHeaderOptions: { value: PteroAuthHeader; label: string }[] = [
     { value: 'default', label: tExt('settings.authHeader.default', {}) },
     { value: 'icon_name', label: tExt('settings.authHeader.iconName', {}) },
@@ -91,6 +97,14 @@ export default function ConfigurationPage() {
     <TitleCard title={tExt('settings.title', {})}>
       <form onSubmit={form.onSubmit(doSave)}>
         <Stack>
+          <Select
+            label={tExt('settings.colorPalette.label', {})}
+            description={tExt('settings.colorPalette.description', {})}
+            data={colorPaletteOptions}
+            disabled={!loaded}
+            {...form.getInputProps('colorPalette')}
+          />
+
           <Switch
             label={tExt('settings.animations.label', {})}
             description={tExt('settings.animations.description', {})}

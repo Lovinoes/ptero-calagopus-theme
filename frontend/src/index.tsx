@@ -4,10 +4,11 @@ import { axiosInstance } from '@/api/axios.ts';
 import AppIcon from '@/elements/AppIcon.tsx';
 import { Modal } from '@/elements/modals/Modal.tsx';
 import Sidebar from '@/elements/navigation/Sidebar.tsx';
+import Tooltip from '@/elements/overlays/Tooltip.tsx';
 import PteroAuthHeader from './auth/PteroAuthHeader.tsx';
 import { attachPteroMonacoTheme } from './editor/monacoTheme.ts';
 import { handlePteroCall } from './extensionApi/calls.ts';
-import { getPteroDialogTransition } from './loading/animations.ts';
+import { getPteroDialogTransition, getPteroTooltipTransition } from './loading/animations.ts';
 import { trackBackgroundRefreshes } from './loading/backgroundRefresh.ts';
 import PteroPageTransitions, { trackTabNavigation } from './loading/PteroPageTransitions.tsx';
 import PteroProgressBar, { trackRequests } from './loading/PteroProgressBar.tsx';
@@ -31,7 +32,7 @@ const bootCheck = window.setInterval(() => {
 }, 25);
 
 class DevLovinoesPterodactylExtension extends Extension {
-  // admin area -> Extensions -> Pterodactyl Theme: animations, loading, footer and the login pages
+  // admin area -> Extensions -> Pterodactyl Theme: colors, animations, loading, footer and the login pages
   public cardConfigurationPage: React.FC | null = ConfigurationPage;
   public cardComponent: React.FC | null = null;
 
@@ -56,10 +57,16 @@ class DevLovinoesPterodactylExtension extends Extension {
     trackBackgroundRefreshes();
     trackRequests(axiosInstance);
 
-    // Pterodactyl's dialog animation, on the themed pages only and only where a dialog sets none itself
+    // Pterodactyl's dialog and tooltip animations, on the themed pages only and only where a dialog or
+    // tooltip sets none itself, so they follow the animation settings as well
     Modal.addPropsInterceptor((props) =>
       props.transitionProps === undefined && isPteroThemeActive()
         ? { ...props, transitionProps: getPteroDialogTransition() }
+        : props,
+    );
+    Tooltip.addPropsInterceptor((props) =>
+      props.transitionProps === undefined && isPteroThemeActive()
+        ? { ...props, transitionProps: getPteroTooltipTransition() }
         : props,
     );
 

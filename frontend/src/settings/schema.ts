@@ -12,6 +12,10 @@ export const pteroAuthHeaders = ['default', 'icon_name', 'icon', 'name', 'banner
 
 export type PteroAuthHeader = (typeof pteroAuthHeaders)[number];
 
+export const pteroColorPalettes = ['default', 'darker'] as const;
+
+export type PteroColorPalette = (typeof pteroColorPalettes)[number];
+
 /** Mirrors ExtensionSettingsData in src/settings.rs, see there for the defaults. */
 export const pteroThemeSettingsSchema = z.object({
   animations: z.boolean(),
@@ -22,6 +26,7 @@ export const pteroThemeSettingsSchema = z.object({
   // the 255 characters are checked by the backend and the form, zod would count emoji twice here
   footerText: z.string(),
   authHeader: z.enum(pteroAuthHeaders),
+  colorPalette: z.enum(pteroColorPalettes),
 });
 
 /** The admin form, the footer text gets the backend's length limit there. */
@@ -39,6 +44,7 @@ export const defaultPteroThemeSettings: PteroThemeSettings = {
   footerPosition: 'bottom',
   footerText: '',
   authHeader: 'default',
+  colorPalette: 'default',
 };
 
 /** Multiplier for every animation duration of the theme. */

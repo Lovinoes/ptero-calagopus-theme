@@ -14,7 +14,7 @@ import {
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu, Tooltip, type TransitionOverride, useMantineColorScheme } from '@mantine/core';
 import { Component, type ReactNode } from 'react';
-import { Link, matchPath, NavLink, useLocation } from 'react-router';
+import { Link, NavLink, useLocation } from 'react-router';
 import AppIcon from '@/elements/AppIcon.tsx';
 import Avatar from '@/elements/data-display/Avatar.tsx';
 import { useLogoutConfirmation } from '@/elements/useLogoutConfirmation.tsx';
@@ -108,8 +108,9 @@ function ExtensionNavbarItem({
 /**
  * The top bar of Pterodactyl: the stock Calagopus app icon / banner on the left and Pterodactyl's
  * five icons on the right (search, dashboard, admin, account, sign out). The Calagopus-only settings
- * (theme, hiding addresses) live in the menu of the account avatar, and on a server page the admin
- * icon leads to that server in the admin area. Other extensions can add icons before the avatar.
+ * (theme, hiding addresses) live in the menu of the account avatar, the link to a server in the admin
+ * area sits at the end of the server sub navigation (PteroSidebar). Other extensions can add icons
+ * before the avatar.
  */
 export default function PteroNavigationBar() {
   const { t } = useTranslations();
@@ -131,9 +132,7 @@ export default function PteroNavigationBar() {
 
   const suspended = Boolean(user.suspended);
   const accountHidden = suspended || !isNamedRoutePathAccessible(routeOrder, '/');
-  const serverId = matchPath({ path: '/server/:id', end: false }, pathname)?.params.id;
-  const adminServerLink = !!serverId && isAdmin(user, 'servers.read');
-  const adminLabel = adminServerLink ? t('pages.server.viewAdmin.title', {}) : t('pages.account.admin.title', {});
+  const adminLabel = t('pages.account.admin.title', {});
   const displayName = user.nameFirst && user.nameLast ? `${user.nameFirst} ${user.nameLast}` : user.username;
   const logoutLabel = impersonating
     ? t('elements.sidebar.button.stopImpersonating', {})
@@ -180,7 +179,7 @@ export default function PteroNavigationBar() {
 
           {!suspended && isAdmin(user) && (
             <Tooltip label={adminLabel} position='bottom' transitionProps={tooltipTransition}>
-              <Link to={adminServerLink ? `/admin/servers/${serverId}` : '/admin'} aria-label={adminLabel}>
+              <Link to='/admin' aria-label={adminLabel}>
                 <FontAwesomeIcon icon={faCogs} />
               </Link>
             </Tooltip>

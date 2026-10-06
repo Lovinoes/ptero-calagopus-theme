@@ -29,8 +29,14 @@ export function getPteroDialogTransition(): TransitionOverride {
 }
 
 /** Pterodactyl's tooltips pop in quickly (framer-motion scale 0.85 -> 1). */
-export function usePteroTooltipTransition(): TransitionOverride {
-  const settings = usePteroThemeSettings();
-
+function tooltipTransition(settings: PteroThemeSettings): TransitionOverride {
   return { transition: 'pop', duration: scaled(settings, 150) };
+}
+
+export function getPteroTooltipTransition(): TransitionOverride {
+  return tooltipTransition(getPteroThemeSettings());
+}
+
+export function usePteroTooltipTransition(): TransitionOverride {
+  return tooltipTransition(usePteroThemeSettings());
 }

@@ -10,8 +10,9 @@ import { addNavbarItem, parseNavbarItem, removeNavbarItem } from './navbarItems.
  * only ever reaches the first extension.
  *
  * Raise PTERO_API_VERSION when a call is added or changes, extensions can check it before using one.
+ * 2: `settings` has `colorPalette`.
  */
-export const PTERO_API_VERSION = 1;
+export const PTERO_API_VERSION = 2;
 
 const CALL_PREFIX = 'lovinoes_pterodactyl_';
 

@@ -50,6 +50,17 @@ pub enum AuthHeader {
     Hidden,
 }
 
+/// The colors of the themed pages in the dark scheme.
+#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum ColorPalette {
+    /// Pterodactyl's own blue-tinted grays
+    #[default]
+    Default,
+    /// deeper, neutral grays
+    Darker,
+}
+
 #[derive(ToSchema, Serialize, Deserialize, Clone, Debug)]
 pub struct ExtensionSettingsData {
     /// Pterodactyl's page fade, dialog and tooltip animations
@@ -67,6 +78,8 @@ pub struct ExtensionSettingsData {
     pub footer_text: compact_str::CompactString,
     #[schema(inline)]
     pub auth_header: AuthHeader,
+    #[schema(inline)]
+    pub color_palette: ColorPalette,
 }
 
 impl Default for ExtensionSettingsData {
@@ -79,6 +92,7 @@ impl Default for ExtensionSettingsData {
             footer_position: FooterPosition::Bottom,
             footer_text: compact_str::CompactString::default(),
             auth_header: AuthHeader::Default,
+            color_palette: ColorPalette::Default,
         }
     }
 }
@@ -99,7 +113,8 @@ impl SettingsSerializeExt for ExtensionSettingsData {
             )
             .write_serde_setting("footer_position", &self.footer_position)?
             .write_raw_setting("footer_text", self.footer_text.clone())
-            .write_serde_setting("auth_header", &self.auth_header)?)
+            .write_serde_setting("auth_header", &self.auth_header)?
+            .write_serde_setting("color_palette", &self.color_palette)?)
     }
 }
 
@@ -141,6 +156,9 @@ impl SettingsDeserializeExt for ExtensionSettingsDataDeserializer {
             auth_header: deserializer
                 .read_serde_setting("auth_header")
                 .unwrap_or(defaults.auth_header),
+            color_palette: deserializer
+                .read_serde_setting("color_palette")
+                .unwrap_or(defaults.color_palette),
         }))
     }
 }

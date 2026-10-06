@@ -5,7 +5,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 ## Layout
 - Pterodactyl's top navigation bar instead of the Calagopus sidebar, with the stock Calagopus app icon / banner on the left
 - Pterodactyl's five icons on the right: search (quick actions), dashboard, admin area, account and sign out
-- On a server page the admin icon opens that server in the admin area
+- On a server page, admins get Pterodactyl's external link icon at the end of the sub navigation, which opens that server in the admin area
 - The account avatar opens a menu with the account link, the theme switcher (auto, dark, light), hiding addresses and resetting device overrides
 - Pterodactyl's horizontal sub navigation on account and server pages, routes added by other extensions and the admin's route order keep working
 - The centered 1200px content column
@@ -26,6 +26,8 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups
 - The servers in All Servers can be dragged into any order, like the servers of a group, the order is saved with the account
 - The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons
+- The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic
+- Pterodactyl's activity log on the activity pages of a server and of the account: the avatar, "user — event", the IP and how long ago, the details on the right. The search, the filter by user and the file diff links work as before
 - Pterodactyl's file list rows, and the file editor in Pterodactyl's ayu-mirage colors (dark mode)
 - The image viewer shows the image centered, at its own size or scaled down to fit, with zooming and panning
 - The login, register and password reset pages in the same dark Pterodactyl boxes, with the centered title
@@ -33,9 +35,9 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - The Calagopus-only features (quick actions, server groups, hiding addresses and more) styled to match
 
 ## Animations and loading
-- Pterodactyl's blue loading bar at the top while a page loads, it only shows up when loading takes a moment, so quick page changes don't flicker
+- Pterodactyl's cyan loading bar at the top while a page loads, it only shows up when loading takes a moment, so quick page changes don't flicker
 - Pages fade in, dialogs and tooltips pop in like on Pterodactyl
-- Switching between the tabs of a page (e.g. Backups / System Backups, Allocations / Firewall, Mounts / Devices) keeps the page on screen until the new tab has loaded instead of reloading the whole page
+- Switching between the tabs of a page (e.g. Allocations / Firewall / Connections, Mounts / Devices, Backups / System Backups) keeps the page on screen, with the clicked tab already active, until the new tab has loaded, instead of showing a spinner or an empty list first. The header and the tabs stay still, only the content below the tabs fades in when the animations are on. The top bar and the sub navigation stay usable meanwhile
 - Lists only dim and show a spinner when loading takes a moment
 - Coming back to a tab reloads its data quietly, without the loading bar or loading lists
 - The buttons of a list page wait until the list has loaded, so they don't jump into the "No ..." box of an empty list
@@ -43,6 +45,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 
 ## Admin settings
 In **Admin → Extensions → Pterodactyl Theme**:
+- Pick the color palette of the dark mode: Default (Pterodactyl's blue-tinted grays) or Darker (deeper, neutral grays after Pterodactyl's dark theme extension, with flat bars divided by thin lines)
 - Turn the animations off or change their speed (very slow to very fast)
 - Turn the loading bar off, and change how long loading has to take before the loading bar and the spinners of lists show up
 - Put the footer at the bottom of the window, right below the content (like Pterodactyl) or hide it

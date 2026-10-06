@@ -56,7 +56,7 @@ export function usePteroThemeSettings(): PteroThemeSettings {
   return useSyncExternalStore(subscribe, getPteroThemeSettings);
 }
 
-/** The CSS (page fade, loading lists, footer) reads the settings from the root element, see app.css. */
+/** The CSS (page fade, loading lists, footer, colors) reads the settings from the root element, see app.css. */
 export function applyPteroThemeSettings() {
   const root = document.documentElement;
 
@@ -72,6 +72,13 @@ export function applyPteroThemeSettings() {
   );
   root.style.setProperty('--ptero-loading-delay', `${current.loadingBarDelay}ms`);
   root.setAttribute('data-ptero-footer', current.footerPosition);
+
+  // the darker grays of the dark scheme, see app.css
+  if (current.colorPalette === 'darker') {
+    root.setAttribute('data-ptero-palette', 'darker');
+  } else {
+    root.removeAttribute('data-ptero-palette');
+  }
 }
 
 export function setPteroThemeSettings(settings: PteroThemeSettings) {

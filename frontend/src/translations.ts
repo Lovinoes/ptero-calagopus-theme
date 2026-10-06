@@ -9,6 +9,13 @@ const translations = defineTranslations({
     },
     settings: {
       title: 'Theme Settings',
+      colorPalette: {
+        label: 'Color Palette',
+        description:
+          "The colors of the dark mode: Pterodactyl's own blue-tinted grays, or deeper, neutral ones. Light mode stays as it is.",
+        default: 'Default',
+        darker: 'Darker',
+      },
       animations: {
         label: 'Animations',
         description: 'Fade pages in and animate dialogs and tooltips like Pterodactyl does.',
@@ -24,7 +31,7 @@ const translations = defineTranslations({
       },
       loadingBar: {
         label: 'Loading Bar',
-        description: 'Show the blue bar at the top of the page while a page is loading.',
+        description: "Show Pterodactyl's thin cyan bar at the top of the page while a page is loading.",
       },
       loadingBarDelay: {
         label: 'Loading Delay',
@@ -33,7 +40,7 @@ const translations = defineTranslations({
       },
       footerPosition: {
         label: 'Footer',
-        description: 'Where the copyright line goes on every page.',
+        description: 'Where the copyright line goes on every page except the admin area, which keeps its own.',
         bottom: 'At the bottom of the window',
         content: 'Right below the content (like Pterodactyl)',
         hidden: 'Hidden',

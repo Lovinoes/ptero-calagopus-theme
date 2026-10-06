@@ -68,6 +68,10 @@ mod put {
         #[garde(skip)]
         #[schema(inline)]
         auth_header: Option<crate::settings::AuthHeader>,
+
+        #[garde(skip)]
+        #[schema(inline)]
+        color_palette: Option<crate::settings::ColorPalette>,
     }
 
     #[derive(ToSchema, Serialize)]
@@ -118,6 +122,9 @@ mod put {
         }
         if let Some(auth_header) = data.auth_header {
             extension_settings.auth_header = auth_header;
+        }
+        if let Some(color_palette) = data.color_palette {
+            extension_settings.color_palette = color_palette;
         }
 
         let updated = extension_settings.clone();

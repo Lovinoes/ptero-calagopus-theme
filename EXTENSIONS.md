@@ -18,6 +18,7 @@ While a page has the Pterodactyl look, the `<html>` element has these attributes
 | `data-ptero-theme` | present on every themed page, missing in the admin area and the first-time setup |
 | `data-ptero-area` | `auth` (login, register, password pages), `dashboard`, `account` or `server` |
 | `data-ptero-animations` | `off` when an admin turned the animations off, missing otherwise. It stays in the admin area too, use it together with `data-ptero-theme` |
+| `data-ptero-palette` | `darker` when an admin picked the darker color palette, missing otherwise. It only changes the dark scheme, and it stays in the admin area too, use it together with `data-ptero-theme` |
 | `data-mantine-color-scheme` | `dark` or `light`, set by the panel |
 
 Scope your styles to them, so the admin area keeps your default look:
@@ -47,7 +48,7 @@ These CSS variables exist on themed pages. Use a fallback (`var(--ptero-gray-700
 
 | Variables | What |
 | --- | --- |
-| `--ptero-gray-50` to `--ptero-gray-900`, `--ptero-black` | the Pterodactyl gray scale, `700` is the color of boxes, `800` of the page |
+| `--ptero-gray-50` to `--ptero-gray-900`, `--ptero-black` | the Pterodactyl gray scale, `700` is the color of boxes, `800` of the page. With the darker palette (dark scheme) they hold its deeper grays, styles built on them follow it |
 | `--ptero-blue-50` to `--ptero-blue-900` | the primary color |
 | `--ptero-cyan-400` to `--ptero-cyan-600` | the accent of active tabs and the loading bar |
 | `--ptero-red-400` to `--ptero-red-600`, `--ptero-green-500`, `--ptero-green-600`, `--ptero-yellow-500`, `--ptero-yellow-600` | status colors |
@@ -81,18 +82,18 @@ Pass the `ctx` your `initialize` gets, elsewhere `window.extensionContext`. The 
 
 | Call | Args | Returns |
 | --- | --- | --- |
-| `api_version` | `{}` | the version of these calls, currently `1` |
+| `api_version` | `{}` | the version of these calls, currently `2` |
 | `theme_active` | `{}` | `true` when the open page has the Pterodactyl look |
 | `settings` | `{}` | the theme settings an admin picked (read only), see below |
 | `navbar_add` | a navbar item, see below | a function that removes the item again, `null` if the item is invalid |
 | `navbar_remove` | `{ id: string }` | `true`, `false` without an id |
 
-New calls raise the version, calls the installed theme doesn't know return `null`. Check the version before relying on a call that came later:
+New or changed calls raise the version, calls the installed theme doesn't know return `null`. Version 2 added `colorPalette` to `settings`. Check the version before relying on something that came later:
 
 ```ts
 const version = callPteroTheme(ctx, 'api_version');
-if (typeof version === 'number' && version >= 1) {
-  // the calls of version 1 are there
+if (typeof version === 'number' && version >= 2) {
+  // the settings have colorPalette
 }
 ```
 
@@ -108,6 +109,7 @@ interface PteroThemeSettings {
   footerPosition: 'bottom' | 'content' | 'hidden';
   footerText: string;
   authHeader: 'default' | 'icon_name' | 'icon' | 'name' | 'banner' | 'banner_name' | 'hidden';
+  colorPalette: 'default' | 'darker'; // the grays of the dark scheme, since version 2
 }
 ```
 
