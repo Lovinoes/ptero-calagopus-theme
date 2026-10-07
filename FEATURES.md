@@ -37,7 +37,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 ## Animations and loading
 - Pterodactyl's cyan loading bar at the top while a page loads, it only shows up when loading takes a moment, so quick page changes don't flicker
 - Pages fade in, dialogs and tooltips pop in like on Pterodactyl
-- Switching between the tabs of a page (e.g. Allocations / Firewall / Connections, Mounts / Devices, Backups / System Backups) keeps the page on screen, with the clicked tab already active, until the new tab has loaded, instead of showing a spinner or an empty list first. The header and the tabs stay still, only the content below the tabs fades in when the animations are on. The top bar and the sub navigation stay usable meanwhile
+- Switching between the tabs of a page (e.g. Allocations / Firewall / Connections, Mounts / Devices, Backups / System Backups) keeps the page on screen, with the clicked tab already active, until the new tab has loaded, instead of showing a spinner or an empty list first. The new tab then shows up as it is, nothing on it fades, only the server lists (All Servers / Grouped Servers) fade in below their tabs when the animations are on. The top bar and the sub navigation stay usable meanwhile
 - Lists only dim and show a spinner when loading takes a moment
 - Coming back to a tab reloads its data quietly, without the loading bar or loading lists
 - The buttons of a list page wait until the list has loaded, so they don't jump into the "No ..." box of an empty list

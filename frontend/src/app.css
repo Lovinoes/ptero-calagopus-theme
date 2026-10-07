@@ -304,20 +304,26 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] {
  * palette of Pterodactyl's dark theme extension (one cool blue-grey hue, stepped only in lightness).
  * Everything takes its colors from this scale, so swapping it recolors every page. Each step keeps its
  * role: 800 the page, 700 the boxes, 600 inputs and menus, 900 the bars and headers, black the console.
- * The steps are spaced so every text and line keeps at least the contrast it has in the default palette.
+ * The steps are spaced so every text and line keeps at least the contrast it has in the default palette,
+ * the boxes sit closer to the page than there.
  */
 html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] {
   --ptero-gray-50: oklch(0.97 0.005 264);
   --ptero-gray-100: oklch(0.93 0.008 264);
   --ptero-gray-200: oklch(0.86 0.01 264);
   --ptero-gray-300: oklch(0.74 0.015 264);
-  --ptero-gray-400: oklch(0.58 0.017 264);
-  --ptero-gray-500: oklch(0.48 0.016 264);
-  --ptero-gray-600: oklch(0.375 0.015 264);
-  --ptero-gray-700: oklch(0.275 0.013 264);
+  --ptero-gray-400: oklch(0.57 0.014 264);
+  --ptero-gray-500: oklch(0.4 0.012 264);
+  --ptero-gray-600: oklch(0.33 0.012 264);
+  --ptero-gray-700: oklch(0.245 0.011 264);
   --ptero-gray-800: oklch(0.195 0.012 264);
   --ptero-gray-900: oklch(0.17 0.011 264);
   --ptero-black: oklch(0.145 0.01 264);
+}
+
+/* the footer a step darker than the other muted text, like Pterodactyl's (its links light up on hover) */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] [data-ptero-copyright] {
+  color: var(--ptero-gray-400);
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -393,8 +399,8 @@ html[data-ptero-theme] .ptero-progress__fill {
   /*
    * every page fades in when it is opened (only opacity, so nothing inside is laid out differently),
    * admins can change its speed or turn it off, see settings/store.ts. A page opened through one of its
-   * tabs keeps its header and tabs still, only the content below the tabs fades in once it shows, see
-   * loading/PteroPageTransitions.tsx
+   * tabs shows up right away, nothing on it fades, only the server lists (All Servers / Grouped Servers)
+   * fade in below their tabs, see loading/PteroPageTransitions.tsx
    */
   html[data-ptero-theme]:not([data-ptero-animations="off"])
     [data-ptero-nav]
@@ -404,7 +410,7 @@ html[data-ptero-theme] .ptero-progress__fill {
     > :not([data-ptero-page="still"]),
   html[data-ptero-theme]:not([data-ptero-animations="off"])
     [data-ptero-nav]
-    ~ :is(#dashboard-root, #server-root)
+    ~ #dashboard-root
     [data-ptero-tab-content] {
     animation: ptero-fade-in calc(150ms * var(--ptero-animation-scale, 1)) ease-in;
   }

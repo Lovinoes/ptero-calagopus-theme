@@ -9,8 +9,9 @@ import { resolvePteroArea } from '../scope.tsx';
  *
  * Now a tab switch puts a picture of the current page on top (with the clicked tab already active) while
  * the new tab renders underneath, and swaps it for the new tab at once when that has its content (at most
- * MAX_HOLD). Its header and its tabs stay still, only the content below the tabs fades in (with the
- * animations on). The same for every tab bar, the top bar and the sub navigation stay usable all along.
+ * MAX_HOLD). The new tab shows up as it is, nothing on it fades (its header, tabs and tables), only the
+ * server lists (All Servers / Grouped Servers) fade in below their tabs. The same for every tab bar. The
+ * top bar and the sub navigation stay usable all along.
  */
 const ROOT_SELECTOR = '#dashboard-root, #server-root';
 const PAGE_SELECTOR = '[data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div > div:first-child > *';
@@ -19,6 +20,8 @@ const ROOT_PAGE_SELECTOR = ':scope > div > div:first-child > *';
 const TAB_LINK_SELECTOR = '.mantine-Tabs-list a[href]';
 const PICTURE_CLASS = 'ptero-tab-hold';
 const MAX_HOLD = 1500;
+// the server lists, the panel starts on All Servers (/ and /grouped) or on Grouped Servers (/ and /all)
+const SERVER_LIST_PATHS = new Set(['/', '/all', '/grouped']);
 // the panel's spinners (a list loading, or a whole page waiting for its data)
 const LOADER_SELECTOR = '[data-testid="loader"]';
 
@@ -115,9 +118,10 @@ function contentBelowTabs(root: HTMLElement): Element[] | null {
 }
 
 /**
- * Swaps the picture for the page at once. When the new tab opened, its header and its tabs stay still and
- * only the content below the tabs fades in (with the animations on). When another page was opened, that
- * page fades in as a whole like always. What stayed from the page before (e.g. an alert) doesn't fade.
+ * Swaps the picture for the page at once. A new tab shows up as it is: its header, its tabs and its
+ * content (lists, tables) don't fade, only a server list fades in below its tabs (with the animations on).
+ * When another page was opened instead, that page fades in as a whole like always. What stayed from the
+ * page before (e.g. an alert) doesn't fade either way.
  */
 function endHold(arrived: boolean) {
   const current = hold;
@@ -132,15 +136,17 @@ function endHold(arrived: boolean) {
   );
   for (const page of pages) page.setAttribute('data-ptero-page', 'still');
 
-  const content = arrived ? contentBelowTabs(current.root) : null;
+  const content = arrived && SERVER_LIST_PATHS.has(current.target) ? contentBelowTabs(current.root) : null;
   for (const element of content ?? []) element.removeAttribute('data-ptero-tab-content');
 
-  // the browser has to see them without the fade once, otherwise it would not start again
-  current.root.getBoundingClientRect();
-  if (content) {
-    for (const element of content) element.setAttribute('data-ptero-tab-content', '');
-  } else {
-    for (const page of pages) page.setAttribute('data-ptero-page', '');
+  if (content || !arrived) {
+    // the browser has to see them without the fade once, otherwise it would not start again
+    current.root.getBoundingClientRect();
+    if (content) {
+      for (const element of content) element.setAttribute('data-ptero-tab-content', '');
+    } else {
+      for (const page of pages) page.setAttribute('data-ptero-page', '');
+    }
   }
 
   current.root.style.visibility = current.rootVisibility;
