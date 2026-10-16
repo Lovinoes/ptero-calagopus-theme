@@ -23,7 +23,8 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - Thin scrollbars without arrow buttons
 
 ## Pages
-- Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups
+- Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups. When a server's node can't be reached, its row says so instead of loading forever (Calagopus 1.2.5 and newer)
+- Enter in the search of All Servers opens the first server of the list, in your own order
 - The servers in All Servers can be dragged into any order, like the servers of a group, the order is saved with the account
 - The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons
 - The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic
@@ -37,7 +38,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 ## Animations and loading
 - Pterodactyl's cyan loading bar at the top while a page loads, it only shows up when loading takes a moment, so quick page changes don't flicker
 - Pages fade in, dialogs and tooltips pop in like on Pterodactyl
-- Switching between the tabs of a page (e.g. Allocations / Firewall / Connections, Mounts / Devices, Backups / System Backups) keeps the page on screen, with the clicked tab already active, until the new tab has loaded, instead of showing a spinner or an empty list first. The new tab then shows up as it is, nothing on it fades, only the server lists (All Servers / Grouped Servers) fade in below their tabs when the animations are on. The top bar and the sub navigation stay usable meanwhile
+- Switching between the tabs of a page (e.g. Allocations / Firewall / Connections, Mounts / Devices, Backups / System Backups) keeps the page on screen, with the clicked tab already active, until the new tab has loaded, instead of showing a spinner or an empty list first. It doesn't wait for the live stats of the server rows, so servers whose node is down don't slow it down. The new tab then shows up as it is, nothing on it fades, only the server lists (All Servers / Grouped Servers) fade in below their tabs when the animations are on. The top bar and the sub navigation stay usable meanwhile
 - Lists only dim and show a spinner when loading takes a moment
 - Coming back to a tab reloads its data quietly, without the loading bar or loading lists
 - The buttons of a list page wait until the list has loaded, so they don't jump into the "No ..." box of an empty list
@@ -45,7 +46,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 
 ## Admin settings
 In **Admin → Extensions → Pterodactyl Theme**:
-- Pick the color palette of the dark mode: Default (Pterodactyl's blue-tinted grays) or Darker (deeper, neutral grays after Pterodactyl's dark theme extension, with flat bars divided by thin lines)
+- Pick the color palette of the dark mode: Default (Pterodactyl's blue-tinted grays) or Darker (deeper, neutral grays after Pterodactyl's dark theme extension: flat bars divided by thin lines, boxes, rows, tables, dialogs and menus set apart by thin outlines, quiet inputs and switches, tinted state badges and calmer status colors, one darker blue (Pterodactyl's blue-600) for everything blue and cyan: buttons, links, bars, the open tabs, the sub navigation line, the loading bar and the live graphs)
 - Turn the animations off or change their speed (very slow to very fast)
 - Turn the loading bar off, and change how long loading has to take before the loading bar and the spinners of lists show up
 - Put the footer at the bottom of the window, right below the content (like Pterodactyl) or hide it

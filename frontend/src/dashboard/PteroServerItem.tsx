@@ -77,6 +77,12 @@ function PteroServerRow({
 
   const [openModal, setOpenModal] = useState<'add-group' | 'kill' | null>(null);
   const stats = useServerStats(server);
+  // Calagopus 1.2.5 marks the nodes whose resources fail to load, older versions don't have the field
+  // and keep the spinner
+  const statsUnavailable = useUserStore((state) => {
+    const failed = (state as { failedResourceNodes?: Record<string, true> }).failedResourceNodes;
+    return !!failed && server.nodeUuid in failed;
+  });
 
   const availableServerGroups = useMemo(
     () => serverGroups.filter((g) => !g.serverOrder.includes(server.uuid)),
@@ -327,7 +333,15 @@ function PteroServerRow({
                       </span>
                     </div>
                   ) : !stats ? (
-                    <Spinner size={16} />
+                    statsUnavailable ? (
+                      <div className='ptero-server-row__badge-wrapper'>
+                        <span className='ptero-server-row__badge' data-color='yellow'>
+                          {tExt('serverRow.resourcesUnavailable', {})}
+                        </span>
+                      </div>
+                    ) : (
+                      <Spinner size={16} />
+                    )
                   ) : (
                     <>
                       <div className='ptero-server-row__stat'>

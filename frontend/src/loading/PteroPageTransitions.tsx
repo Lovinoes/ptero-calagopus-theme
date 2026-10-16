@@ -22,8 +22,9 @@ const PICTURE_CLASS = 'ptero-tab-hold';
 const MAX_HOLD = 1500;
 // the server lists, the panel starts on All Servers (/ and /grouped) or on Grouped Servers (/ and /all)
 const SERVER_LIST_PATHS = new Set(['/', '/all', '/grouped']);
-// the panel's spinners (a list loading, or a whole page waiting for its data)
-const LOADER_SELECTOR = '[data-testid="loader"]';
+// The panel's spinners of a list loading, or of a whole page waiting for its data. Not the ones of single
+// rows: a server row waits for its live stats, which never come while its node is down.
+const LOADER_SELECTOR = '[data-testid="loader"]:not(tr *, .ptero-server-row *)';
 
 const normalize = (pathname: string) => pathname.replace(/\/+$/, '') || '/';
 

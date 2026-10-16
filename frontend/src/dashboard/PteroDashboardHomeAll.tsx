@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import { getEmptyPaginationSet, httpErrorToHuman } from '@/api/axios.ts';
 import getServerGroups from '@/api/me/servers/groups/getServerGroups.ts';
@@ -81,7 +82,8 @@ export default function PteroDashboardHomeAll() {
 
 function PteroServerList() {
   const { t } = useTranslations();
-  const { setServerGroups } = useUserStore();
+  const navigate = useNavigate();
+  const setServerGroups = useUserStore((state) => state.setServerGroups);
   const [serverListShowOthers, setServerListShowOthers] = useServerListShowOthers();
   const [serverOrder, setServerOrder] = useUserSetting(SERVER_ORDER_KEY, serverOrderSchema, EMPTY_ORDER);
   const { addToast } = useToast();
@@ -130,6 +132,7 @@ function PteroServerList() {
     data: servers,
     loading,
     search,
+    debouncedSearch,
     setSearch,
     setPage,
   } = useSearchablePaginatedTable({
@@ -222,6 +225,14 @@ function PteroServerList() {
             placeholder={t('common.input.search', {})}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => {
+              // Enter opens the first server of the list as shown (in the saved order), once the search is done
+              const firstServer = sortableServers[0]?.server;
+              if (e.key === 'Enter' && firstServer && !loading && search === debouncedSearch) {
+                e.preventDefault();
+                navigate(`/server/${firstServer.uuidShort}`);
+              }
+            }}
             className='flex-1 min-w-0 md:w-62.5'
           />
         </Group>

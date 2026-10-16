@@ -304,8 +304,9 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] {
  * palette of Pterodactyl's dark theme extension (one cool blue-grey hue, stepped only in lightness).
  * Everything takes its colors from this scale, so swapping it recolors every page. Each step keeps its
  * role: 800 the page, 700 the boxes, 600 inputs and menus, 900 the bars and headers, black the console.
- * The steps are spaced so every text and line keeps at least the contrast it has in the default palette,
- * the boxes sit closer to the page than there.
+ * The steps are spaced so every text and line keeps at least the contrast it has in the default palette.
+ * The boxes sit close to the page, a thin outline sets them apart instead of a lighter gray (see "Darker
+ * palette" at the end of this file, the roles below are used there).
  */
 html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] {
   --ptero-gray-50: oklch(0.97 0.005 264);
@@ -319,10 +320,52 @@ html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="d
   --ptero-gray-800: oklch(0.195 0.012 264);
   --ptero-gray-900: oklch(0.17 0.011 264);
   --ptero-black: oklch(0.145 0.01 264);
+
+  /* the outline of boxes, rows, menus and dialogs, and the line under the bars */
+  --ptero-darker-line: oklch(0.285 0.012 264);
+  /* one step above a box: menus, popovers, stat cards, chips inside a box, hovered rows */
+  --ptero-darker-raised: oklch(0.275 0.013 264);
+  /* inputs: a quiet fill just above the box, the border draws the field */
+  --ptero-darker-input: oklch(0.265 0.012 264);
+  --ptero-darker-input-line: oklch(0.355 0.013 264);
+  /* the small secondary text of the server rows (values and their limits) */
+  --ptero-darker-value: oklch(0.68 0.014 264);
+  --ptero-darker-limit: oklch(0.52 0.013 264);
+
+  /*
+   * One blue: Pterodactyl's darker blue-600 for everything blue (filled, outlined and tinted buttons, bars,
+   * links, gear icons, checkboxes, focus), the lighter steps would mix with it. Hover goes a step darker.
+   */
+  --ptero-blue-300: var(--ptero-blue-600);
+  --ptero-blue-400: var(--ptero-blue-600);
+  --ptero-blue-500: var(--ptero-blue-600);
+  /* Pterodactyl's cyan accents (open tabs, the sub navigation line, the live graphs) in that blue as well */
+  --ptero-cyan-400: var(--ptero-blue-600);
+  --ptero-cyan-500: var(--ptero-blue-600);
+  --ptero-cyan-600: var(--ptero-blue-600);
+  --chart-series-1: var(--ptero-blue-600);
+  --mantine-color-blue-filled-hover: var(--ptero-blue-700);
+  --mantine-primary-color-filled-hover: var(--ptero-blue-700);
+  --mantine-color-blue-light: color-mix(in srgb, var(--ptero-blue-600) 18%, transparent);
+  --mantine-color-blue-light-hover: color-mix(in srgb, var(--ptero-blue-600) 24%, transparent);
+  --mantine-primary-color-light: color-mix(in srgb, var(--ptero-blue-600) 18%, transparent);
+  --mantine-primary-color-light-hover: color-mix(in srgb, var(--ptero-blue-600) 24%, transparent);
+
+  /* the status colors a little less saturated, so they sit calmly on the deep grays */
+  --ptero-red-400: oklch(0.72 0.15 23);
+  --ptero-red-500: oklch(0.64 0.19 25);
+  --ptero-red-600: oklch(0.58 0.19 26);
+  --ptero-green-500: oklch(0.72 0.16 150);
+  --ptero-green-600: oklch(0.64 0.15 151);
+  --ptero-yellow-500: oklch(0.8 0.15 85);
+  --ptero-yellow-600: oklch(0.72 0.14 80);
 }
 
-/* the footer a step darker than the other muted text, like Pterodactyl's (its links light up on hover) */
-html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] [data-ptero-copyright] {
+/*
+ * the footer of the dark scheme (both palettes) a step darker than the other muted text, like Pterodactyl's
+ * (its links light up on hover), the light scheme's muted text is dark enough already
+ */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] [data-ptero-copyright] {
   color: var(--ptero-gray-400);
 }
 
@@ -1475,9 +1518,10 @@ html[data-ptero-theme] .ptero-server-row__badge[data-color="red"] {
   color: #fee2e2;
 }
 
+/* dark text on the yellow, light text on it was barely readable */
 html[data-ptero-theme] .ptero-server-row__badge[data-color="yellow"] {
   background-color: var(--ptero-yellow-500);
-  color: #fef9c3;
+  color: #422006;
 }
 
 /* .status-bar: w-2 absolute right-0 z-20 rounded-full m-1 opacity-50, height calc(100% - 0.5rem) */
@@ -2284,4 +2328,273 @@ html[data-ptero-theme] [data-ptero-copyright] a {
 
 html[data-ptero-theme] [data-ptero-copyright] a:hover {
   color: var(--mantine-color-text);
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Darker palette (theme settings): the finishing of the deep grays
+ *
+ * The boxes sit close to the page, so everything that is a surface gets a thin outline instead of a
+ * lighter gray: boxes, server rows, tables, the tab box, stat cards, dialogs and menus. The controls
+ * stay quiet (inputs just above the box, drawn by their border), and the small secondary text keeps a
+ * readable step. Only the dark scheme of the darker palette, the default palette stays Pterodactyl's.
+ * --------------------------------------------------------------------------------------------- */
+
+/* boxes and the chips inside them (cards always draw a 1px border, it only gets a color) */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Card-root {
+  --paper-border-color: var(--ptero-darker-line);
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  .mantine-Card-root {
+  background-color: var(--ptero-darker-raised);
+}
+
+/* the stat cards of the console and database pages: a raised box with a darker icon tile */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+.mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root) {
+  background-color: var(--ptero-darker-raised);
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root) {
+  --mantine-color-blue-filled: var(--ptero-gray-800);
+  --mantine-primary-color-filled: var(--ptero-gray-800);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  > .flex.flex-row
+  > .mantine-ThemeIcon-root {
+  box-shadow: inset 0 0 0 1px var(--ptero-darker-line);
+}
+
+/* the stand-alone table box, the header bar closed by the outline color instead of black */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+div[style*="border"]:has(> .mantine-TableScrollContainer-scrollContainer) {
+  border-color: var(--ptero-darker-line) !important;
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Table-table {
+  --table-hover-color: var(--ptero-darker-raised);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Table-thead {
+  --table-border-color: var(--ptero-darker-line);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] #title-card-header {
+  border-bottom-color: var(--ptero-darker-line) !important;
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Divider-root {
+  --divider-color: var(--ptero-darker-line);
+}
+
+/* the group header of the grouped server list */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] #server-group-item-header {
+  border-bottom-color: var(--ptero-darker-line);
+  box-shadow: inset 0 0 0 1px var(--ptero-darker-line);
+}
+
+/* the box of the page tabs: outlined, the hovered tab one step up, the open one a step further */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+.mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
+  box-shadow: inset 0 0 0 1px var(--ptero-darker-line);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Tabs-list
+  > a
+  > .mantine-Tabs-tab:hover {
+  background-color: var(--ptero-darker-raised);
+}
+
+/* server rows: outlined like the boxes, a lighter outline on hover, the accent when selected */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-server-row {
+  border-color: var(--ptero-darker-line);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-server-row:hover {
+  border-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .ptero-server-row.ptero-server-row--selected {
+  border-color: var(--ptero-blue-500);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-server-row__icon {
+  background-color: var(--ptero-darker-raised);
+  box-shadow: inset 0 0 0 1px var(--ptero-darker-line);
+  color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-server-row__stat-value {
+  color: var(--ptero-darker-value);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-server-row__stat-limit {
+  color: var(--ptero-darker-limit);
+}
+
+/* the status bar crisp instead of half transparent, which turned it muddy on the deep grays */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-server-row__status-bar {
+  opacity: 0.8;
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .ptero-server-row:hover
+  > .ptero-server-row__status-bar {
+  opacity: 1;
+}
+
+/* the state badges (suspended, installing, ...) tinted instead of solid */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-server-row__badge {
+  background-color: var(--ptero-darker-raised);
+  box-shadow: inset 0 0 0 1px var(--ptero-gray-600);
+  color: var(--ptero-gray-200);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .ptero-server-row__badge[data-color="red"] {
+  background-color: color-mix(in oklab, var(--ptero-red-500) 18%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ptero-red-500) 45%, transparent);
+  color: oklch(0.82 0.09 22);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .ptero-server-row__badge[data-color="yellow"] {
+  background-color: color-mix(in oklab, var(--ptero-yellow-500) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--ptero-yellow-500) 40%, transparent);
+  color: oklch(0.88 0.11 90);
+}
+
+/* inputs: a quiet field drawn by its border, the accent ring on focus */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+.mantine-Input-wrapper[data-variant="default"] {
+  --input-bg: var(--ptero-darker-input);
+  --input-bd: var(--ptero-darker-input-line);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-input:hover:not(:disabled, :focus, :focus-within, [data-error]) {
+  border-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-input:is(:focus, :focus-within):not([data-error]) {
+  border-color: var(--ptero-blue-500);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ptero-blue-500) 30%, transparent);
+}
+
+/* switches and checkboxes in the input colors, not the brightest thing on the page */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Switch-input:not(:checked)
+  + .mantine-Switch-track {
+  border-color: var(--ptero-darker-input-line);
+  background-color: var(--ptero-darker-input);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Switch-input:not(:checked)
+  + .mantine-Switch-track
+  .mantine-Switch-thumb {
+  border-color: transparent;
+  background-color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Checkbox-input:not(:checked, [data-indeterminate]) {
+  border-color: var(--ptero-gray-500);
+  background-color: var(--ptero-darker-input);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Checkbox-input:is(:checked, [data-indeterminate]) {
+  background-color: var(--ptero-blue-500);
+}
+
+/* bars of progress (disk usage, stat cards) on a sunken track */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Progress-root {
+  background-color: var(--ptero-gray-800);
+}
+
+/* dialogs: outlined, lifted by a real shadow over a darker page */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Modal-content {
+  box-shadow:
+    0 0 0 1px var(--ptero-darker-line),
+    0 24px 48px -12px rgb(0 0 0 / 0.6);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Modal-overlay {
+  --overlay-bg: color-mix(in srgb, var(--ptero-black) 70%, transparent) !important;
+}
+
+/* menus, dropdowns and popovers one step above the boxes */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+:is(.mantine-Popover-dropdown, .mantine-Menu-dropdown, .mantine-Combobox-dropdown, .mantine-HoverCard-dropdown) {
+  border-color: var(--ptero-gray-600);
+  background-color: var(--ptero-darker-raised);
+  box-shadow: 0 12px 28px -6px rgb(0 0 0 / 0.55);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Combobox-option:hover,
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  .mantine-Combobox-option[data-combobox-selected] {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .mantine-Tooltip-tooltip {
+  box-shadow:
+    0 0 0 1px var(--ptero-darker-line),
+    0 8px 20px -6px rgb(0 0 0 / 0.5);
+}
+
+/* the live graphs of the console in the same raised box as the stat cards next to them */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  #server-root
+  .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.min-h-60) {
+  border-bottom: 1px solid var(--ptero-darker-line);
+  background-color: var(--ptero-darker-raised);
+  box-shadow: none;
+}
+
+/* the loading bar at the top in the blue of the darker palette, with a glow of the same blue */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-progress__fill {
+  background-color: var(--ptero-blue-600);
+  box-shadow: 0 -2px 10px 2px color-mix(in srgb, var(--ptero-blue-600) 70%, transparent);
+}
+
+/* the start button of the console goes a step darker on hover, like the other blue buttons */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] #console-infobar {
+  --mantine-color-green-filled-hover: var(--ptero-blue-700);
+}
+
+/* the console box: the black well gets the outline as well */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"]
+  #server-root
+  .mantine-Card-root.font-mono.isolate {
+  --paper-border-color: var(--ptero-darker-line);
+}
+
+/* the captcha part below the login box continues its outline */
+html[data-ptero-theme][data-ptero-palette="darker"][data-ptero-area="auth"][data-mantine-color-scheme="dark"]
+  .mantine-Stack-root
+  > .mantine-Card-root
+  + div.flex.w-full.items-center.justify-center {
+  border-color: var(--ptero-darker-line);
+  box-shadow: none;
+}
+
+/* selected text in the accent */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] ::selection {
+  background-color: color-mix(in oklab, var(--ptero-blue-500) 45%, transparent);
+  color: var(--ptero-gray-50);
 }

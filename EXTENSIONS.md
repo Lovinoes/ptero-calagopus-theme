@@ -52,6 +52,7 @@ These CSS variables exist on themed pages. Use a fallback (`var(--ptero-gray-700
 | `--ptero-blue-50` to `--ptero-blue-900` | the primary color |
 | `--ptero-cyan-400` to `--ptero-cyan-600` | the accent of active tabs and the loading bar |
 | `--ptero-red-400` to `--ptero-red-600`, `--ptero-green-500`, `--ptero-green-600`, `--ptero-yellow-500`, `--ptero-yellow-600` | status colors |
+| `--ptero-darker-line`, `--ptero-darker-raised`, `--ptero-darker-input`, `--ptero-darker-input-line` | only with the darker palette (dark scheme): the outline of boxes, the surface one step above a box (menus, stat cards), the fill and the border of inputs. Use a fallback, they are missing otherwise |
 | `--ptero-shadow`, `--ptero-shadow-md`, `--ptero-shadow-lg` | box shadows |
 | `--ptero-font-sans`, `--ptero-font-header` | the body font and the IBM Plex Sans heading font |
 | `--ptero-max-width` | the width of the content column (1200px) |

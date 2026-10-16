@@ -6,6 +6,8 @@ const translations = defineTranslations({
     serverRow: {
       // shown under each resource of a server row, e.g. "of 8 GiB"
       ofLimit: 'of {limit}',
+      // in place of the resources when the server's node can't be reached (Calagopus 1.2.5 and newer)
+      resourcesUnavailable: 'Resource Usage Unavailable',
     },
     settings: {
       title: 'Theme Settings',
