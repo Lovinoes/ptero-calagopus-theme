@@ -5,7 +5,7 @@ import type { To } from 'react-router';
 import { z } from 'zod';
 import ActivityInfoButton from '@/elements/activity/ActivityInfoButton.tsx';
 import Avatar from '@/elements/data-display/Avatar.tsx';
-import { ErrorItems, NoItems, Pagination } from '@/elements/data-display/Table.tsx';
+import { NoItems, Pagination } from '@/elements/data-display/Table.tsx';
 import TableLink from '@/elements/data-display/TableLink.tsx';
 import Spinner from '@/elements/feedback/Spinner.tsx';
 import Tooltip from '@/elements/overlays/Tooltip.tsx';
@@ -15,6 +15,7 @@ import { activitySchema } from '@/lib/schemas/activity.ts';
 import { serverActivitySchema } from '@/lib/schemas/server/activity.ts';
 import { userActivitySchema } from '@/lib/schemas/user/activity.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import PteroErrorState from '../feedback/PteroErrorState.tsx';
 
 type Activity =
   | z.infer<typeof activitySchema>
@@ -26,6 +27,10 @@ interface PteroActivityLogProps {
   loading: boolean;
   error: string | null | undefined;
   onPageSelect: (page: number) => void;
+  /** loads the log again after an error */
+  onRetry?: () => void;
+  /** Calagopus 1.2.7: how many entries a page shows, picked below the log */
+  onPerPageSelect?: (perPage: number) => void;
   children: ReactNode;
 }
 
@@ -33,7 +38,15 @@ interface PteroActivityLogProps {
  * Pterodactyl's activity log (ActivityLogContainer): one gray box with an entry below the other instead
  * of a table, the pages below it. Loading, errors and an empty log look like the panel's tables.
  */
-export function PteroActivityLog({ activities, loading, error, onPageSelect, children }: PteroActivityLogProps) {
+export function PteroActivityLog({
+  activities,
+  loading,
+  error,
+  onPageSelect,
+  onRetry,
+  onPerPageSelect,
+  children,
+}: PteroActivityLogProps) {
   const empty = !loading && activities?.total === 0;
 
   return (
@@ -41,7 +54,7 @@ export function PteroActivityLog({ activities, loading, error, onPageSelect, chi
       <div className='ptero-activity' data-loading={loading || undefined}>
         {error ? (
           <div className='ptero-activity__message'>
-            <ErrorItems error={error} />
+            <PteroErrorState error={error} onRetry={onRetry} retrying={loading} />
           </div>
         ) : empty ? (
           <div className='ptero-activity__message'>
@@ -58,7 +71,15 @@ export function PteroActivityLog({ activities, loading, error, onPageSelect, chi
         )}
       </div>
 
-      {!error && activities && <Pagination data={activities} mt='md' onPageSelect={onPageSelect} />}
+      {!error && activities && (
+        <Pagination
+          data={activities}
+          mt='md'
+          onPageSelect={onPageSelect}
+          // only Calagopus 1.2.7 has this prop, a spread isn't checked against the props of 1.2.6
+          {...(onPerPageSelect ? { onPerPageSelect } : {})}
+        />
+      )}
     </>
   );
 }

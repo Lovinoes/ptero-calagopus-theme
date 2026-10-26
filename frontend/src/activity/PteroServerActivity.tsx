@@ -12,8 +12,14 @@ import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePag
 import { buildUserFilterSearch, useUserFilter } from '@/plugins/useUserFilter.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
+import { perPageSetter } from '../compat.ts';
 import { usePteroThemeActive } from '../scope.tsx';
 import { PteroActivityEntry, PteroActivityLog } from './PteroActivityLog.tsx';
+
+// the number of entries per page is a fifth argument since Calagopus 1.2.7, 1.2.6 ignores it
+const fetchServerActivity = getServerActivity as (
+  ...args: [...Parameters<typeof getServerActivity>, perPage?: number]
+) => ReturnType<typeof getServerActivity>;
 
 /**
  * The activity page of a server (pages/server/activity/ServerActivity.tsx) as Pterodactyl's activity
@@ -30,17 +36,13 @@ function PteroServerActivityLog() {
   const [searchParams] = useSearchParams();
   const { filterUserUuid, setFilterUserUuid } = useUserFilter();
 
-  const {
-    data: activities,
-    loading,
-    error,
-    search,
-    setSearch,
-    setPage,
-  } = useSearchablePaginatedTable({
+  const table = useSearchablePaginatedTable({
     queryKey: queryKeys.server(server.uuid).activity.all(filterUserUuid),
-    fetcher: (page, search) => getServerActivity(server.uuid, filterUserUuid, page, search),
+    // Calagopus 1.2.7 passes the number of entries per page, 1.2.6 neither passes nor takes it
+    fetcher: (page: number, search: string, perPage?: number) =>
+      fetchServerActivity(server.uuid, filterUserUuid, page, search, perPage),
   });
+  const { data: activities, loading, error, search, setSearch, setPage, refetch } = table;
 
   return (
     <ServerContentContainer
@@ -50,7 +52,14 @@ function PteroServerActivityLog() {
       contentRight={filterUserUuid ? <ClearUserFilterButton onClick={() => setFilterUserUuid(null)} /> : null}
       registry={window.extensionContext.extensionRegistry.pages.server.activity.container}
     >
-      <PteroActivityLog activities={activities} loading={loading} error={error} onPageSelect={setPage}>
+      <PteroActivityLog
+        activities={activities}
+        loading={loading}
+        error={error}
+        onPageSelect={setPage}
+        onRetry={refetch}
+        onPerPageSelect={perPageSetter(table)}
+      >
         {activities?.data.map((activity, index) => {
           const fileWriteData = activity.data as { file?: string; revision_id?: string } | null;
           const diffHref =

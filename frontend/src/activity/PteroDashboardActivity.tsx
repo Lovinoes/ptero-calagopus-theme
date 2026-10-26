@@ -6,6 +6,7 @@ import DashboardActivity from '@/pages/dashboard/activity/DashboardActivity.tsx'
 import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePaginatedTable.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { perPageSetter } from '../compat.ts';
 import { usePteroThemeActive } from '../scope.tsx';
 import { PteroActivityEntry, PteroActivityLog } from './PteroActivityLog.tsx';
 
@@ -21,17 +22,12 @@ function PteroAccountActivityLog() {
   const { user } = useAuth();
   const { t } = useTranslations();
 
-  const {
-    data: activities,
-    loading,
-    error,
-    search,
-    setSearch,
-    setPage,
-  } = useSearchablePaginatedTable({
+  const table = useSearchablePaginatedTable({
     queryKey: queryKeys.user.activity.all(),
+    // Calagopus 1.2.7 passes the number of entries per page as well, its getUserActivity takes it
     fetcher: getUserActivity,
   });
+  const { data: activities, loading, error, search, setSearch, setPage, refetch } = table;
 
   return (
     <AccountContentContainer
@@ -40,7 +36,14 @@ function PteroAccountActivityLog() {
       setSearch={setSearch}
       registry={window.extensionContext.extensionRegistry.pages.dashboard.activity.container}
     >
-      <PteroActivityLog activities={activities} loading={loading} error={error} onPageSelect={setPage}>
+      <PteroActivityLog
+        activities={activities}
+        loading={loading}
+        error={error}
+        onPageSelect={setPage}
+        onRetry={refetch}
+        onPerPageSelect={perPageSetter(table)}
+      >
         {activities?.data.map((activity, index) => (
           <PteroActivityEntry
             key={`${activity.created.toISOString()}-${index}`}

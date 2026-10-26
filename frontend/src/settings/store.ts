@@ -8,9 +8,8 @@ import {
 } from './schema.ts';
 
 /**
- * The theme settings an admin picked (admin area -> Extensions -> Pterodactyl Theme). The last known
- * settings are kept in the browser, so a reload doesn't play animations an admin turned off while
- * the current ones are still being fetched.
+ * The theme settings (Admin -> Extensions -> Pterodactyl Theme). The last known ones are kept in the
+ * browser, so a reload doesn't play animations an admin turned off before the current ones are fetched.
  */
 const CACHE_KEY = 'ptero-theme-settings';
 
@@ -93,6 +92,6 @@ export function loadPteroThemeSettings() {
   getPublicThemeSettings()
     .then(setPteroThemeSettings)
     .catch(() => {
-      // an older backend or a network error, the cached (or default) settings stay in use
+      // a network error, the cached (or default) settings stay in use
     });
 }

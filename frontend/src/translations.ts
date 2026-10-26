@@ -6,8 +6,16 @@ const translations = defineTranslations({
     serverRow: {
       // shown under each resource of a server row, e.g. "of 8 GiB"
       ofLimit: 'of {limit}',
-      // in place of the resources when the server's node can't be reached (Calagopus 1.2.5 and newer)
+      // in place of the resources when the server's node can't be reached
       resourcesUnavailable: 'Resource Usage Unavailable',
+    },
+    // for Calagopus 1.2.6, whose own translations don't have it yet
+    errorState: {
+      retry: 'Retry',
+    },
+    // in case a release renames the panel's own text again (a missing panel text would break the page)
+    serverList: {
+      empty: 'No servers could be found.',
     },
     settings: {
       title: 'Theme Settings',
@@ -33,7 +41,7 @@ const translations = defineTranslations({
       },
       loadingBar: {
         label: 'Loading Bar',
-        description: "Show Pterodactyl's thin cyan bar at the top of the page while a page is loading.",
+        description: "Show Pterodactyl's thin loading bar at the top of the page while a page is loading.",
       },
       loadingBarDelay: {
         label: 'Loading Delay',

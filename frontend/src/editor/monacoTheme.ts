@@ -1,5 +1,7 @@
-import type { Monaco } from '@monaco-editor/react';
 import { isPteroThemeActive } from '../scope.tsx';
+
+// the Monaco API, from monaco-editor itself: Calagopus 1.2.7 dropped @monaco-editor/react, which re-exported it
+type Monaco = typeof import('monaco-editor');
 
 /**
  * Pterodactyl edits files with CodeMirror and its "ayu-mirage" theme. This is that theme for Monaco,

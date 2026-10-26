@@ -414,7 +414,15 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] {
   }
 }
 
-/* 2px cyan bar at the very top, see loading/PteroProgressBar.tsx */
+/*
+ * Calagopus 1.2.7 shows its own thin bar at the top while a page opens or loads. On the themed pages
+ * Pterodactyl's bar below does that instead (it follows the theme settings), the admin area keeps it.
+ */
+html[data-ptero-theme] div[role="progressbar"][aria-busy="true"].fixed.inset-x-0.top-0 {
+  display: none;
+}
+
+/* the 2px bar at the very top (cyan, blue with the darker palette), see loading/PteroProgressBar.tsx */
 html[data-ptero-theme] .ptero-progress {
   position: fixed;
   top: 0;

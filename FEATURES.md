@@ -23,11 +23,13 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - Thin scrollbars without arrow buttons
 
 ## Pages
-- Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups. When a server's node can't be reached, its row says so instead of loading forever (Calagopus 1.2.5 and newer)
+- Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups. When a server's node can't be reached, its row says so instead of loading forever
 - Enter in the search of All Servers opens the first server of the list, in your own order
+- A list that fails to load shows the error with a Retry button, an account without servers gets the panel's empty state (Calagopus 1.2.7)
+- The activity pages can show more entries per page (Calagopus 1.2.7)
 - The servers in All Servers can be dragged into any order, like the servers of a group, the order is saved with the account
 - The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons
-- The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic
+- The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic. Until the first stats arrive they show a spinner (Calagopus 1.2.7)
 - Pterodactyl's activity log on the activity pages of a server and of the account: the avatar, "user — event", the IP and how long ago, the details on the right. The search, the filter by user and the file diff links work as before
 - Pterodactyl's file list rows, and the file editor in Pterodactyl's ayu-mirage colors (dark mode)
 - The image viewer shows the image centered, at its own size or scaled down to fit, with zooming and panning
@@ -36,7 +38,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - The Calagopus-only features (quick actions, server groups, hiding addresses and more) styled to match
 
 ## Animations and loading
-- Pterodactyl's cyan loading bar at the top while a page loads, it only shows up when loading takes a moment, so quick page changes don't flicker
+- Pterodactyl's loading bar at the top (cyan, blue with the darker palette) while a page opens or loads, in place of the panel's own bar. It only shows up when loading takes a moment, so quick page changes don't flicker
 - Pages fade in, dialogs and tooltips pop in like on Pterodactyl
 - Switching between the tabs of a page (e.g. Allocations / Firewall / Connections, Mounts / Devices, Backups / System Backups) keeps the page on screen, with the clicked tab already active, until the new tab has loaded, instead of showing a spinner or an empty list first. It doesn't wait for the live stats of the server rows, so servers whose node is down don't slow it down. The new tab then shows up as it is, nothing on it fades, only the server lists (All Servers / Grouped Servers) fade in below their tabs when the animations are on. The top bar and the sub navigation stay usable meanwhile
 - Lists only dim and show a spinner when loading takes a moment

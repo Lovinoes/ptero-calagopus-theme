@@ -110,12 +110,15 @@ export function installBootScope() {
     // the page and the text color (gray-800 and gray-100) of the scheme and palette, see app.css
     const page = light ? 'hsl(214, 20%, 93%)' : darker ? 'oklch(0.195 0.012 264)' : 'hsl(209, 20%, 25%)';
     const spinner = light ? 'hsl(209, 20%, 25%)' : darker ? 'oklch(0.93 0.008 264)' : 'hsl(214, 15%, 91%)';
+    // Calagopus 1.2.7 draws the spinner in the primary color (--loader-color), the blue of the
+    // palette then (blue-500, blue-600 in the darker one, see app.css), 1.2.6 in a border
+    const primary = darker && !light ? '#2563eb' : '#3b82f6';
     const style = document.createElement('style');
 
     style.id = BOOT_STYLE_ID;
     style.textContent = [
       `html[data-ptero-theme]{background-color:var(--mantine-color-body,${page})}`,
-      `html[data-ptero-theme]:not([data-mantine-color-scheme]) .spinner{border-color:${spinner};border-bottom-color:transparent}`,
+      `html[data-ptero-theme]:not([data-mantine-color-scheme]) .spinner{border-color:${spinner};border-bottom-color:transparent;--loader-color:${primary}}`,
     ].join('\n');
     document.head.appendChild(style);
   }

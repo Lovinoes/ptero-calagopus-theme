@@ -1,6 +1,7 @@
 import type { AxiosInstance } from 'axios';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router';
+import { PendingNavigationContext } from '../compat.ts';
 import { resolvePteroArea } from '../scope.tsx';
 import { usePteroThemeSettings } from '../settings/store.ts';
 import { isBackgroundRefresh, onTabReturn } from './backgroundRefresh.ts';
@@ -90,16 +91,20 @@ export function trackRequests(instance: AxiosInstance) {
 const randomInt = (low: number, high: number) => Math.floor(Math.random() * (high - low) + low);
 
 /**
- * Pterodactyl's loading bar (components/elements/ProgressBar.tsx): a 2px cyan bar at the top of the
- * page that starts at 20-30% while API requests are running, creeps towards 90% and fills up when
- * they are done. Unlike Pterodactyl it only appears once a request takes longer than the delay an
- * admin set (250ms by default), as Calagopus refreshes some data in the background, which would
- * otherwise make it flicker. Admins can turn it off as well.
+ * Pterodactyl's loading bar (components/elements/ProgressBar.tsx): a 2px bar at the top of the page,
+ * cyan (blue with the darker palette), that starts at 20-30% while a page opens or API requests run,
+ * creeps towards 90% and fills up when they are done. Unlike Pterodactyl it only appears once loading
+ * takes longer than the delay an admin set (250ms by default), as Calagopus refreshes some data in the
+ * background, which would otherwise make it flicker. Admins can turn it off as well.
  */
 export default function PteroProgressBar() {
   const { pathname } = useLocation();
   const { loadingBar, loadingBarDelay } = usePteroThemeSettings();
-  const loading = useSyncExternalStore(subscribe, isLoading) && loadingBar;
+  const requesting = useSyncExternalStore(subscribe, isLoading);
+  // Calagopus 1.2.7 keeps the old page up while the next one loads, that is loading as well (it
+  // replaces the panel's own bar on the themed pages, see app.css)
+  const navigating = useContext(PendingNavigationContext) !== null;
+  const loading = (requesting || navigating) && loadingBar;
   const [progress, setProgress] = useState<number | null>(null);
   const [shown, setShown] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);

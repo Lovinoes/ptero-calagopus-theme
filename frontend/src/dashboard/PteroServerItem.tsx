@@ -36,7 +36,7 @@ import ServerAddGroupModal from '@/pages/dashboard/home/modals/ServerAddGroupMod
 import ServerItem from '@/pages/dashboard/home/ServerItem.tsx';
 import { useBulkPowerActions } from '@/plugins/server/useBulkPowerActions.ts';
 import { useServerListShowOthers } from '@/plugins/server/useServerListShowOthers.ts';
-import { useServerStats } from '@/plugins/server/useServerStats.ts';
+import { useServerStats, useServerStatsUnavailable } from '@/plugins/server/useServerStats.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useUserStore } from '@/stores/user.ts';
@@ -77,12 +77,8 @@ function PteroServerRow({
 
   const [openModal, setOpenModal] = useState<'add-group' | 'kill' | null>(null);
   const stats = useServerStats(server);
-  // Calagopus 1.2.5 marks the nodes whose resources fail to load, older versions don't have the field
-  // and keep the spinner
-  const statsUnavailable = useUserStore((state) => {
-    const failed = (state as { failedResourceNodes?: Record<string, true> }).failedResourceNodes;
-    return !!failed && server.nodeUuid in failed;
-  });
+  // the node of the server can't be reached, its stats will not come
+  const statsUnavailable = useServerStatsUnavailable(server);
 
   const availableServerGroups = useMemo(
     () => serverGroups.filter((g) => !g.serverOrder.includes(server.uuid)),

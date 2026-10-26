@@ -1,6 +1,6 @@
-// Core components replaced by this theme. The panel's build reads the `defineOverride(original, replacement)`
-// calls in this file (it is never executed) and resolves every import of `original` to `replacement`.
-// Inside the replacement, importing the original path still gives the stock component.
+// The panel components this theme replaces. The panel's build reads the defineOverride() calls (this file
+// never runs) and resolves every import of the original to the replacement. Inside a replacement the
+// original path still gives the stock component, which it renders off the themed pages.
 import Copyright from '@/elements/Copyright.tsx';
 import StatCard from '@/elements/data-display/StatCard.tsx';
 import DashboardActivity from '@/pages/dashboard/activity/DashboardActivity.tsx';
@@ -19,12 +19,13 @@ function defineOverride<T>(original: T, replacement: NoInfer<T>) {
 }
 
 export default [
+  // the rows of the server lists as Pterodactyl's server rows
   defineOverride(ServerItem, PteroServerItem),
   // the "All Servers" list, its servers can be dragged into an order
   defineOverride(DashboardHomeAll, PteroDashboardHomeAll),
   // the footer, its text can be set in the theme settings
   defineOverride(Copyright, PteroCopyright),
-  // the stat cards of the console, they don't scroll and show the network speeds below the value
+  // the stat cards of the console, the value is cut off instead of scrolling, the details get their own line
   defineOverride(StatCard, PteroStatCard),
   // the activity pages of a server and the account as Pterodactyl's activity log
   defineOverride(ServerActivity, PteroServerActivity),

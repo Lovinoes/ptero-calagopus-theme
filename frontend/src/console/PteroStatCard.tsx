@@ -9,11 +9,13 @@ import Card from '@/elements/data-display/Card.tsx';
 // inside this file the path resolves to the stock component, see overrides.ts
 import StatCard from '@/elements/data-display/StatCard.tsx';
 import ThemeIcon from '@/elements/data-display/ThemeIcon.tsx';
+import Spinner from '@/elements/feedback/Spinner.tsx';
 import RedactedText from '@/elements/typography/RedactedText.tsx';
 import { usageColor } from '@/lib/format/usage.ts';
 import { usePteroThemeActive } from '../scope.tsx';
 
-type Props = ComponentProps<typeof StatCard>;
+// loading: Calagopus 1.2.7 shows a spinner until the first stats are there, 1.2.6 doesn't pass it
+type Props = ComponentProps<typeof StatCard> & { loading?: boolean };
 
 /**
  * The stat cards of the console and database pages (elements/data-display/StatCard.tsx) like
@@ -39,9 +41,11 @@ function PteroStatBlock({
   total,
   valueColor,
   redact,
+  loading,
 }: Props) {
   const displayValue = redact ? <RedactedText value={value} /> : value;
-  const color = usageColor(progress, total);
+  const shownProgress = loading ? null : progress;
+  const color = usageColor(shownProgress, total);
 
   const valueLine = (
     <>
@@ -50,7 +54,7 @@ function PteroStatBlock({
   );
 
   return (
-    <Card className={className} style={{ order }} progress={progress} total={total} progressColor={color}>
+    <Card className={className} style={{ order }} progress={shownProgress} total={total} progressColor={color}>
       <div className='flex flex-row items-center'>
         {icon && (
           <ThemeIcon size='xl' radius='md' color={color}>
@@ -75,7 +79,11 @@ function PteroStatBlock({
             className='ptero-stat-value text-lg font-bold'
             style={valueColor ? { color: `var(--mantine-color-${valueColor}-text)` } : undefined}
           >
-            {copyOnClick ? (
+            {loading ? (
+              <span className='flex h-7 items-center'>
+                <Spinner size={18} />
+              </span>
+            ) : copyOnClick ? (
               <CopyOnClick content={value} className='text-left'>
                 {valueLine}
               </CopyOnClick>
@@ -83,7 +91,7 @@ function PteroStatBlock({
               valueLine
             )}
           </span>
-          {details && <div className='ptero-stat-details'>{details}</div>}
+          {details && !loading && <div className='ptero-stat-details'>{details}</div>}
         </div>
       </div>
     </Card>
