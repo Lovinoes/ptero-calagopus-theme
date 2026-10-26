@@ -13,8 +13,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu, Tooltip, type TransitionOverride, useMantineColorScheme } from '@mantine/core';
-import { Component, type ReactNode } from 'react';
-import { Link, NavLink, useLocation } from 'react-router';
+import { Component, type ReactNode, useContext } from 'react';
+import { Link, useLocation } from 'react-router';
 import AppIcon from '@/elements/AppIcon.tsx';
 import Avatar from '@/elements/data-display/Avatar.tsx';
 import { useLogoutConfirmation } from '@/elements/useLogoutConfirmation.tsx';
@@ -26,11 +26,13 @@ import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import { useQuickActionsStore } from '@/stores/quickActions.ts';
+import { PendingNavigationContext } from '../compat.ts';
 import { type PteroNavbarItem, useNavbarItems } from '../extensionApi/navbarItems.ts';
 import { usePteroTooltipTransition } from '../loading/animations.ts';
 
-const isDashboardPath = (pathname: string) =>
-  pathname === '/' || pathname === '/all' || pathname === '/grouped' || pathname === '/grouped/';
+const DASHBOARD_PATHS = new Set(['/', '/all', '/grouped']);
+
+const isDashboardPath = (pathname: string) => DASHBOARD_PATHS.has(pathname.replace(/\/+$/, '') || '/');
 
 const isAccountPath = (pathname: string) => pathname === '/account' || pathname.startsWith('/account/');
 
@@ -114,7 +116,10 @@ function ExtensionNavbarItem({
  */
 export default function PteroNavigationBar() {
   const { t } = useTranslations();
-  const { pathname } = useLocation();
+  const { pathname: currentPathname } = useLocation();
+  // Calagopus 1.2.7 keeps the old page up while the next one loads, the icon of the next one is
+  // underlined meanwhile, like the panel's sidebar links
+  const pathname = useContext(PendingNavigationContext) ?? currentPathname;
   const { user, impersonating } = useAuth();
 
   const routeOrder = useGlobalStore((state) => state.settings.user?.routeOrder);
@@ -166,14 +171,14 @@ export default function PteroNavigationBar() {
 
           {!suspended && (
             <Tooltip label={t('pages.account.home.title', {})} position='bottom' transitionProps={tooltipTransition}>
-              <NavLink
+              <Link
                 to='/'
                 aria-label={t('pages.account.home.title', {})}
-                className={({ isActive }) => (isActive || isDashboardPath(pathname) ? 'active' : undefined)}
-                end
+                className={isDashboardPath(pathname) ? 'active' : undefined}
+                aria-current={isDashboardPath(pathname) ? 'page' : undefined}
               >
                 <FontAwesomeIcon icon={faLayerGroup} />
-              </NavLink>
+              </Link>
             </Tooltip>
           )}
 

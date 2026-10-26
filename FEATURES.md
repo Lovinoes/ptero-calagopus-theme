@@ -4,7 +4,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 
 ## Layout
 - Pterodactyl's top navigation bar instead of the Calagopus sidebar, with the stock Calagopus app icon / banner on the left
-- Pterodactyl's five icons on the right: search (quick actions), dashboard, admin area, account and sign out
+- Pterodactyl's five icons on the right: search (quick actions), dashboard, admin area, account and sign out. The icon of the page being opened is underlined right away, while it still loads (Calagopus 1.2.7)
 - On a server page, admins get Pterodactyl's external link icon at the end of the sub navigation, which opens that server in the admin area
 - The account avatar opens a menu with the account link, the theme switcher (auto, dark, light), hiding addresses and resetting device overrides
 - Pterodactyl's horizontal sub navigation on account and server pages, routes added by other extensions and the admin's route order keep working
@@ -31,7 +31,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons
 - The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic. Until the first stats arrive they show a spinner (Calagopus 1.2.7)
 - Pterodactyl's activity log on the activity pages of a server and of the account: the avatar, "user — event", the IP and how long ago, the details on the right. The search, the filter by user and the file diff links work as before
-- Pterodactyl's file list rows, and the file editor in Pterodactyl's ayu-mirage colors (dark mode)
+- Pterodactyl's file list rows, and the Monaco file editor in Pterodactyl's ayu-mirage colors (dark mode)
 - The image viewer shows the image centered, at its own size or scaled down to fit, with zooming and panning
 - The login, register and password reset pages in the same dark Pterodactyl boxes, with the centered title
 - Captchas (Turnstile, hCaptcha, reCAPTCHA, ...) sit at the bottom of the login box instead of on their own below it

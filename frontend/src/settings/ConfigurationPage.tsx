@@ -12,10 +12,13 @@ import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { DEFAULT_FOOTER_TEXT } from '../footer/PteroCopyright.tsx';
 import { useExtTranslations } from '../translations.ts';
 import { getAdminThemeSettings, updateAdminThemeSettings } from './api.ts';
 import {
   defaultPteroThemeSettings,
+  PTERO_MAX_FOOTER_TEXT_LENGTH,
+  PTERO_MAX_LOADING_BAR_DELAY,
   type PteroAnimationSpeed,
   type PteroAuthHeader,
   type PteroColorPalette,
@@ -131,7 +134,7 @@ export default function ConfigurationPage() {
             label={tExt('settings.loadingBarDelay.label', {})}
             description={tExt('settings.loadingBarDelay.description', {})}
             min={0}
-            max={10_000}
+            max={PTERO_MAX_LOADING_BAR_DELAY}
             step={50}
             allowDecimal={false}
             allowNegative={false}
@@ -154,8 +157,8 @@ export default function ConfigurationPage() {
               variables: '{app}, {url}, {year}',
               links: '[text](https://example.com)',
             })}
-            placeholder='[Calagopus](https://calagopus.com) © 2025 - {year}'
-            maxLength={255}
+            placeholder={DEFAULT_FOOTER_TEXT}
+            maxLength={PTERO_MAX_FOOTER_TEXT_LENGTH}
             disabled={!loaded || form.values.footerPosition === 'hidden'}
             {...form.getInputProps('footerText')}
           />

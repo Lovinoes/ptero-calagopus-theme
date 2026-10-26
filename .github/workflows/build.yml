@@ -1,5 +1,6 @@
-# Checks the theme against the latest Calagopus release on each push to main (or master) and
-# publishes the .c7s.zip as a GitHub release titled "Pterodactyl Theme", tagged by build number.
+# Checks the theme against the two Calagopus versions it supports, the newest release and the one
+# before it, on each push to main (or master) and publishes the .c7s.zip as a GitHub release titled
+# "Pterodactyl Theme", tagged by build number.
 #
 # The theme is dropped into a checkout of the panel, the same way the panel installs it, and has to
 # pass the panel's own checks: Biome, the TypeScript check and production build of the frontend
@@ -34,27 +35,38 @@ env:
 
 jobs:
   panel:
-    name: Find the latest Calagopus release
+    name: Find the supported Calagopus releases
     runs-on: ubuntu-24.04
     outputs:
-      tag: ${{ steps.latest.outputs.tag }}
+      latest: ${{ steps.releases.outputs.latest }}
+      previous: ${{ steps.releases.outputs.previous }}
     steps:
-      - id: latest
+      - id: releases
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="$(gh release view --repo calagopus/panel --json tagName --jq .tagName)"
-          if [ -z "$tag" ]; then
-            echo "Could not find the latest Calagopus release." >&2
+          # The two highest versions, not the two newest releases: older versions get fixes released
+          # later on as well (e.g. 1.1.6 after 1.2.5).
+          tags="$(gh release list --repo calagopus/panel --exclude-drafts --exclude-pre-releases --limit 100 \
+            --json tagName --jq '.[].tagName' | grep -E '^release-[0-9]+\.[0-9]+\.[0-9]+$' | sort -V -r)"
+          latest="$(sed -n 1p <<< "$tags")"
+          previous="$(sed -n 2p <<< "$tags")"
+          if [ -z "$latest" ] || [ -z "$previous" ]; then
+            echo "Could not find the two newest Calagopus releases." >&2
             exit 1
           fi
-          echo "Checking against calagopus/panel $tag"
-          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "Checking against calagopus/panel $latest and $previous"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+          echo "previous=$previous" >> "$GITHUB_OUTPUT"
 
   frontend:
-    name: Check frontend
+    name: Check frontend (${{ matrix.panel }})
     needs: panel
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        panel: ["${{ needs.panel.outputs.latest }}", "${{ needs.panel.outputs.previous }}"]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -63,7 +75,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: calagopus/panel
-          ref: ${{ needs.panel.outputs.tag }}
+          ref: ${{ matrix.panel }}
           path: panel
 
       - uses: actions/setup-node@v7
@@ -103,9 +115,13 @@ jobs:
           }
 
   backend:
-    name: Check backend
+    name: Check backend (${{ matrix.panel }})
     needs: panel
     runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        panel: ["${{ needs.panel.outputs.latest }}", "${{ needs.panel.outputs.previous }}"]
     steps:
       - uses: actions/checkout@v7
         with:
@@ -114,7 +130,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           repository: calagopus/panel
-          ref: ${{ needs.panel.outputs.tag }}
+          ref: ${{ matrix.panel }}
           path: panel
 
       - uses: actions-rust-lang/setup-rust-toolchain@v2
@@ -184,7 +200,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           RUN: ${{ github.run_number }}
-          PANEL_TAG: ${{ needs.panel.outputs.tag }}
+          PANEL_LATEST: ${{ needs.panel.outputs.latest }}
+          PANEL_PREVIOUS: ${{ needs.panel.outputs.previous }}
           # Passed as data, never pasted into the script, so a commit message cannot run anything.
           COMMITS: ${{ toJSON(github.event.commits) }}
           HEAD_MESSAGE: ${{ github.event.head_commit.message }}
@@ -196,7 +213,7 @@ jobs:
           if [ ! -s release-notes.md ]; then
             printf '%s\n' "- ${HEAD_MESSAGE%%$'\n'*}" > release-notes.md
           fi
-          printf '\nChecked against Calagopus `%s`.\n' "$PANEL_TAG" >> release-notes.md
+          printf '\nChecked against Calagopus `%s` and `%s`.\n' "$PANEL_LATEST" "$PANEL_PREVIOUS" >> release-notes.md
 
           # A re-run of the same run keeps its number, so its release already exists: replace
           # the archive in it rather than fail on the tag being taken.

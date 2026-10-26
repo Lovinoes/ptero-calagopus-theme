@@ -16,14 +16,18 @@ export const pteroColorPalettes = ['default', 'darker'] as const;
 
 export type PteroColorPalette = (typeof pteroColorPalettes)[number];
 
+// the limits of the backend, see src/settings.rs
+export const PTERO_MAX_LOADING_BAR_DELAY = 10_000;
+export const PTERO_MAX_FOOTER_TEXT_LENGTH = 255;
+
 /** Mirrors ExtensionSettingsData in src/settings.rs, see there for the defaults. */
 export const pteroThemeSettingsSchema = z.object({
   animations: z.boolean(),
   animationSpeed: z.enum(pteroAnimationSpeeds),
   loadingBar: z.boolean(),
-  loadingBarDelay: z.number().int().min(0).max(10_000),
+  loadingBarDelay: z.number().int().min(0).max(PTERO_MAX_LOADING_BAR_DELAY),
   footerPosition: z.enum(pteroFooterPositions),
-  // the 255 characters are checked by the backend and the form, zod would count emoji twice here
+  // the length is checked by the backend and the form, zod would count emoji twice here
   footerText: z.string(),
   authHeader: z.enum(pteroAuthHeaders),
   colorPalette: z.enum(pteroColorPalettes),
@@ -31,7 +35,7 @@ export const pteroThemeSettingsSchema = z.object({
 
 /** The admin form, the footer text gets the backend's length limit there. */
 export const pteroThemeSettingsFormSchema = pteroThemeSettingsSchema.extend({
-  footerText: z.string().refine((text) => [...text].length <= 255),
+  footerText: z.string().refine((text) => [...text].length <= PTERO_MAX_FOOTER_TEXT_LENGTH),
 });
 
 export type PteroThemeSettings = z.infer<typeof pteroThemeSettingsSchema>;

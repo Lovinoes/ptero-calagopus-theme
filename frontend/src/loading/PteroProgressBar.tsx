@@ -108,6 +108,8 @@ export default function PteroProgressBar() {
   const [progress, setProgress] = useState<number | null>(null);
   const [shown, setShown] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const loadingRef = useRef(loading);
+  loadingRef.current = loading;
 
   const clearTimers = () => {
     for (const timer of timers.current) clearTimeout(timer);
@@ -120,7 +122,7 @@ export default function PteroProgressBar() {
   useEffect(
     () =>
       onTabReturn(() => {
-        if (pendingRequests > 0) return;
+        if (loadingRef.current) return;
 
         clearTimers();
         setShown(false);

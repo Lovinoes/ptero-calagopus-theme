@@ -14,7 +14,7 @@ import { usePteroThemeSettings } from '../settings/store.ts';
  * Variables: {app} the panel name, {url} the panel URL, {year} the current year.
  * Links: [text](https://example.com), only http(s) addresses become links.
  */
-const DEFAULT_FOOTER_TEXT = '[Calagopus](https://calagopus.com) © 2025 - {year}';
+export const DEFAULT_FOOTER_TEXT = '[Calagopus](https://calagopus.com) © 2025 - {year}';
 const LINK_PATTERN = /\[([^\]]+)\]\(([^)\s]+)\)/g;
 
 type FooterVariables = Record<'app' | 'url' | 'year', string>;

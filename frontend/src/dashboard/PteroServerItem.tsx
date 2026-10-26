@@ -332,7 +332,7 @@ function PteroServerRow({
                     statsUnavailable ? (
                       <div className='ptero-server-row__badge-wrapper'>
                         <span className='ptero-server-row__badge' data-color='yellow'>
-                          {tExt('serverRow.resourcesUnavailable', {})}
+                          {t('common.server.state.resourcesUnavailable', {})}
                         </span>
                       </div>
                     ) : (
