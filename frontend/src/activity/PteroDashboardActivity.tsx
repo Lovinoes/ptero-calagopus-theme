@@ -6,7 +6,6 @@ import DashboardActivity from '@/pages/dashboard/activity/DashboardActivity.tsx'
 import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePaginatedTable.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { perPageSetter } from '../compat.ts';
 import { usePteroThemeActive } from '../scope.tsx';
 import { PteroActivityEntry, PteroActivityLog } from './PteroActivityLog.tsx';
 
@@ -22,12 +21,19 @@ function PteroAccountActivityLog() {
   const { user } = useAuth();
   const { t } = useTranslations();
 
-  const table = useSearchablePaginatedTable({
+  const {
+    data: activities,
+    loading,
+    error,
+    search,
+    setSearch,
+    setPage,
+    setPerPage,
+    refetch,
+  } = useSearchablePaginatedTable({
     queryKey: queryKeys.user.activity.all(),
-    // Calagopus 1.2.7 passes the number of entries per page as well, its getUserActivity takes it
     fetcher: getUserActivity,
   });
-  const { data: activities, loading, error, search, setSearch, setPage, refetch } = table;
 
   return (
     <AccountContentContainer
@@ -42,7 +48,7 @@ function PteroAccountActivityLog() {
         error={error}
         onPageSelect={setPage}
         onRetry={refetch}
-        onPerPageSelect={perPageSetter(table)}
+        onPerPageSelect={setPerPage}
       >
         {activities?.data.map((activity, index) => (
           <PteroActivityEntry

@@ -12,14 +12,8 @@ import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePag
 import { buildUserFilterSearch, useUserFilter } from '@/plugins/useUserFilter.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
-import { perPageSetter } from '../compat.ts';
 import { usePteroThemeActive } from '../scope.tsx';
 import { PteroActivityEntry, PteroActivityLog } from './PteroActivityLog.tsx';
-
-// the number of entries per page is a fifth argument since Calagopus 1.2.7, 1.2.6 ignores it
-const fetchServerActivity = getServerActivity as (
-  ...args: [...Parameters<typeof getServerActivity>, perPage?: number]
-) => ReturnType<typeof getServerActivity>;
 
 /**
  * The activity page of a server (pages/server/activity/ServerActivity.tsx) as Pterodactyl's activity
@@ -36,13 +30,19 @@ function PteroServerActivityLog() {
   const [searchParams] = useSearchParams();
   const { filterUserUuid, setFilterUserUuid } = useUserFilter();
 
-  const table = useSearchablePaginatedTable({
+  const {
+    data: activities,
+    loading,
+    error,
+    search,
+    setSearch,
+    setPage,
+    setPerPage,
+    refetch,
+  } = useSearchablePaginatedTable({
     queryKey: queryKeys.server(server.uuid).activity.all(filterUserUuid),
-    // Calagopus 1.2.7 passes the number of entries per page, 1.2.6 neither passes nor takes it
-    fetcher: (page: number, search: string, perPage?: number) =>
-      fetchServerActivity(server.uuid, filterUserUuid, page, search, perPage),
+    fetcher: (page, search, perPage) => getServerActivity(server.uuid, filterUserUuid, page, search, perPage),
   });
-  const { data: activities, loading, error, search, setSearch, setPage, refetch } = table;
 
   return (
     <ServerContentContainer
@@ -58,7 +58,7 @@ function PteroServerActivityLog() {
         error={error}
         onPageSelect={setPage}
         onRetry={refetch}
-        onPerPageSelect={perPageSetter(table)}
+        onPerPageSelect={setPerPage}
       >
         {activities?.data.map((activity, index) => {
           const fileWriteData = activity.data as { file?: string; revision_id?: string } | null;

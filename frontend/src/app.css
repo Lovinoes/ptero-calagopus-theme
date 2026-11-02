@@ -415,7 +415,7 @@ html[data-ptero-theme][data-mantine-color-scheme="light"] {
 }
 
 /*
- * Calagopus 1.2.7 shows its own thin bar at the top while a page opens or loads. On the themed pages
+ * The panel shows its own thin bar at the top while a page opens or loads. On the themed pages
  * Pterodactyl's bar below does that instead (it follows the theme settings), the admin area keeps it.
  */
 html[data-ptero-theme] div[role="progressbar"][aria-busy="true"].fixed.inset-x-0.top-0 {
@@ -477,9 +477,10 @@ html[data-ptero-theme] .ptero-tab-hold * {
 }
 
 /*
- * Lists (tables) refetch their rows when a page or tab is opened. The panel dims them, puts a spinner
- * on top and makes the table taller right away, so every quick refetch flickers. Like the loading bar
- * this only shows up once loading takes longer than the delay an admin set (--ptero-loading-delay).
+ * Lists (tables and the server list) refetch their rows when a page or tab is opened. The panel dims
+ * them right away, and tables also get a spinner on top and grow taller, so every quick refetch flickers.
+ * Like the loading bar this only shows up once loading takes longer than the delay an admin set
+ * (--ptero-loading-delay).
  * Animations (not transitions) hold it back, as a freshly opened page starts out loading.
  */
 @keyframes ptero-loading-dim {
@@ -505,7 +506,7 @@ html[data-ptero-theme]
   animation: ptero-loading-hold 0s var(--ptero-loading-delay, 250ms) backwards;
 }
 
-html[data-ptero-theme] .mantine-Table-table.opacity-50.pointer-events-none {
+html[data-ptero-theme] :is(.mantine-Table-table, .grid:has(.ptero-server-row-wrapper)).opacity-50.pointer-events-none {
   animation: ptero-loading-dim calc(150ms * var(--ptero-animation-scale, 1)) ease-in var(--ptero-loading-delay, 250ms)
     backwards;
 }
@@ -526,7 +527,8 @@ html[data-ptero-theme][data-ptero-refreshing]
   animation: none;
 }
 
-html[data-ptero-theme][data-ptero-refreshing] .mantine-Table-table.opacity-50.pointer-events-none {
+html[data-ptero-theme][data-ptero-refreshing]
+  :is(.mantine-Table-table, .grid:has(.ptero-server-row-wrapper)).opacity-50.pointer-events-none {
   opacity: 1;
   animation: none;
 }

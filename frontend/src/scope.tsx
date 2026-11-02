@@ -7,6 +7,9 @@ export const PACKAGE_NAME = 'dev.lovinoes.pterodactyl';
 
 const BOOT_STYLE_ID = 'ptero-theme-boot';
 
+// the extension's name in the panel's list of disabled extensions (Calagopus 1.2.8)
+const IDENTIFIER = PACKAGE_NAME.replaceAll('.', '_');
+
 const isWithin = (pathname: string, base: string) => pathname === base || pathname.startsWith(`${base}/`);
 
 /**
@@ -95,30 +98,37 @@ function bootsInDarkerPalette(): boolean {
   }
 }
 
+/** Calagopus 1.2.8 lists the disabled extensions in the page, 1.2.7 only knows them once they are fetched. */
+function isListedAsDisabled(): boolean {
+  const inactive = document.querySelector<HTMLMetaElement>('meta[name="inactive-extensions"]')?.content;
+
+  return !!inactive && inactive.split(',').includes(IDENTIFIER);
+}
+
 /**
- * While the panel loads its settings the extension stylesheet is still disabled and Mantine is not
- * mounted, so the loading screen would show the stock Calagopus colors. This runs as soon as the
- * bundle executes and paints that screen in the theme colors instead. Once Mantine sets
- * `--mantine-color-body` the real theme takes over.
+ * Mantine is not mounted while the panel loads its settings, so the loading screen would show the
+ * stock Calagopus colors. This paints it in the theme colors as soon as the bundle runs. Once Mantine
+ * sets `--mantine-color-body` the real theme takes over. On Calagopus 1.2.8 the boot script did this
+ * before the bundle (public/assets/ptero-boot-1.js, keep the two the same), the style is there then.
  */
 export function installBootScope() {
+  if (isListedAsDisabled()) return;
+
   applyPteroScope(window.location.pathname);
 
   if (!document.getElementById(BOOT_STYLE_ID)) {
     const light = bootsInLightScheme();
     const darker = bootsInDarkerPalette();
-    // the page and the text color (gray-800 and gray-100) of the scheme and palette, see app.css
+    // the page color of the scheme and palette (gray-800, see app.css)
     const page = light ? 'hsl(214, 20%, 93%)' : darker ? 'oklch(0.195 0.012 264)' : 'hsl(209, 20%, 25%)';
-    const spinner = light ? 'hsl(209, 20%, 25%)' : darker ? 'oklch(0.93 0.008 264)' : 'hsl(214, 15%, 91%)';
-    // Calagopus 1.2.7 draws the spinner in the primary color (--loader-color), the blue of the
-    // palette then (blue-500, blue-600 in the darker one, see app.css), 1.2.6 in a border
+    // the spinner is drawn in the primary color, the blue of the palette (blue-500, blue-600 in the darker one)
     const primary = darker && !light ? '#2563eb' : '#3b82f6';
     const style = document.createElement('style');
 
     style.id = BOOT_STYLE_ID;
     style.textContent = [
       `html[data-ptero-theme]{background-color:var(--mantine-color-body,${page})}`,
-      `html[data-ptero-theme]:not([data-mantine-color-scheme]) .spinner{border-color:${spinner};border-bottom-color:transparent;--loader-color:${primary}}`,
+      `html[data-ptero-theme]:not([data-mantine-color-scheme]) .spinner{--loader-color:${primary}}`,
     ].join('\n');
     document.head.appendChild(style);
   }

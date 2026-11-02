@@ -4,7 +4,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 
 ## Layout
 - Pterodactyl's top navigation bar instead of the Calagopus sidebar, with the stock Calagopus app icon / banner on the left
-- Pterodactyl's five icons on the right: search (quick actions), dashboard, admin area, account and sign out. The icon of the page being opened is underlined right away, while it still loads (Calagopus 1.2.7)
+- Pterodactyl's five icons on the right: search (quick actions), dashboard, admin area, account and sign out. The icon of the page being opened is underlined right away, while it still loads
 - On a server page, admins get Pterodactyl's external link icon at the end of the sub navigation, which opens that server in the admin area
 - The account avatar opens a menu with the account link, the theme switcher (auto, dark, light), hiding addresses and resetting device overrides
 - Pterodactyl's horizontal sub navigation on account and server pages, routes added by other extensions and the admin's route order keep working
@@ -15,7 +15,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 ## Look
 - Pterodactyl colors, fonts (IBM Plex Sans headers), boxes, uppercase buttons and inputs
 - Dark mode like Pterodactyl, plus a matching light mode
-- No flash of the stock Calagopus colors while the panel loads
+- No flash of the stock Calagopus colors while the panel loads. From Calagopus 1.2.8 that includes the first moment of a reload, in the palette and color scheme this browser last used
 - Pterodactyl-style dialogs, tooltips, dropdowns and right-click menus
 - Tables as Pterodactyl boxes with a dark header bar and small uppercase labels
 - Code in Pterodactyl's dark boxes, long lines of code blocks (e.g. the backup metadata) wrap instead of running out of the dialog
@@ -25,11 +25,11 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 ## Pages
 - Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups. When a server's node can't be reached, its row says so instead of loading forever
 - Enter in the search of All Servers opens the first server of the list, in your own order
-- A list that fails to load shows the error with a Retry button, an account without servers gets the panel's empty state (Calagopus 1.2.7)
-- The activity pages can show more entries per page (Calagopus 1.2.7)
+- A list that fails to load shows the error with a Retry button, an account without servers gets the panel's empty state
+- The activity pages can show more entries per page
 - The servers in All Servers can be dragged into any order, like the servers of a group, the order is saved with the account
 - The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons
-- The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic. Until the first stats arrive they show a spinner (Calagopus 1.2.7)
+- The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic. Until the first stats arrive they show a spinner
 - Pterodactyl's activity log on the activity pages of a server and of the account: the avatar, "user — event", the IP and how long ago, the details on the right. The search, the filter by user and the file diff links work as before
 - Pterodactyl's file list rows, and the Monaco file editor in Pterodactyl's ayu-mirage colors (dark mode)
 - The image viewer shows the image centered, at its own size or scaled down to fit, with zooming and panning

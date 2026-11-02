@@ -7,14 +7,6 @@ const translations = defineTranslations({
       // shown under each resource of a server row, e.g. "of 8 GiB"
       ofLimit: 'of {limit}',
     },
-    // for Calagopus 1.2.6, whose own translations don't have it yet
-    errorState: {
-      retry: 'Retry',
-    },
-    // in case a release renames the panel's own text again (a missing panel text would break the page)
-    serverList: {
-      empty: 'No servers could be found.',
-    },
     settings: {
       title: 'Theme Settings',
       colorPalette: {

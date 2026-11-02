@@ -13,7 +13,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Menu, Tooltip, type TransitionOverride, useMantineColorScheme } from '@mantine/core';
-import { Component, type ReactNode, useContext } from 'react';
+import { Component, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router';
 import AppIcon from '@/elements/AppIcon.tsx';
 import Avatar from '@/elements/data-display/Avatar.tsx';
@@ -23,10 +23,10 @@ import { isNamedRoutePathAccessible } from '@/lib/routes.ts';
 import { resetAllDeviceOverrides, useDeviceOverrideCount } from '@/lib/userSettings.ts';
 import { useRedactAddresses } from '@/plugins/privacy/useRedactAddresses.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
+import { usePendingPathname } from '@/providers/contexts/pendingNavigationContext.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import { useQuickActionsStore } from '@/stores/quickActions.ts';
-import { PendingNavigationContext } from '../compat.ts';
 import { type PteroNavbarItem, useNavbarItems } from '../extensionApi/navbarItems.ts';
 import { usePteroTooltipTransition } from '../loading/animations.ts';
 
@@ -117,9 +117,9 @@ function ExtensionNavbarItem({
 export default function PteroNavigationBar() {
   const { t } = useTranslations();
   const { pathname: currentPathname } = useLocation();
-  // Calagopus 1.2.7 keeps the old page up while the next one loads, the icon of the next one is
-  // underlined meanwhile, like the panel's sidebar links
-  const pathname = useContext(PendingNavigationContext) ?? currentPathname;
+  // the panel keeps the old page up while the next one loads, the icon of the next one is underlined
+  // meanwhile, like the panel's sidebar links
+  const pathname = usePendingPathname() ?? currentPathname;
   const { user, impersonating } = useAuth();
 
   const routeOrder = useGlobalStore((state) => state.settings.user?.routeOrder);

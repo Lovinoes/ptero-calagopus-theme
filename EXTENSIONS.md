@@ -156,5 +156,8 @@ export default new MyExtension();
 
 An invalid item (no id or label, more than one of `to`, `href` and `onClick`, ...) is not added, the browser console says why. An icon that fails to render is left out of the bar and logged there too. To remove an item, call the function `navbar_add` returned, or `navbar_remove` with its id.
 
+## Loading screen
+From Calagopus 1.2.8 the theme replaces the panel's loading screen with its `src/boot.html`. The panel only allows one extension to do that: its build fails when another installed extension has a `src/boot.html` as well.
+
 ## Something missing?
 If your extension needs something from the theme that isn't here, or something of yours doesn't look right with it, [open an issue](https://github.com/Lovinoes/ptero-calagopus-theme/issues) or send a [pull request](https://github.com/Lovinoes/ptero-calagopus-theme/pulls).

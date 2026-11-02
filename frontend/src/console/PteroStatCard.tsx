@@ -14,8 +14,7 @@ import RedactedText from '@/elements/typography/RedactedText.tsx';
 import { usageColor } from '@/lib/format/usage.ts';
 import { usePteroThemeActive } from '../scope.tsx';
 
-// loading: Calagopus 1.2.7 shows a spinner until the first stats are there, 1.2.6 doesn't pass it
-type Props = ComponentProps<typeof StatCard> & { loading?: boolean };
+type Props = ComponentProps<typeof StatCard>;
 
 /**
  * The stat cards of the console and database pages (elements/data-display/StatCard.tsx) like

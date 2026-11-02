@@ -1,4 +1,5 @@
 import { faServer } from '@fortawesome/free-solid-svg-icons';
+import classNames from 'classnames';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
@@ -10,6 +11,7 @@ import AccountContentContainer from '@/elements/containers/AccountContentContain
 import { NoItems, Pagination } from '@/elements/data-display/Table.tsx';
 import { DndContainer, SortableItem } from '@/elements/dnd/DragAndDrop.tsx';
 import EmptyState from '@/elements/feedback/EmptyState.tsx';
+import ErrorState from '@/elements/feedback/ErrorState.tsx';
 import Spinner from '@/elements/feedback/Spinner.tsx';
 import Checkbox from '@/elements/input/Checkbox.tsx';
 import Switch from '@/elements/input/Switch.tsx';
@@ -31,10 +33,7 @@ import { useServerListShowOthers } from '@/plugins/server/useServerListShowOther
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useUserStore } from '@/stores/user.ts';
-import { optionalTranslation } from '../compat.ts';
-import PteroErrorState from '../feedback/PteroErrorState.tsx';
 import { usePteroThemeActive } from '../scope.tsx';
-import { useExtTranslations } from '../translations.ts';
 
 type Server = z.infer<typeof serverSchema>;
 
@@ -83,25 +82,6 @@ function mergeOrder(order: string[], shown: string[], reordered: string[]) {
 /** The panel's own page when the theme is turned off, this replacement is compiled in either way. */
 export default function PteroDashboardHomeAll() {
   return usePteroThemeActive() ? <PteroServerList /> : <DashboardHomeAll />;
-}
-
-/**
- * An account without servers: the empty state of Calagopus 1.2.7, the line of 1.2.6 (whose
- * translation was renamed in 1.2.7).
- */
-function PteroNoServers() {
-  const { t } = useTranslations();
-  const { t: tExt } = useExtTranslations();
-
-  const title = optionalTranslation(t, 'pages.account.home.empty.title');
-  const description = optionalTranslation(t, 'pages.account.home.empty.description');
-  if (title && description) return <EmptyState icon={faServer} title={title} description={description} />;
-
-  return (
-    <p className='text-(--mantine-color-dimmed)'>
-      {optionalTranslation(t, 'pages.account.home.noServers') ?? tExt('serverList.empty', {})}
-    </p>
-  );
 }
 
 function PteroServerList() {
@@ -279,15 +259,19 @@ function PteroServerList() {
           <Divider my='md' />
         </>
       )}
-      {loading ? (
+      {loading && !servers ? (
         <Spinner.Centered />
       ) : error && !servers ? (
-        <PteroErrorState error={error} onRetry={refetch} />
-      ) : (servers?.total ?? 0) === 0 ? (
+        <ErrorState error={error} onRetry={refetch} />
+      ) : servers?.total === 0 ? (
         debouncedSearch ? (
           <NoItems />
         ) : (
-          <PteroNoServers />
+          <EmptyState
+            icon={faServer}
+            title={t('pages.account.home.empty.title', {})}
+            description={t('pages.account.home.empty.description', {})}
+          />
         )
       ) : (
         <DndContainer
@@ -313,7 +297,12 @@ function PteroServerList() {
           }
         >
           {(items) => (
-            <div className='gap-4 grid md:grid-cols-2'>
+            <div
+              className={classNames(
+                'gap-4 grid md:grid-cols-2',
+                loading && 'opacity-50 pointer-events-none transition-opacity',
+              )}
+            >
               {items.map((item) => (
                 <SortableItem key={item.id} id={item.id} data={{ server: item.server }}>
                   {renderServer(item.server)}

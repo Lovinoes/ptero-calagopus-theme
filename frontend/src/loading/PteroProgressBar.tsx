@@ -1,7 +1,7 @@
 import type { AxiosInstance } from 'axios';
-import { useContext, useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useLocation } from 'react-router';
-import { PendingNavigationContext } from '../compat.ts';
+import { usePendingPathname } from '@/providers/contexts/pendingNavigationContext.ts';
 import { resolvePteroArea } from '../scope.tsx';
 import { usePteroThemeSettings } from '../settings/store.ts';
 import { isBackgroundRefresh, onTabReturn } from './backgroundRefresh.ts';
@@ -101,9 +101,9 @@ export default function PteroProgressBar() {
   const { pathname } = useLocation();
   const { loadingBar, loadingBarDelay } = usePteroThemeSettings();
   const requesting = useSyncExternalStore(subscribe, isLoading);
-  // Calagopus 1.2.7 keeps the old page up while the next one loads, that is loading as well (it
-  // replaces the panel's own bar on the themed pages, see app.css)
-  const navigating = useContext(PendingNavigationContext) !== null;
+  // the panel keeps the old page up while the next one loads, that is loading as well (this bar
+  // replaces the panel's own one on the themed pages, see app.css)
+  const navigating = usePendingPathname() !== null;
   const loading = (requesting || navigating) && loadingBar;
   const [progress, setProgress] = useState<number | null>(null);
   const [shown, setShown] = useState(false);

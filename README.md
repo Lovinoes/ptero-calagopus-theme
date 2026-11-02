@@ -9,7 +9,7 @@ Extensions need a heavy Docker image of Calagopus (`:heavy`, `:nightly-heavy` or
 
 Download `dev_lovinoes_pterodactyl.c7s.zip` from the [latest release](https://github.com/Lovinoes/ptero-calagopus-theme/releases/latest) and upload it in **Admin → Extensions**. In a development environment, run `panel-rs extensions add dev_lovinoes_pterodactyl.c7s.zip` followed by `panel-rs extensions apply` instead.
 
-It supports the newest Calagopus release and the one before it, currently 1.2.7 and 1.2.6.
+It supports the newest Calagopus release and the one before it, currently 1.2.8 and 1.2.7.
 
 ## Configuration
 

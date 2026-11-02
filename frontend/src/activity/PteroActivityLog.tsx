@@ -7,6 +7,7 @@ import ActivityInfoButton from '@/elements/activity/ActivityInfoButton.tsx';
 import Avatar from '@/elements/data-display/Avatar.tsx';
 import { NoItems, Pagination } from '@/elements/data-display/Table.tsx';
 import TableLink from '@/elements/data-display/TableLink.tsx';
+import ErrorState from '@/elements/feedback/ErrorState.tsx';
 import Spinner from '@/elements/feedback/Spinner.tsx';
 import Tooltip from '@/elements/overlays/Tooltip.tsx';
 import FormattedTimestamp from '@/elements/time/FormattedTimestamp.tsx';
@@ -15,7 +16,6 @@ import { activitySchema } from '@/lib/schemas/activity.ts';
 import { serverActivitySchema } from '@/lib/schemas/server/activity.ts';
 import { userActivitySchema } from '@/lib/schemas/user/activity.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import PteroErrorState from '../feedback/PteroErrorState.tsx';
 
 type Activity =
   | z.infer<typeof activitySchema>
@@ -28,9 +28,9 @@ interface PteroActivityLogProps {
   error: string | null | undefined;
   onPageSelect: (page: number) => void;
   /** loads the log again after an error */
-  onRetry?: () => void;
-  /** Calagopus 1.2.7: how many entries a page shows, picked below the log */
-  onPerPageSelect?: (perPage: number) => void;
+  onRetry: () => void;
+  /** how many entries a page shows, picked below the log */
+  onPerPageSelect: (perPage: number) => void;
   children: ReactNode;
 }
 
@@ -54,7 +54,7 @@ export function PteroActivityLog({
       <div className='ptero-activity' data-loading={loading || undefined}>
         {error ? (
           <div className='ptero-activity__message'>
-            <PteroErrorState error={error} onRetry={onRetry} retrying={loading} />
+            <ErrorState error={error} onRetry={onRetry} retrying={loading} />
           </div>
         ) : empty ? (
           <div className='ptero-activity__message'>
@@ -72,13 +72,7 @@ export function PteroActivityLog({
       </div>
 
       {!error && activities && (
-        <Pagination
-          data={activities}
-          mt='md'
-          onPageSelect={onPageSelect}
-          // only Calagopus 1.2.7 has this prop, a spread isn't checked against the props of 1.2.6
-          {...(onPerPageSelect ? { onPerPageSelect } : {})}
-        />
+        <Pagination data={activities} mt='md' onPageSelect={onPageSelect} onPerPageSelect={onPerPageSelect} />
       )}
     </>
   );
