@@ -9,7 +9,7 @@ Extensions need a heavy Docker image of Calagopus (`:heavy`, `:nightly-heavy` or
 
 Download `dev_lovinoes_pterodactyl.c7s.zip` from the [latest release](https://github.com/Lovinoes/ptero-calagopus-theme/releases/latest) and upload it in **Admin → Extensions**. In a development environment, run `panel-rs extensions add dev_lovinoes_pterodactyl.c7s.zip` followed by `panel-rs extensions apply` instead.
 
-It supports the newest Calagopus release and the one before it, currently 1.2.8 and 1.2.7.
+It supports the newest Calagopus release and the one before it, currently 1.2.9 and 1.2.8.
 
 ## Configuration
 
@@ -21,7 +21,7 @@ After cloning this repository, pack the extension by running `node scripts/packa
 
 You need Node.js 24 or newer to build ptero-calagopus-theme.
 
-Releases built by GitHub Actions use the build number as their patch version (e.g. `1.1.57`), so the panel always offers a newer build as an update.
+Releases built by GitHub Actions use the build number as their patch version (e.g. `1.2.57`), so the panel always offers a newer build as an update.
 
 To work on the theme in a [Calagopus development environment](https://calagopus.com/docs/panel/extensions/dev-environment), clone this repository into `backend-extensions/dev_lovinoes_pterodactyl` of the panel, link the frontend the same way the panel does with `ln -s ../../backend-extensions/dev_lovinoes_pterodactyl/frontend frontend/extensions/dev_lovinoes_pterodactyl` and run `panel-rs extensions resync`.
 

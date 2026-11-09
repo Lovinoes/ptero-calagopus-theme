@@ -1,0 +1,94 @@
+/* ------------------------------------------------------------------------------------------------
+ * Light scheme components
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Card-root {
+  --paper-border-color: hsl(212, 17%, 88%);
+  background-color: #fff;
+  box-shadow: var(--ptero-shadow);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Card-root.cursor-pointer:hover {
+  --paper-border-color: var(--mantine-color-gray-5);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Card-root .mantine-Card-root {
+  background-color: var(--mantine-color-gray-0);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] #title-card-header {
+  background-color: var(--mantine-color-gray-0);
+  border-bottom-color: var(--mantine-color-gray-3) !important;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] #title-card-header > .mantine-Title-root,
+html[data-ptero-theme][data-mantine-color-scheme="light"] #title-card-icon {
+  color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Input-wrapper[data-variant="default"] {
+  --input-bg: #fff;
+  --input-bd: var(--mantine-color-gray-4);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-input:hover:not(:disabled, :focus, :focus-within, [data-error]) {
+  border-color: var(--mantine-color-gray-5);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-InputWrapper-label {
+  color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-tab {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-tab:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-tab[data-active] {
+  color: var(--ptero-gray-800);
+  background-color: transparent;
+}
+
+/* stat blocks: white box with a slate icon tile */
+/* biome-ignore format: Biome 2.5 (Calagopus 1.2.8) and 2.6 (1.2.9) wrap this selector differently */
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+.mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root) {
+  background-color: #fff;
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root) {
+  --mantine-color-blue-filled: var(--ptero-gray-600);
+  --mantine-primary-color-filled: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > div
+  > span:first-child {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > span {
+  color: var(--ptero-gray-900);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  #server-root
+  .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.pt-4) {
+  border-bottom-color: var(--mantine-color-gray-3);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] #console-infobar .mantine-Title-root {
+  color: var(--ptero-gray-900);
+}

@@ -1,14 +1,14 @@
 import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Tooltip } from '@mantine/core';
-import { ComponentProps, createContext, ReactElement, useContext } from 'react';
+import { type ComponentProps, createContext, type ReactElement, useContext } from 'react';
 import { Link, matchPath, useLocation } from 'react-router';
 import type Sidebar from '@/elements/navigation/Sidebar.tsx';
 import { isAdmin } from '@/lib/auth/permissions.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
+import { isWithin, resolvePteroArea } from '../core/paths.ts';
 import { usePteroTooltipTransition } from '../loading/animations.ts';
-import { resolvePteroArea } from '../scope.tsx';
 import PteroNavigationBar from './PteroNavigationBar.tsx';
 
 type SidebarProps = ComponentProps<typeof Sidebar>;
@@ -43,7 +43,7 @@ function PteroServerAdminLink({ pathname }: { pathname: string }) {
  * Replaces the Calagopus sidebar with the Pterodactyl layout: a top navigation bar, plus a horizontal
  * sub navigation on account and server pages. The links inside the sub navigation are the stock
  * sidebar links (so route ordering, permissions and extension routes keep working), only restyled.
- * The admin area keeps the original sidebar.
+ * The admin area and the login pages keep the original sidebar.
  */
 export default function PteroSidebar({ original, children }: SidebarProps & { original: ReactElement }) {
   const { pathname } = useLocation();
@@ -78,14 +78,7 @@ export default function PteroSidebar({ original, children }: SidebarProps & { or
  */
 export function PteroSidebarLinkGate({ original, linkProps }: { original: ReactElement; linkProps: SidebarLinkProps }) {
   const inSubNavigation = useContext(InPteroSubNavigationContext);
+  const repeatsTopBar = linkProps.end && (linkProps.to === '/' || isWithin(linkProps.to, '/admin'));
 
-  if (
-    inSubNavigation &&
-    linkProps.end &&
-    (linkProps.to === '/' || linkProps.to === '/admin' || linkProps.to.startsWith('/admin/'))
-  ) {
-    return null;
-  }
-
-  return original;
+  return inSubNavigation && repeatsTopBar ? null : original;
 }

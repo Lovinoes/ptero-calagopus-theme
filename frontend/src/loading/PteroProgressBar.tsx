@@ -1,32 +1,15 @@
 import type { AxiosInstance } from 'axios';
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router';
 import { usePendingPathname } from '@/providers/contexts/pendingNavigationContext.ts';
-import { resolvePteroArea } from '../scope.tsx';
+import { createStore, useStore } from '../core/createStore.ts';
+import { resolvePteroArea } from '../core/paths.ts';
 import { usePteroThemeSettings } from '../settings/store.ts';
 import { isBackgroundRefresh, onTabReturn } from './backgroundRefresh.ts';
 
 // a request that never settles (no response, no error) must not keep the bar up forever
 const WATCHDOG = 30_000;
 const TRACKING_KEY = '__pteroProgressId';
-
-let pendingRequests = 0;
-let nextRequestId = 1;
-const requestTimers = new Map<number, ReturnType<typeof setTimeout>>();
-const listeners = new Set<() => void>();
-
-function emit() {
-  for (const listener of listeners) listener();
-}
-
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-const isLoading = () => pendingRequests > 0;
 
 type TrackableConfig = {
   url?: string;
@@ -35,14 +18,29 @@ type TrackableConfig = {
   [TRACKING_KEY]?: number;
 };
 
-function shouldTrack(config: TrackableConfig) {
+/** The API requests that are running and count for the loading bar. */
+const pendingRequests = createStore(0);
+const requestTimers = new Map<number, ReturnType<typeof setTimeout>>();
+let nextRequestId = 1;
+
+function shouldTrack(config: TrackableConfig): boolean {
   // Pterodactyl skips the resource polling as well; transfers with their own progress are skipped too
   if (config.url?.includes('/resources')) return false;
   if (config.onUploadProgress || config.onDownloadProgress) return false;
   // the refreshes of a tab that is hidden or was just shown again, see backgroundRefresh.ts
-  if (isBackgroundRefresh()) return false;
+  return !isBackgroundRefresh();
+}
 
-  return true;
+function startRequest(config: TrackableConfig) {
+  if (config[TRACKING_KEY] !== undefined || !shouldTrack(config)) return;
+
+  const id = nextRequestId++;
+  config[TRACKING_KEY] = id;
+  requestTimers.set(
+    id,
+    setTimeout(() => finishRequest(id), WATCHDOG),
+  );
+  pendingRequests.set(pendingRequests.get() + 1);
 }
 
 function finishRequest(id: number | undefined) {
@@ -53,23 +51,10 @@ function finishRequest(id: number | undefined) {
 
   clearTimeout(timer);
   requestTimers.delete(id);
-  pendingRequests = Math.max(0, pendingRequests - 1);
-  emit();
+  pendingRequests.set(Math.max(0, pendingRequests.get() - 1));
 }
 
-function startRequest(config: TrackableConfig) {
-  if (!shouldTrack(config) || config[TRACKING_KEY] !== undefined) return;
-
-  const id = nextRequestId++;
-  config[TRACKING_KEY] = id;
-  requestTimers.set(
-    id,
-    setTimeout(() => finishRequest(id), WATCHDOG),
-  );
-  pendingRequests++;
-  emit();
-}
-
+/** Counts the API requests of the panel for the loading bar. */
 export function trackRequests(instance: AxiosInstance) {
   instance.interceptors.request.use((config) => {
     startRequest(config as TrackableConfig);
@@ -100,11 +85,12 @@ const randomInt = (low: number, high: number) => Math.floor(Math.random() * (hig
 export default function PteroProgressBar() {
   const { pathname } = useLocation();
   const { loadingBar, loadingBarDelay } = usePteroThemeSettings();
-  const requesting = useSyncExternalStore(subscribe, isLoading);
+  const requesting = useStore(pendingRequests, (count) => count > 0);
   // the panel keeps the old page up while the next one loads, that is loading as well (this bar
-  // replaces the panel's own one on the themed pages, see app.css)
+  // replaces the panel's own one on the themed pages, see styles/loading.css)
   const navigating = usePendingPathname() !== null;
   const loading = (requesting || navigating) && loadingBar;
+
   const [progress, setProgress] = useState<number | null>(null);
   const [shown, setShown] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);

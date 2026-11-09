@@ -1,0 +1,95 @@
+/* center the page content in a 1200px column, like Pterodactyl's ContentContainer */
+html[data-ptero-theme] [data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div {
+  max-width: calc(var(--ptero-max-width) + 3rem);
+  min-width: 0;
+  margin-inline: auto;
+}
+
+/* the copyright line sits centered below the content */
+html[data-ptero-theme] [data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div > div:last-child {
+  margin-inline: auto;
+  align-items: center;
+}
+
+html[data-ptero-theme] [data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div > div:last-child > * {
+  justify-content: center;
+}
+
+/*
+ * Footer, admin settings (data-ptero-footer, see settings/store.ts, the text in footer/footerText.tsx):
+ * "bottom" keeps it at the bottom of the window while the page is shorter than the window, "content"
+ * leaves it right below the content like Pterodactyl, "hidden" removes it. The stock layout does
+ * "bottom" through a chain of h-full parents, which the top navigation bar replaces with a flex column.
+ * The file manager and the editor reach down to the bottom of the window, so the footer sits at the
+ * bottom there with "content" as well, below them (they leave room for it, --ptero-footer-space).
+ */
+/* biome-ignore format: Biome 2.5 (Calagopus 1.2.8) and 2.6 (1.2.9) wrap this selector differently */
+html[data-ptero-theme]:is(
+  [data-ptero-footer="bottom"],
+  [data-ptero-footer="content"]:has(
+    #server-root :is([data-file-manager-workspace-grid], div.absolute.z-1.max-w-full.w-full)
+  )
+) div:has(> [data-ptero-nav]) {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 100dvh;
+}
+
+html[data-ptero-theme]:is(
+    [data-ptero-footer="bottom"],
+    [data-ptero-footer="content"]:has(
+      #server-root :is([data-file-manager-workspace-grid], div.absolute.z-1.max-w-full.w-full)
+    )
+  )
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root) {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+}
+
+/* the full width, the centered column's auto margins would otherwise shrink it to its content */
+html[data-ptero-theme]:is(
+    [data-ptero-footer="bottom"],
+    [data-ptero-footer="content"]:has(
+      #server-root :is([data-file-manager-workspace-grid], div.absolute.z-1.max-w-full.w-full)
+    )
+  )
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root)
+  > div {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+html[data-ptero-theme][data-ptero-footer="hidden"]
+  [data-ptero-nav]
+  ~ :is(#dashboard-root, #server-root)
+  > div
+  > div:last-child {
+  display: none;
+}
+
+/* the login pages: the box stays in the middle, empty space above and below it pushes the footer down */
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="bottom"] div.m-auto:has(> [data-ptero-copyright]) {
+  flex: 1 0 auto;
+  margin-block: 0;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="bottom"]
+  div.m-auto:has(> [data-ptero-copyright])::before,
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="bottom"]
+  div.m-auto:has(> [data-ptero-copyright])::after {
+  content: "";
+  flex: 1 0 0;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="bottom"] div.m-auto > [data-ptero-copyright] {
+  order: 1;
+  margin-bottom: 1rem;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-ptero-footer="hidden"] div.m-auto > [data-ptero-copyright] {
+  display: none;
+}

@@ -15,17 +15,18 @@ import {
   faSkull,
   faStop,
   faUsers,
+  type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
-import { ComponentProps, useCallback, useMemo, useState } from 'react';
+import { type ComponentProps, useCallback, useMemo, useState } from 'react';
 import { NavLink } from 'react-router';
 import { z } from 'zod';
 import ActionIcon from '@/elements/buttons/ActionIcon.tsx';
 import CopyOnClick from '@/elements/CopyOnClick.tsx';
 import Spinner from '@/elements/feedback/Spinner.tsx';
 import ConfirmationModal from '@/elements/modals/ConfirmationModal.tsx';
-import ContextMenu, { ContextMenuItem } from '@/elements/overlays/ContextMenu.tsx';
+import ContextMenu, { type ContextMenuItem } from '@/elements/overlays/ContextMenu.tsx';
 import Tooltip from '@/elements/overlays/Tooltip.tsx';
 import RedactedText from '@/elements/typography/RedactedText.tsx';
 import { formatAllocation, serverStatusInfo } from '@/lib/domain/server.ts';
@@ -40,20 +41,99 @@ import { useServerStats, useServerStatsUnavailable } from '@/plugins/server/useS
 import { useAuth } from '@/providers/AuthProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useUserStore } from '@/stores/user.ts';
-import { usePteroThemeActive } from '../scope.tsx';
+import { usePteroThemeActive } from '../core/scope.tsx';
 import { useExtTranslations } from '../translations.ts';
 
 type Props = ComponentProps<typeof ServerItem>;
+type Server = Props['server'];
 
 // Pterodactyl shows a resource in red once it reaches 90% of its limit
-const isAlarmState = (current: number, limitMiB: number) => limitMiB > 0 && current / mbToBytes(limitMiB) >= 0.9;
+const ALARM_THRESHOLD = 0.9;
+
+const isAlarmState = (currentBytes: number, limitMiB: number) =>
+  limitMiB > 0 && currentBytes / mbToBytes(limitMiB) >= ALARM_THRESHOLD;
 
 /**
- * The stock server card on the dashboard, replaced by Pterodactyl's ServerRow. When the theme is not
+ * The stock server card of the dashboard, replaced by Pterodactyl's ServerRow. When the theme is not
  * active (extension disabled without a rebuild) the stock card is rendered instead.
  */
 export default function PteroServerItem(props: Props) {
   return usePteroThemeActive() ? <PteroServerRow {...props} /> : <ServerItem {...props} />;
+}
+
+/** Suspended, maintenance, transferring or installing: shown in place of the resources. */
+function useStateBadge(server: Server): { color: string; label: string } | null {
+  const { t } = useTranslations();
+
+  if (server.isSuspended) return { color: 'red', label: t('common.server.state.suspended', {}) };
+  if (server.nodeMaintenanceEnabled) return { color: 'yellow', label: t('common.server.state.nodeMaintenance', {}) };
+  if (server.isTransferring) return { color: 'gray', label: t('common.server.state.transferring', {}) };
+  if (server.status) {
+    const status = serverStatusInfo[server.status];
+    return { color: status.failed ? 'red' : 'gray', label: status.label() };
+  }
+
+  return null;
+}
+
+function Badge({ color, label }: { color: string; label: string }) {
+  return (
+    <div className='ptero-server-row__badge-wrapper'>
+      <span className='ptero-server-row__badge' data-color={color}>
+        {label}
+      </span>
+    </div>
+  );
+}
+
+function ResourceStat({
+  icon,
+  value,
+  limit,
+  alarm,
+}: {
+  icon: IconDefinition;
+  value: string;
+  limit: string;
+  alarm: boolean;
+}) {
+  const { t: tExt } = useExtTranslations();
+
+  return (
+    <div className='ptero-server-row__stat'>
+      <div className='ptero-server-row__stat-line'>
+        <FontAwesomeIcon icon={icon} className='ptero-server-row__stat-icon' data-alarm={alarm || undefined} />
+        <p className='ptero-server-row__stat-value' data-alarm={alarm || undefined}>
+          {value}
+        </p>
+      </div>
+      <p className='ptero-server-row__stat-limit'>{tExt('serverRow.ofLimit', { limit })}</p>
+    </div>
+  );
+}
+
+function RowAction({
+  label,
+  icon,
+  color,
+  disabled,
+  loading,
+  onClick,
+}: {
+  label: string;
+  icon: IconDefinition;
+  color: string;
+  disabled?: boolean;
+  loading?: boolean;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}) {
+  return (
+    <Tooltip label={label}>
+      <ActionIcon size='sm' variant='subtle' color={color} disabled={disabled} loading={loading} onClick={onClick}>
+        <FontAwesomeIcon icon={icon} />
+      </ActionIcon>
+    </Tooltip>
+  );
 }
 
 function PteroServerRow({
@@ -70,10 +150,10 @@ function PteroServerRow({
   sKeyPressedRef,
 }: Props) {
   const { t } = useTranslations();
-  const { t: tExt } = useExtTranslations();
   const { user } = useAuth();
   const serverGroups = useUserStore((state) => state.serverGroups);
   const [serverListShowOthers] = useServerListShowOthers();
+  const badge = useStateBadge(server);
 
   const [openModal, setOpenModal] = useState<'add-group' | 'kill' | null>(null);
   const stats = useServerStats(server);
@@ -81,14 +161,16 @@ function PteroServerRow({
   const statsUnavailable = useServerStatsUnavailable(server);
 
   const availableServerGroups = useMemo(
-    () => serverGroups.filter((g) => !g.serverOrder.includes(server.uuid)),
+    () => serverGroups.filter((group) => !group.serverOrder.includes(server.uuid)),
     [serverGroups, server.uuid],
   );
+  const inNoGroup = availableServerGroups.length === serverGroups.length;
 
   const { handleBulkPowerAction, bulkActionLoading } = useBulkPowerActions();
 
   const state = stats?.state;
   const powerBlocked = !!server.status || server.isSuspended || server.isTransferring || server.nodeMaintenanceEnabled;
+  const powerBusy = powerBlocked || bulkActionLoading !== null;
 
   const permissionSet = useMemo(
     () => new Set([...server.permissions, ...(user?.role?.serverPermissions ?? [])]),
@@ -104,15 +186,11 @@ function PteroServerRow({
     [handleBulkPowerAction, server.uuid],
   );
 
-  const diskLimit = server.limits.disk !== 0 ? bytesToString(mbToBytes(server.limits.disk)) : t('common.unlimited', {});
-  const memoryLimit =
-    server.limits.memory !== 0 ? bytesToString(mbToBytes(server.limits.memory)) : t('common.unlimited', {});
-  const cpuLimit = server.limits.cpu !== 0 ? `${server.limits.cpu} %` : t('common.unlimited', {});
-
-  const alarms = {
-    cpu: !!stats && server.limits.cpu !== 0 && stats.cpuAbsolute >= server.limits.cpu * 0.9,
-    memory: !!stats && isAlarmState(stats.memoryBytes, server.limits.memory),
-    disk: !!stats && isAlarmState(stats.diskBytes, server.limits.disk),
+  const unlimited = t('common.unlimited', {});
+  const limits = {
+    cpu: server.limits.cpu !== 0 ? `${server.limits.cpu} %` : unlimited,
+    memory: server.limits.memory !== 0 ? bytesToString(mbToBytes(server.limits.memory)) : unlimited,
+    disk: server.limits.disk !== 0 ? bytesToString(mbToBytes(server.limits.disk)) : unlimited,
   };
 
   const contextMenuItems: ContextMenuItem[] = useMemo(
@@ -123,7 +201,7 @@ function PteroServerRow({
         label: t('common.enum.serverPowerAction.start', {}),
         color: 'gray',
         canAccess: canPower('control.start'),
-        disabled: powerBlocked || bulkActionLoading !== null || state !== 'offline',
+        disabled: powerBusy || state !== 'offline',
         onClick: () => doPowerAction('start'),
       },
       {
@@ -131,7 +209,7 @@ function PteroServerRow({
         icon: faRotateRight,
         label: t('common.enum.serverPowerAction.restart', {}),
         canAccess: canPower('control.restart'),
-        disabled: powerBlocked || bulkActionLoading !== null || !state,
+        disabled: powerBusy || !state,
         onClick: () => doPowerAction('restart'),
       },
       {
@@ -140,7 +218,7 @@ function PteroServerRow({
         label: t('common.enum.serverPowerAction.stop', {}),
         color: 'red',
         canAccess: canPower('control.stop'),
-        disabled: powerBlocked || bulkActionLoading !== null || !state || state === 'offline',
+        disabled: powerBusy || !state || state === 'offline',
         onClick: () => doPowerAction('stop'),
       },
       {
@@ -150,25 +228,12 @@ function PteroServerRow({
         color: 'red',
         hidden: state !== 'stopping',
         canAccess: canPower('control.stop'),
-        disabled: powerBlocked || bulkActionLoading !== null,
+        disabled: powerBusy,
         onClick: () => setOpenModal('kill'),
       },
     ],
-    [t, doPowerAction, canPower, powerBlocked, bulkActionLoading, state],
+    [t, doPowerAction, canPower, powerBusy, state],
   );
-
-  const badge = server.isSuspended
-    ? { color: 'red', label: t('common.server.state.suspended', {}) }
-    : server.nodeMaintenanceEnabled
-      ? { color: 'yellow', label: t('common.server.state.nodeMaintenance', {}) }
-      : server.isTransferring
-        ? { color: 'gray', label: t('common.server.state.transferring', {}) }
-        : server.status
-          ? {
-              color: serverStatusInfo[server.status].failed ? 'red' : 'gray',
-              label: serverStatusInfo[server.status].label(),
-            }
-          : null;
 
   return (
     <>
@@ -216,7 +281,7 @@ function PteroServerRow({
                           <FontAwesomeIcon size='xs' icon={faUsers} className='ptero-server-row__hint' />
                         </Tooltip>
                       )}
-                      {!serverListShowOthers && serverGroups.every((g) => !g.serverOrder.includes(server.uuid)) && (
+                      {!serverListShowOthers && inNoGroup && (
                         <Tooltip label={t('pages.account.home.tooltip.noGroup', {})}>
                           <FontAwesomeIcon size='xs' icon={faInfoCircle} className='ptero-server-row__hint' />
                         </Tooltip>
@@ -227,81 +292,61 @@ function PteroServerRow({
 
                   <div className='ptero-server-row__actions'>
                     {showSelection && (
-                      <Tooltip
+                      <RowAction
                         label={
                           isSelected
                             ? t('pages.account.home.bulkActions.deselect', {})
                             : t('pages.account.home.bulkActions.select', {})
                         }
-                      >
-                        <ActionIcon
-                          size='sm'
-                          variant='subtle'
-                          color={isSelected ? 'blue' : 'gray'}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            onSelectionChange?.(!isSelected);
-                          }}
-                        >
-                          <FontAwesomeIcon icon={isSelected ? faCheckCircle : faCircleXmark} />
-                        </ActionIcon>
-                      </Tooltip>
+                        icon={isSelected ? faCheckCircle : faCircleXmark}
+                        color={isSelected ? 'blue' : 'gray'}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onSelectionChange?.(!isSelected);
+                        }}
+                      />
                     )}
                     {showGroupAddButton && (
-                      <Tooltip
+                      <RowAction
                         label={
                           availableServerGroups.length === 0
                             ? t('pages.account.home.tooltip.noGroups', {})
                             : t('pages.account.home.tooltip.addToGroup', {})
                         }
-                      >
-                        <ActionIcon
-                          size='sm'
-                          variant='subtle'
-                          color='gray'
-                          disabled={availableServerGroups.length === 0}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setOpenModal('add-group');
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faAdd} />
-                        </ActionIcon>
-                      </Tooltip>
+                        icon={faAdd}
+                        color='gray'
+                        disabled={availableServerGroups.length === 0}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setOpenModal('add-group');
+                        }}
+                      />
                     )}
                     {onGroupRemove && (
-                      <Tooltip label={t('pages.account.home.tooltip.removeFromGroup', {})}>
-                        <ActionIcon
-                          size='sm'
-                          variant='subtle'
-                          color='red'
-                          onClick={(e) => {
-                            e.preventDefault();
-                            onGroupRemove();
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faMinus} />
-                        </ActionIcon>
-                      </Tooltip>
+                      <RowAction
+                        label={t('pages.account.home.tooltip.removeFromGroup', {})}
+                        icon={faMinus}
+                        color='red'
+                        onClick={(e) => {
+                          e.preventDefault();
+                          onGroupRemove();
+                        }}
+                      />
                     )}
                     {showContextMenu && items.some((item) => !item.hidden && item.canAccess !== false) && (
-                      <Tooltip label={t('common.form.powerAction', {})}>
-                        <ActionIcon
-                          size='sm'
-                          variant='subtle'
-                          color='gray'
-                          loading={bulkActionLoading !== null}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const rect = e.currentTarget.getBoundingClientRect();
-                            openMenu(rect.left, rect.bottom);
-                          }}
-                        >
-                          <FontAwesomeIcon icon={faEllipsisVertical} />
-                        </ActionIcon>
-                      </Tooltip>
+                      <RowAction
+                        label={t('common.form.powerAction', {})}
+                        icon={faEllipsisVertical}
+                        color='gray'
+                        loading={bulkActionLoading !== null}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          openMenu(rect.left, rect.bottom);
+                        }}
+                      />
                     )}
                   </div>
                 </div>
@@ -323,67 +368,32 @@ function PteroServerRow({
 
                 <div className='ptero-server-row__resources'>
                   {badge ? (
-                    <div className='ptero-server-row__badge-wrapper'>
-                      <span className='ptero-server-row__badge' data-color={badge.color}>
-                        {badge.label}
-                      </span>
-                    </div>
-                  ) : !stats ? (
-                    statsUnavailable ? (
-                      <div className='ptero-server-row__badge-wrapper'>
-                        <span className='ptero-server-row__badge' data-color='yellow'>
-                          {t('common.server.state.resourcesUnavailable', {})}
-                        </span>
-                      </div>
-                    ) : (
-                      <Spinner size={16} />
-                    )
-                  ) : (
+                    <Badge {...badge} />
+                  ) : stats ? (
                     <>
-                      <div className='ptero-server-row__stat'>
-                        <div className='ptero-server-row__stat-line'>
-                          <FontAwesomeIcon
-                            icon={faMicrochip}
-                            className='ptero-server-row__stat-icon'
-                            data-alarm={alarms.cpu || undefined}
-                          />
-                          <p className='ptero-server-row__stat-value' data-alarm={alarms.cpu || undefined}>
-                            {stats.cpuAbsolute.toFixed(2)} %
-                          </p>
-                        </div>
-                        <p className='ptero-server-row__stat-limit'>{tExt('serverRow.ofLimit', { limit: cpuLimit })}</p>
-                      </div>
-                      <div className='ptero-server-row__stat'>
-                        <div className='ptero-server-row__stat-line'>
-                          <FontAwesomeIcon
-                            icon={faMemory}
-                            className='ptero-server-row__stat-icon'
-                            data-alarm={alarms.memory || undefined}
-                          />
-                          <p className='ptero-server-row__stat-value' data-alarm={alarms.memory || undefined}>
-                            {bytesToString(stats.memoryBytes)}
-                          </p>
-                        </div>
-                        <p className='ptero-server-row__stat-limit'>
-                          {tExt('serverRow.ofLimit', { limit: memoryLimit })}
-                        </p>
-                      </div>
-                      <div className='ptero-server-row__stat'>
-                        <div className='ptero-server-row__stat-line'>
-                          <FontAwesomeIcon
-                            icon={faHdd}
-                            className='ptero-server-row__stat-icon'
-                            data-alarm={alarms.disk || undefined}
-                          />
-                          <p className='ptero-server-row__stat-value' data-alarm={alarms.disk || undefined}>
-                            {bytesToString(stats.diskBytes)}
-                          </p>
-                        </div>
-                        <p className='ptero-server-row__stat-limit'>
-                          {tExt('serverRow.ofLimit', { limit: diskLimit })}
-                        </p>
-                      </div>
+                      <ResourceStat
+                        icon={faMicrochip}
+                        value={`${stats.cpuAbsolute.toFixed(2)} %`}
+                        limit={limits.cpu}
+                        alarm={server.limits.cpu !== 0 && stats.cpuAbsolute >= server.limits.cpu * ALARM_THRESHOLD}
+                      />
+                      <ResourceStat
+                        icon={faMemory}
+                        value={bytesToString(stats.memoryBytes)}
+                        limit={limits.memory}
+                        alarm={isAlarmState(stats.memoryBytes, server.limits.memory)}
+                      />
+                      <ResourceStat
+                        icon={faHdd}
+                        value={bytesToString(stats.diskBytes)}
+                        limit={limits.disk}
+                        alarm={isAlarmState(stats.diskBytes, server.limits.disk)}
+                      />
                     </>
+                  ) : statsUnavailable ? (
+                    <Badge color='yellow' label={t('common.server.state.resourcesUnavailable', {})} />
+                  ) : (
+                    <Spinner size={16} />
                   )}
                 </div>
 

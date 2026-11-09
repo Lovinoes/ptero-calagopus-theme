@@ -22,8 +22,8 @@ import { ObjectSet } from '@/lib/objectSet.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
 import { eventKeyMatches } from '@/lib/quickActions/shortcuts.ts';
 import { serverPowerAction, serverSchema } from '@/lib/schemas/server/server.ts';
-import { useUserSetting } from '@/lib/userSettings.ts';
 import BulkActionBar from '@/pages/dashboard/home/BulkActionBar.tsx';
+// inside this file the path resolves to the stock page, see overrides.ts
 import DashboardHomeAll from '@/pages/dashboard/home/DashboardHomeAll.tsx';
 import DashboardHomeTitle from '@/pages/dashboard/home/DashboardHomeTitle.tsx';
 import ServerItem from '@/pages/dashboard/home/ServerItem.tsx';
@@ -33,67 +33,61 @@ import { useServerListShowOthers } from '@/plugins/server/useServerListShowOther
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useUserStore } from '@/stores/user.ts';
-import { usePteroThemeActive } from '../scope.tsx';
+import { usePteroThemeActive } from '../core/scope.tsx';
+import { mergeOrder, sortByOrder, useServerOrder } from './serverOrder.ts';
 
 type Server = z.infer<typeof serverSchema>;
-
-/**
- * The "All Servers" page of the panel (pages/dashboard/home/DashboardHomeAll.tsx) with one addition:
- * the servers can be dragged into an order, like the servers inside a group. The order is a user
- * setting, so it follows the account to every device. Servers that were never moved keep the order
- * of the panel after the moved ones. With more servers than fit on one page, they are ordered within
- * their page.
- */
-const SERVER_ORDER_KEY = 'dev.lovinoes.pterodactyl::server_order';
-const serverOrderSchema = z.array(z.string());
-const EMPTY_ORDER: string[] = [];
-
-function sortByOrder(servers: Server[], order: string[]) {
-  const positions = new Map(order.map((uuid, index) => [uuid, index]));
-
-  // Array.prototype.sort is stable, so servers without a saved position keep the panel's order
-  return [...servers].sort((a, b) => {
-    const positionA = positions.get(a.uuid);
-    const positionB = positions.get(b.uuid);
-
-    if (positionA === undefined && positionB === undefined) return 0;
-    if (positionA === undefined) return 1;
-    if (positionB === undefined) return -1;
-    return positionA - positionB;
-  });
-}
-
-/** Writes the new order of the shown servers into the saved order, the servers of other pages stay put. */
-function mergeOrder(order: string[], shown: string[], reordered: string[]) {
-  const merged = [...order];
-  for (const uuid of shown) {
-    if (!merged.includes(uuid)) merged.push(uuid);
-  }
-
-  const reorderedSet = new Set(reordered);
-  const slots = merged.flatMap((uuid, index) => (reorderedSet.has(uuid) ? [index] : []));
-  slots.forEach((slot, index) => {
-    merged[slot] = reordered[index];
-  });
-
-  return merged;
-}
 
 /** The panel's own page when the theme is turned off, this replacement is compiled in either way. */
 export default function PteroDashboardHomeAll() {
   return usePteroThemeActive() ? <PteroServerList /> : <DashboardHomeAll />;
 }
 
+/** Whether S is held down (outside of text fields), a click on a server then selects it instead. */
+function useSKeyPressed() {
+  const pressed = useRef(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!eventKeyMatches(e, 's')) return;
+
+      const target = e.target as HTMLElement;
+      if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable) {
+        pressed.current = true;
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (eventKeyMatches(e, 's')) pressed.current = false;
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
+
+  return pressed;
+}
+
+/**
+ * The "All Servers" page of the panel (pages/dashboard/home/DashboardHomeAll.tsx) with one addition:
+ * the servers can be dragged into an order, like the servers inside a group (see serverOrder.ts). With
+ * more servers than fit on one page, they are ordered within their page.
+ */
 function PteroServerList() {
   const { t } = useTranslations();
   const navigate = useNavigate();
   const setServerGroups = useUserStore((state) => state.setServerGroups);
   const [serverListShowOthers, setServerListShowOthers] = useServerListShowOthers();
-  const [serverOrder, setServerOrder] = useUserSetting(SERVER_ORDER_KEY, serverOrderSchema, EMPTY_ORDER);
+  const [serverOrder, setServerOrder] = useServerOrder();
   const { addToast } = useToast();
 
   const [selectedServers, setSelectedServers] = useState(new ObjectSet<Server, 'uuid'>('uuid'));
-  const sKeyPressedRef = useRef(false);
+  const sKeyPressedRef = useSKeyPressed();
 
   const { handleBulkPowerAction, bulkActionLoading } = useBulkPowerActions();
 
@@ -107,40 +101,15 @@ function PteroServerList() {
       });
   }, [addToast, setServerGroups]);
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (eventKeyMatches(e, 's')) {
-        const target = e.target as HTMLElement;
-        if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable) {
-          sKeyPressedRef.current = true;
-        }
-      }
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (eventKeyMatches(e, 's')) {
-        sKeyPressedRef.current = false;
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, []);
-
   const {
     data: servers,
     loading,
     error,
+    refetch,
     search,
     debouncedSearch,
     setSearch,
     setPage,
-    refetch,
   } = useSearchablePaginatedTable({
     queryKey: queryKeys.user.servers.all(),
     fetcher: (page, search) => getServers(page, search, serverListShowOthers),
@@ -157,6 +126,7 @@ function PteroServerList() {
 
   const selectedPageCount = servers?.data.filter((server) => selectedServers.has(server)).length ?? 0;
   const allSelected = selectedPageCount > 0 && selectedPageCount === servers?.data.length;
+  const paginated = (servers?.total ?? 0) > (servers?.perPage ?? 0);
 
   const handleServerSelectionChange = (server: Server, selected: boolean) => {
     setSelectedServers((prev) => {
@@ -253,7 +223,7 @@ function PteroServerList() {
           />
         </AdminCan>
       </Group>
-      {(servers?.total ?? 0) > (servers?.perPage ?? 0) && (
+      {paginated && (
         <>
           <Pagination data={servers ?? getEmptyPaginationSet()} onPageSelect={setPage} />
           <Divider my='md' />
@@ -318,7 +288,7 @@ function PteroServerList() {
         onAction={onBulkAction}
         loading={bulkActionLoading}
       />
-      {(servers?.total ?? 0) > (servers?.perPage ?? 0) && (
+      {paginated && (
         <>
           <Divider my='md' />
           <Pagination data={servers ?? getEmptyPaginationSet()} onPageSelect={setPage} />

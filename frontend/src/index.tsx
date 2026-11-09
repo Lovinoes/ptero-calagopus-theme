@@ -1,11 +1,12 @@
 import type { ReactElement } from 'react';
-import { Extension, ExtensionContext } from 'shared';
+import { Extension, type ExtensionContext } from 'shared';
 import { axiosInstance } from '@/api/axios.ts';
 import AppIcon from '@/elements/AppIcon.tsx';
 import { Modal } from '@/elements/modals/Modal.tsx';
 import Sidebar from '@/elements/navigation/Sidebar.tsx';
 import Tooltip from '@/elements/overlays/Tooltip.tsx';
 import PteroAuthHeader from './auth/PteroAuthHeader.tsx';
+import PteroScope, { applyPteroScope, isPteroThemeActive } from './core/scope.tsx';
 import { attachPteroMonacoTheme } from './editor/monacoTheme.ts';
 import { handlePteroCall } from './extensionApi/calls.ts';
 import { getPteroDialogTransition, getPteroTooltipTransition } from './loading/animations.ts';
@@ -13,38 +14,25 @@ import { trackBackgroundRefreshes } from './loading/backgroundRefresh.ts';
 import PteroPageTransitions, { trackTabNavigation } from './loading/PteroPageTransitions.tsx';
 import PteroProgressBar, { trackRequests } from './loading/PteroProgressBar.tsx';
 import PteroSidebar, { PteroSidebarLinkGate } from './navigation/PteroSidebar.tsx';
-import PteroScope, { applyPteroScope, installBootScope, isPteroThemeActive, removePteroScope } from './scope.tsx';
 import ConfigurationPage from './settings/ConfigurationPage.tsx';
-import { applyPteroThemeSettings, loadPteroThemeSettings } from './settings/store.ts';
+import { loadPteroThemeSettings } from './settings/store.ts';
 
-let initialized = false;
-
-// The panel imports every extension module before it knows which ones are disabled, so the loading
-// screen can be themed right away. If this extension turns out to be disabled, the panel creates its
-// extension context without calling initialize() below, and the boot styling is removed again.
-installBootScope();
-
-const bootCheck = window.setInterval(() => {
-  if (!window.extensionContext) return;
-
-  window.clearInterval(bootCheck);
-  if (!initialized) removePteroScope();
-}, 25);
-
+/**
+ * The Pterodactyl theme. The panel only calls initialize() while the extension is enabled, and from
+ * Calagopus 1.2.8 it leaves out the boot script (boot.html) and the stylesheet of a disabled extension,
+ * so nothing of the theme runs or shows then.
+ */
 class DevLovinoesPterodactylExtension extends Extension {
   // admin area -> Extensions -> Pterodactyl Theme: colors, animations, loading, footer and the login pages
   public cardConfigurationPage: React.FC | null = ConfigurationPage;
   public cardComponent: React.FC | null = null;
 
   public initialize(ctx: ExtensionContext): void {
-    initialized = true;
-
-    // set the scope before React renders anything, so the first paint already has the right look
+    // the scope before React renders anything, so the first paint already has the right look
     applyPteroScope(window.location.pathname);
 
-    // the last known settings right away, the current ones once they are fetched
-    applyPteroThemeSettings();
-    loadPteroThemeSettings();
+    // the settings the backend rendered into the page (see initialize_index_html in src/lib.rs)
+    loadPteroThemeSettings(this.getIndexVariable('settings'));
 
     ctx.extensionRegistry.enterGlobal((global) =>
       global.prependComponent(PteroScope).prependComponent(PteroProgressBar).prependComponent(PteroPageTransitions),
@@ -85,6 +73,7 @@ class DevLovinoesPterodactylExtension extends Extension {
         (<PteroAuthHeader original={element} className={props.className} />) as ReactElement<typeof props>,
     );
 
+    // the top navigation bar and the sub navigation in place of the sidebar
     Sidebar.addRenderInterceptor(
       (element, props) => (<PteroSidebar {...props} original={element} />) as ReactElement<typeof props>,
     );

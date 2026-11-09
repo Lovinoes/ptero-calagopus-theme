@@ -1,0 +1,65 @@
+/* ------------------------------------------------------------------------------------------------
+ * File editor and tree view
+ *
+ * Both measure themselves to end exactly at the bottom of the window, which fits the stock sidebar
+ * layout. Here they end above the footer (--ptero-footer-space, measured in footer/PteroCopyright.tsx),
+ * or 1rem above the bottom without one, and the full-page editor is aligned with its header (the page
+ * has no side padding of its own). The editor box is rounded like Pterodactyl's CodeMirror editor,
+ * its colors come from editor/monacoTheme.ts.
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] #server-root div.relative:has(> div.absolute.z-1.max-w-full.w-full) {
+  margin-inline: 1rem;
+}
+
+@media (min-width: 1024px) {
+  html[data-ptero-theme] #server-root div.relative:has(> div.absolute.z-1.max-w-full.w-full) {
+    margin-inline: 1.5rem;
+  }
+}
+
+/* the measured height is set inline, the padding keeps the editor itself clear of the footer */
+html[data-ptero-theme] #server-root div.absolute.z-1.max-w-full.w-full {
+  padding-bottom: max(1rem, var(--ptero-footer-space, 0px));
+}
+
+html[data-ptero-theme] #server-root div.absolute.z-1.max-w-full.w-full section {
+  overflow: hidden;
+  border-radius: 0.25rem;
+}
+
+html[data-ptero-theme]
+  [data-file-manager-workspace-grid]
+  > [data-file-manager-tree-shell][data-file-manager-tree-collapsed="false"],
+html[data-ptero-theme] [data-file-manager-workspace-grid] > :not([data-file-manager-tree-shell]) {
+  height: calc(var(--file-manager-workspace-height) - max(1rem, var(--ptero-footer-space, 0px)));
+}
+
+/*
+ * Image viewer: the panel lets the viewer shrink to the width of the image, which crops it into a
+ * thin strip at the left. It fills the editor area instead, and the image sits in the middle at its
+ * own size (or scaled down to fit), zooming and panning still work as before.
+ */
+html[data-ptero-theme] [data-file-manager-image-preview] {
+  flex: 1 1 0%;
+  width: 100%;
+}
+
+html[data-ptero-theme] [data-file-manager-image-preview] .react-transform-component {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+@container page (width < 48rem) {
+  html[data-ptero-theme] [data-file-manager-tree-visible="false"] [data-file-manager-editor-group] {
+    height: calc(
+      var(--file-manager-workspace-height) -
+      2.75rem -
+      var(--file-manager-workspace-gap) -
+      max(1rem, var(--ptero-footer-space, 0px))
+    );
+  }
+}

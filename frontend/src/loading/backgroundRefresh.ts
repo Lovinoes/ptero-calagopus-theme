@@ -3,7 +3,7 @@
  * refetchOnWindowFocus). Those are refreshes of data that is already on screen, not page loads, so the
  * loading bar and the loading lists stay quiet for them: requests made while the tab is hidden or in
  * the first moment after it comes back don't count. A refresh that takes longer than that still shows
- * up the normal way (app.css, data-ptero-refreshing).
+ * up the normal way (styles/loading.css, data-ptero-refreshing).
  */
 const QUIET_AFTER_RETURN = 1000;
 
@@ -12,9 +12,9 @@ let quietTimer: ReturnType<typeof setTimeout> | null = null;
 const returnListeners = new Set<() => void>();
 
 function startQuietWindow() {
-  quietUntil = performance.now() + QUIET_AFTER_RETURN;
-
   const root = document.documentElement;
+
+  quietUntil = performance.now() + QUIET_AFTER_RETURN;
   root.setAttribute('data-ptero-refreshing', '');
 
   if (quietTimer) clearTimeout(quietTimer);
@@ -32,7 +32,7 @@ export function isBackgroundRefresh(): boolean {
 }
 
 /** Runs when the tab is shown again, e.g. to drop a loading bar that was stuck while it was hidden. */
-export function onTabReturn(listener: () => void) {
+export function onTabReturn(listener: () => void): () => void {
   returnListeners.add(listener);
   return () => {
     returnListeners.delete(listener);

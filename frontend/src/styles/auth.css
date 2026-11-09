@@ -1,0 +1,116 @@
+/* ------------------------------------------------------------------------------------------------
+ * Authentication pages: the normal dark boxes, a little roomier, with the step title centered above
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Card-root {
+  padding: 1.5rem;
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .mantine-Title-root {
+  color: var(--mantine-color-bright);
+}
+
+/* the step title above the box, Pterodactyl's centered "Login to Continue" */
+html[data-ptero-theme][data-ptero-area="auth"] div:has(> .mantine-Title-root):not(.mantine-Card-root *) {
+  padding-block: 0.5rem;
+  text-align: center;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] div:not(.mantine-Card-root *) > .mantine-Title-root {
+  font-size: 1.875rem;
+  line-height: 2.25rem;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] h1 {
+  font-size: 1.875rem;
+  font-weight: 500;
+}
+
+/* what an admin picked to sit above the login pages, see auth/PteroAuthHeader.tsx */
+html[data-ptero-theme] .ptero-auth-header {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0.25rem;
+  user-select: none;
+}
+
+html[data-ptero-theme] .ptero-auth-header[data-banner] {
+  flex-direction: column;
+  width: 100%;
+}
+
+html[data-ptero-theme] .ptero-auth-header__icon {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+}
+
+html[data-ptero-theme] .ptero-auth-header__banner {
+  width: 100%;
+  height: auto;
+}
+
+html[data-ptero-theme][data-ptero-area="auth"] .ptero-auth-header__name {
+  margin: 0;
+  font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Captchas (Turnstile, hCaptcha, reCAPTCHA, ...): the panel puts the widget below the box, on its own.
+ * It becomes the bottom part of the box instead, so the form and its check read as one.
+ */
+html[data-ptero-theme][data-ptero-area="auth"]
+  .mantine-Stack-root
+  > .mantine-Card-root:has(+ div.flex.w-full.items-center.justify-center) {
+  border-bottom-color: transparent;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/*
+ * The same 1px border as the box (visible in the light scheme), so both line up. Positioned like the box,
+ * so it is painted over the box's shadow and the two read as one surface.
+ */
+html[data-ptero-theme][data-ptero-area="auth"]
+  .mantine-Stack-root
+  > .mantine-Card-root
+  + div.flex.w-full.items-center.justify-center {
+  position: relative;
+  margin-top: calc(var(--stack-gap, var(--mantine-spacing-md)) * -1);
+  padding: 0 1.5rem 1.5rem;
+  border: 1px solid transparent;
+  border-top: 0;
+  border-radius: 0 0 0.25rem 0.25rem;
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-mantine-color-scheme="dark"]
+  .mantine-Stack-root
+  > .mantine-Card-root
+  + div.flex.w-full.items-center.justify-center {
+  background-color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-ptero-area="auth"][data-mantine-color-scheme="light"]
+  .mantine-Stack-root
+  > .mantine-Card-root
+  + div.flex.w-full.items-center.justify-center {
+  border-color: hsl(212, 17%, 88%);
+  background-color: #fff;
+}
+
+/* links in the footer keep its muted color, they only light up and underline on hover */
+html[data-ptero-theme] [data-ptero-copyright] a {
+  color: inherit;
+  transition: color 150ms;
+}
+
+html[data-ptero-theme] [data-ptero-copyright] a:hover {
+  color: var(--mantine-color-text);
+}

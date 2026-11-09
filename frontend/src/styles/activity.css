@@ -1,0 +1,231 @@
+/* ------------------------------------------------------------------------------------------------
+ * Activity log of a server and of the account: Pterodactyl's ActivityLogContainer and ActivityLogEntry
+ * (rendered by activity/PteroActivityLog.tsx), the values are its tailwind classes
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] .ptero-activity {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background-color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow-md);
+}
+
+/* an empty log or an error, like the tables (p-2.5) */
+html[data-ptero-theme] .ptero-activity__message {
+  padding: 0.625rem;
+}
+
+/* grid grid-cols-10 py-4 border-b-2 border-gray-800 last:border-0 */
+html[data-ptero-theme] .ptero-activity-entry {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  padding-block: 1rem;
+  border-bottom: 2px solid var(--ptero-gray-800);
+}
+
+html[data-ptero-theme] .ptero-activity-entry:last-child {
+  border-bottom: 0;
+}
+
+/* hidden sm:flex sm:col-span-1 items-center justify-center select-none */
+html[data-ptero-theme] .ptero-activity-entry__avatar {
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+
+/* col-span-10 sm:col-span-9 flex */
+html[data-ptero-theme] .ptero-activity-entry__body {
+  display: flex;
+  grid-column: span 10 / span 10;
+  min-width: 0;
+}
+
+/* flex-1 px-4 sm:px-0 */
+html[data-ptero-theme] .ptero-activity-entry__content {
+  flex: 1 1 0%;
+  min-width: 0;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 640px) {
+  html[data-ptero-theme] .ptero-activity-entry__avatar {
+    display: flex;
+    grid-column: span 1 / span 1;
+  }
+
+  html[data-ptero-theme] .ptero-activity-entry__body {
+    grid-column: span 9 / span 9;
+  }
+
+  html[data-ptero-theme] .ptero-activity-entry__content {
+    padding-inline: 0;
+  }
+}
+
+/* flex items-center text-gray-50: "user — event" */
+html[data-ptero-theme] .ptero-activity-entry__headline {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--ptero-gray-50);
+  overflow-wrap: anywhere;
+}
+
+/* the user links to the log filtered by them, it lights up like Pterodactyl's links in the log */
+html[data-ptero-theme] a.ptero-activity-entry__actor {
+  color: inherit;
+  text-decoration: none;
+  transition: color 75ms;
+}
+
+html[data-ptero-theme] a.ptero-activity-entry__actor:hover {
+  color: var(--ptero-cyan-400);
+}
+
+html[data-ptero-theme] .ptero-activity-entry__separator {
+  color: var(--ptero-gray-400);
+}
+
+/* "(Impersonated by ...)" after the user, an admin acting as them, quieter than the user and the event */
+html[data-ptero-theme] .ptero-activity-entry__impersonator {
+  color: var(--mantine-color-dimmed);
+}
+
+/* .icons: flex space-x-1 mx-2 text-gray-400, group-hover:text-gray-300 */
+html[data-ptero-theme] .ptero-activity-entry__icons {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  font-size: 0.875rem;
+  color: var(--ptero-gray-400);
+  transition: color 100ms;
+}
+
+html[data-ptero-theme] .ptero-activity-entry:hover .ptero-activity-entry__icons {
+  color: var(--ptero-gray-300);
+}
+
+/* mt-1 flex items-center text-sm: "IP | 5 minutes ago" */
+html[data-ptero-theme] .ptero-activity-entry__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: var(--ptero-gray-200);
+}
+
+/* ActivityLogMetaButton: self-center md:px-4, a gray icon button (text-gray-400, hover:text-gray-50) */
+html[data-ptero-theme] .ptero-activity-entry__actions {
+  display: flex;
+  flex: none;
+  gap: 0.25rem;
+  align-items: center;
+  align-self: center;
+  padding-right: 1rem;
+}
+
+html[data-ptero-theme] .ptero-activity-entry__actions .mantine-ActionIcon-root {
+  border-color: transparent;
+  background: transparent;
+  color: var(--ptero-gray-400);
+  transition: color 100ms;
+}
+
+html[data-ptero-theme] .ptero-activity-entry:hover .ptero-activity-entry__actions .mantine-ActionIcon-root {
+  color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme] .ptero-activity-entry__actions .mantine-ActionIcon-root:hover {
+  background: transparent;
+  color: var(--ptero-gray-50);
+}
+
+/*
+ * Loading (a page, a search) looks like the tables: after the loading delay the entries dim and a
+ * spinner shows, a log that is still empty makes room for it. Not while a tab is shown again
+ * (data-ptero-refreshing, see loading/backgroundRefresh.ts).
+ */
+html[data-ptero-theme] .ptero-activity[data-loading]:has(> .ptero-activity__entries:empty) {
+  min-height: 10rem;
+  animation: ptero-loading-hold 0s var(--ptero-loading-delay, 250ms) backwards;
+}
+
+html[data-ptero-theme] .ptero-activity[data-loading] > .ptero-activity__entries {
+  opacity: 0.5;
+  pointer-events: none;
+  animation: ptero-loading-dim calc(150ms * var(--ptero-animation-scale, 1)) ease-in var(--ptero-loading-delay, 250ms)
+    backwards;
+}
+
+html[data-ptero-theme] .ptero-activity__loader {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  animation: ptero-fade-in calc(150ms * var(--ptero-animation-scale, 1)) ease-in var(--ptero-loading-delay, 250ms)
+    backwards;
+}
+
+html[data-ptero-theme][data-ptero-refreshing] .ptero-activity[data-loading]:has(> .ptero-activity__entries:empty) {
+  min-height: 0;
+  animation: none;
+}
+
+html[data-ptero-theme][data-ptero-refreshing] .ptero-activity[data-loading] > .ptero-activity__entries {
+  opacity: 1;
+  animation: none;
+}
+
+html[data-ptero-theme][data-ptero-refreshing] .ptero-activity__loader {
+  visibility: hidden;
+  animation: none;
+}
+
+/* light scheme: the white boxes of the light scheme */
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity {
+  border: 1px solid hsl(212, 17%, 88%);
+  background-color: #fff;
+  box-shadow: var(--ptero-shadow);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity-entry {
+  border-bottom-color: var(--mantine-color-gray-2);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity-entry__headline {
+  color: var(--ptero-gray-900);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] a.ptero-activity-entry__actor:hover {
+  color: var(--ptero-cyan-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity-entry__meta {
+  color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-activity-entry:hover .ptero-activity-entry__icons {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .ptero-activity-entry:hover
+  .ptero-activity-entry__actions
+  .mantine-ActionIcon-root {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"]
+  .ptero-activity-entry__actions
+  .mantine-ActionIcon-root:hover {
+  color: var(--ptero-gray-800);
+}

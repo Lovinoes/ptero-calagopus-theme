@@ -1,0 +1,22 @@
+/* ------------------------------------------------------------------------------------------------
+ * Switches and checkboxes (Pterodactyl's gray toggle and checkbox)
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Switch-input:not(:checked) + .mantine-Switch-track {
+  border-color: var(--ptero-gray-700);
+  background-color: var(--ptero-gray-400);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Checkbox-input:not(:checked, [data-indeterminate]) {
+  border-color: var(--ptero-gray-300);
+  background-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] .mantine-Checkbox-input:is(:checked, [data-indeterminate]) {
+  border-color: transparent;
+  background-color: var(--ptero-blue-400);
+}
+
+html[data-ptero-theme] .mantine-Checkbox-input {
+  border-radius: 0.125rem;
+}

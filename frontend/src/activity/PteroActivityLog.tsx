@@ -22,6 +22,8 @@ type Activity =
   | z.infer<typeof userActivitySchema>
   | z.infer<typeof serverActivitySchema>;
 
+type AvatarSource = { avatar?: string | null; username?: string | null } | null;
+
 interface PteroActivityLogProps {
   activities: Pagination<unknown> | undefined;
   loading: boolean;
@@ -84,13 +86,14 @@ interface PteroActivityEntryProps {
   actorName: string;
   /** filters the log by that user */
   actorLink?: To | null;
-  avatar: { avatar?: string | null; username?: string | null } | null;
+  avatar: AvatarSource;
   actions?: ReactNode;
 }
 
 /**
  * One entry of Pterodactyl's activity log (ActivityLogEntry): the avatar, "user — event" with an icon when
- * it came through the API, the IP and how long ago below it, the details button on the right.
+ * it came through the API, the IP and how long ago below it, the details button on the right. An entry an
+ * admin made while impersonating the user says so after the user, like the panel's own log.
  */
 export function PteroActivityEntry({ activity, actorName, actorLink, avatar, actions }: PteroActivityEntryProps) {
   const { t } = useTranslations();
@@ -111,6 +114,11 @@ export function PteroActivityEntry({ activity, actorName, actorLink, avatar, act
               </TableLink>
             ) : (
               <span className='ptero-activity-entry__actor'>{actorName}</span>
+            )}
+            {activity.impersonator && (
+              <span className='ptero-activity-entry__impersonator'>
+                &nbsp;({t('common.impersonatedBy', { username: activity.impersonator.username })})
+              </span>
             )}
             <span className='ptero-activity-entry__separator'>&nbsp;&mdash;&nbsp;</span>
             {/* the icon follows the event inline, so it stays next to it when the line wraps */}

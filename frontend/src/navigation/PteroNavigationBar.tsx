@@ -10,10 +10,10 @@ import {
   faSignOutAlt,
   faSun,
   faUserCog,
+  type IconDefinition,
 } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { Menu, Tooltip, type TransitionOverride, useMantineColorScheme } from '@mantine/core';
-import { Component, type ReactNode } from 'react';
+import { type MantineColorScheme, Menu, Tooltip, useMantineColorScheme } from '@mantine/core';
 import { Link, useLocation } from 'react-router';
 import AppIcon from '@/elements/AppIcon.tsx';
 import Avatar from '@/elements/data-display/Avatar.tsx';
@@ -27,85 +27,23 @@ import { usePendingPathname } from '@/providers/contexts/pendingNavigationContex
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
 import { useQuickActionsStore } from '@/stores/quickActions.ts';
-import { type PteroNavbarItem, useNavbarItems } from '../extensionApi/navbarItems.ts';
+import { isAccountPath, isServerListPath } from '../core/paths.ts';
+import { useNavbarItems } from '../extensionApi/navbarItems.ts';
 import { usePteroTooltipTransition } from '../loading/animations.ts';
+import ExtensionNavbarItem from './ExtensionNavbarItem.tsx';
 
-const DASHBOARD_PATHS = new Set(['/', '/all', '/grouped']);
+/** The color schemes of the account menu, in Pterodactyl's order. */
+function useColorSchemeItems(): { scheme: MantineColorScheme; icon: IconDefinition; label: string }[] {
+  const { t } = useTranslations();
 
-const isDashboardPath = (pathname: string) => DASHBOARD_PATHS.has(pathname.replace(/\/+$/, '') || '/');
-
-const isAccountPath = (pathname: string) => pathname === '/account' || pathname.startsWith('/account/');
-
-/** The page of `to` (without its ?query and #hash) and the pages below it, `/` only matches itself. */
-function isWithin(pathname: string, to: string) {
-  const base = to.split(/[?#]/, 1)[0].replace(/\/+$/, '');
-  if (base === '') return pathname === '/';
-
-  return pathname === base || pathname.startsWith(`${base}/`);
+  return [
+    { scheme: 'auto', icon: faCircleHalfStroke, label: t('elements.sidebar.button.themeAuto', {}) },
+    { scheme: 'dark', icon: faMoon, label: t('elements.sidebar.button.themeDark', {}) },
+    { scheme: 'light', icon: faSun, label: t('elements.sidebar.button.themeLight', {}) },
+  ];
 }
 
-/** An icon of another extension that fails to render is left out, instead of taking down the whole bar. */
-class NavbarItemBoundary extends Component<
-  { item: PteroNavbarItem; children: ReactNode },
-  { item: PteroNavbarItem; failed: boolean }
-> {
-  override state = { item: this.props.item, failed: false };
-
-  // a replacement with the same id gets a new try
-  static getDerivedStateFromProps(props: { item: PteroNavbarItem }, state: { item: PteroNavbarItem }) {
-    return props.item === state.item ? null : { item: props.item, failed: false };
-  }
-
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-
-  override componentDidCatch(error: Error) {
-    console.error(`[pterodactyl theme] navbar item "${this.props.item.id}" failed to render`, error);
-  }
-
-  override render() {
-    return this.state.failed ? null : this.props.children;
-  }
-}
-
-/** An icon another extension added, see extensionApi/navbarItems.ts. */
-function ExtensionNavbarItem({
-  item,
-  pathname,
-  transitionProps,
-}: {
-  item: PteroNavbarItem;
-  pathname: string;
-  transitionProps: TransitionOverride;
-}) {
-  let active = false;
-  try {
-    active = item.isActive ? item.isActive(pathname) : item.to ? isWithin(pathname, item.to) : false;
-  } catch (error) {
-    console.error(`[pterodactyl theme] isActive of navbar item "${item.id}" failed`, error);
-  }
-
-  const className = active ? 'active' : undefined;
-
-  return (
-    <Tooltip label={item.label} position='bottom' transitionProps={transitionProps}>
-      {item.to ? (
-        <Link to={item.to} aria-label={item.label} className={className}>
-          {item.icon}
-        </Link>
-      ) : item.href ? (
-        <a href={item.href} target='_blank' rel='noopener noreferrer' aria-label={item.label} className={className}>
-          {item.icon}
-        </a>
-      ) : (
-        <button type='button' aria-label={item.label} className={className} onClick={item.onClick}>
-          {item.icon}
-        </button>
-      )}
-    </Tooltip>
-  );
-}
+const checkMark = (checked: boolean) => checked && <FontAwesomeIcon icon={faCheck} size='sm' />;
 
 /**
  * The top bar of Pterodactyl: the stock Calagopus app icon / banner on the left and Pterodactyl's
@@ -125,6 +63,7 @@ export default function PteroNavigationBar() {
   const routeOrder = useGlobalStore((state) => state.settings.user?.routeOrder);
   const setQuickActionsOpen = useQuickActionsStore((state) => state.setOpen);
   const { colorScheme, setColorScheme } = useMantineColorScheme();
+  const colorSchemeItems = useColorSchemeItems();
   const [redactAddresses, setRedactAddresses] = useRedactAddresses();
   const deviceOverrideCount = useDeviceOverrideCount();
   const tooltipTransition = usePteroTooltipTransition();
@@ -137,6 +76,9 @@ export default function PteroNavigationBar() {
 
   const suspended = Boolean(user.suspended);
   const accountHidden = suspended || !isNamedRoutePathAccessible(routeOrder, '/');
+  const onDashboard = isServerListPath(pathname);
+  const searchLabel = t('elements.quickActions.trigger', {});
+  const dashboardLabel = t('pages.account.home.title', {});
   const adminLabel = t('pages.account.admin.title', {});
   const displayName = user.nameFirst && user.nameLast ? `${user.nameFirst} ${user.nameLast}` : user.username;
   const logoutLabel = impersonating
@@ -147,55 +89,49 @@ export default function PteroNavigationBar() {
     <div className='ptero-navbar'>
       <div className='ptero-navbar-inner'>
         <div className='ptero-navbar-logo'>
-          <Link to='/' aria-label={t('pages.account.home.title', {})}>
+          <Link to='/' aria-label={dashboardLabel}>
             <AppIcon />
           </Link>
         </div>
 
         <div className='ptero-navbar-right'>
           {!suspended && (
-            <Tooltip
-              label={t('elements.quickActions.trigger', {})}
-              position='bottom'
-              transitionProps={tooltipTransition}
-            >
-              <button
-                type='button'
-                aria-label={t('elements.quickActions.trigger', {})}
-                onClick={() => setQuickActionsOpen(true)}
-              >
-                <FontAwesomeIcon icon={faSearch} />
-              </button>
-            </Tooltip>
-          )}
+            <>
+              <Tooltip label={searchLabel} position='bottom' transitionProps={tooltipTransition}>
+                <button type='button' aria-label={searchLabel} onClick={() => setQuickActionsOpen(true)}>
+                  <FontAwesomeIcon icon={faSearch} />
+                </button>
+              </Tooltip>
 
-          {!suspended && (
-            <Tooltip label={t('pages.account.home.title', {})} position='bottom' transitionProps={tooltipTransition}>
-              <Link
-                to='/'
-                aria-label={t('pages.account.home.title', {})}
-                className={isDashboardPath(pathname) ? 'active' : undefined}
-                aria-current={isDashboardPath(pathname) ? 'page' : undefined}
-              >
-                <FontAwesomeIcon icon={faLayerGroup} />
-              </Link>
-            </Tooltip>
-          )}
+              <Tooltip label={dashboardLabel} position='bottom' transitionProps={tooltipTransition}>
+                <Link
+                  to='/'
+                  aria-label={dashboardLabel}
+                  className={onDashboard ? 'active' : undefined}
+                  aria-current={onDashboard ? 'page' : undefined}
+                >
+                  <FontAwesomeIcon icon={faLayerGroup} />
+                </Link>
+              </Tooltip>
 
-          {!suspended && isAdmin(user) && (
-            <Tooltip label={adminLabel} position='bottom' transitionProps={tooltipTransition}>
-              <Link to='/admin' aria-label={adminLabel}>
-                <FontAwesomeIcon icon={faCogs} />
-              </Link>
-            </Tooltip>
-          )}
+              {isAdmin(user) && (
+                <Tooltip label={adminLabel} position='bottom' transitionProps={tooltipTransition}>
+                  <Link to='/admin' aria-label={adminLabel}>
+                    <FontAwesomeIcon icon={faCogs} />
+                  </Link>
+                </Tooltip>
+              )}
 
-          {!suspended &&
-            extensionItems.map((item) => (
-              <NavbarItemBoundary key={item.id} item={item}>
-                <ExtensionNavbarItem item={item} pathname={pathname} transitionProps={tooltipTransition} />
-              </NavbarItemBoundary>
-            ))}
+              {extensionItems.map((item) => (
+                <ExtensionNavbarItem
+                  key={item.id}
+                  item={item}
+                  pathname={pathname}
+                  transitionProps={tooltipTransition}
+                />
+              ))}
+            </>
+          )}
 
           <Menu position='bottom-end' shadow='md' width={240} withinPortal>
             <Menu.Target>
@@ -208,37 +144,28 @@ export default function PteroNavigationBar() {
             <Menu.Dropdown>
               <Menu.Label>{displayName}</Menu.Label>
               {!accountHidden && (
-                <Menu.Item component={Link} to='/account' leftSection={<FontAwesomeIcon icon={faUserCog} />}>
-                  {t('pages.account.account.title', {})}
-                </Menu.Item>
+                <>
+                  <Menu.Item component={Link} to='/account' leftSection={<FontAwesomeIcon icon={faUserCog} />}>
+                    {t('pages.account.account.title', {})}
+                  </Menu.Item>
+                  <Menu.Divider />
+                </>
               )}
-              {!accountHidden && <Menu.Divider />}
               <Menu.Label>{t('elements.sidebar.button.theme', {})}</Menu.Label>
-              <Menu.Item
-                leftSection={<FontAwesomeIcon icon={faCircleHalfStroke} />}
-                rightSection={colorScheme === 'auto' && <FontAwesomeIcon icon={faCheck} size='sm' />}
-                onClick={() => setColorScheme('auto')}
-              >
-                {t('elements.sidebar.button.themeAuto', {})}
-              </Menu.Item>
-              <Menu.Item
-                leftSection={<FontAwesomeIcon icon={faMoon} />}
-                rightSection={colorScheme === 'dark' && <FontAwesomeIcon icon={faCheck} size='sm' />}
-                onClick={() => setColorScheme('dark')}
-              >
-                {t('elements.sidebar.button.themeDark', {})}
-              </Menu.Item>
-              <Menu.Item
-                leftSection={<FontAwesomeIcon icon={faSun} />}
-                rightSection={colorScheme === 'light' && <FontAwesomeIcon icon={faCheck} size='sm' />}
-                onClick={() => setColorScheme('light')}
-              >
-                {t('elements.sidebar.button.themeLight', {})}
-              </Menu.Item>
+              {colorSchemeItems.map(({ scheme, icon, label }) => (
+                <Menu.Item
+                  key={scheme}
+                  leftSection={<FontAwesomeIcon icon={icon} />}
+                  rightSection={checkMark(colorScheme === scheme)}
+                  onClick={() => setColorScheme(scheme)}
+                >
+                  {label}
+                </Menu.Item>
+              ))}
               <Menu.Divider />
               <Menu.Item
                 leftSection={<FontAwesomeIcon icon={faEyeSlash} />}
-                rightSection={redactAddresses && <FontAwesomeIcon icon={faCheck} size='sm' />}
+                rightSection={checkMark(redactAddresses)}
                 onClick={() => setRedactAddresses(!redactAddresses)}
               >
                 {t('elements.sidebar.button.redactAddresses', {})}

@@ -1,5 +1,6 @@
-import type { ReactNode } from 'react';
-import { isValidElement, useSyncExternalStore } from 'react';
+import { isValidElement, type ReactNode } from 'react';
+import { LOG_PREFIX } from '../core/constants.ts';
+import { createStore, useStore } from '../core/createStore.ts';
 
 /**
  * Icons other extensions add to the top navigation bar (see EXTENSIONS.md), shown after the theme's
@@ -24,23 +25,16 @@ export interface PteroNavbarItem {
   order?: number;
 }
 
-let items: PteroNavbarItem[] = [];
-let addedCount = 0;
+const items = createStore<PteroNavbarItem[]>([]);
+// when an id was first added, it keeps its place when the item is replaced
 const insertion = new Map<string, number>();
-const listeners = new Set<() => void>();
+let addedCount = 0;
 
-function emit() {
-  for (const listener of listeners) listener();
-}
-
-function sortItems(list: PteroNavbarItem[]) {
-  return [...list].sort(
-    (a, b) => (a.order ?? 0) - (b.order ?? 0) || (insertion.get(a.id) ?? 0) - (insertion.get(b.id) ?? 0),
-  );
-}
+const sortItems = (list: PteroNavbarItem[]) =>
+  [...list].sort((a, b) => (a.order ?? 0) - (b.order ?? 0) || (insertion.get(a.id) ?? 0) - (insertion.get(b.id) ?? 0));
 
 function reject(message: string): null {
-  console.warn(`[pterodactyl theme] navbar item not added: ${message}`);
+  console.warn(`${LOG_PREFIX} navbar item not added: ${message}`);
   return null;
 }
 
@@ -53,6 +47,7 @@ export function parseNavbarItem(value: unknown): PteroNavbarItem | null {
   if (typeof item.label !== 'string' || item.label.trim() === '') {
     return reject(`\`label\` of "${item.id}" must be a non-empty string`);
   }
+
   const textIcon = (typeof item.icon === 'string' && item.icon.trim() !== '') || Number.isFinite(item.icon);
   if (!isValidElement(item.icon) && !textIcon) {
     return reject(`\`icon\` of "${item.id}" must be a React element or text`);
@@ -95,33 +90,19 @@ export function parseNavbarItem(value: unknown): PteroNavbarItem | null {
 export function addNavbarItem(item: PteroNavbarItem): () => void {
   if (!insertion.has(item.id)) insertion.set(item.id, addedCount++);
 
-  items = sortItems([...items.filter((existing) => existing.id !== item.id), item]);
-  emit();
+  items.set(sortItems([...items.get().filter((existing) => existing.id !== item.id), item]));
 
   return () => {
     // only the item added here, a later replacement with the same id stays
-    if (!items.includes(item)) return;
-    removeNavbarItem(item.id);
+    if (items.get().includes(item)) removeNavbarItem(item.id);
   };
 }
 
 export function removeNavbarItem(id: string) {
-  if (!items.some((item) => item.id === id)) return;
+  if (!items.get().some((item) => item.id === id)) return;
 
-  items = items.filter((item) => item.id !== id);
   insertion.delete(id);
-  emit();
+  items.set(items.get().filter((item) => item.id !== id));
 }
 
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
-
-const getItems = () => items;
-
-export function useNavbarItems(): PteroNavbarItem[] {
-  return useSyncExternalStore(subscribe, getItems);
-}
+export const useNavbarItems = (): PteroNavbarItem[] => useStore(items);

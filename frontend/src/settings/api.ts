@@ -1,6 +1,6 @@
 import { axiosInstance } from '@/api/axios.ts';
 import { parseFromApi, serializeForApi } from '@/lib/serialization/api-transform.ts';
-import { PACKAGE_NAME } from '../scope.tsx';
+import { PACKAGE_NAME } from '../core/constants.ts';
 import { type PteroThemeSettings, pteroThemeSettingsSchema } from './schema.ts';
 
 /** Read-only for every visitor, the login pages are themed as well. */

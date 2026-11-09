@@ -1,38 +1,29 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { type NavigateFunction, useLocation, useNavigate } from 'react-router';
-import { resolvePteroArea } from '../scope.tsx';
+import { isServerListPath, normalizePath, resolvePteroArea } from '../core/paths.ts';
 
 /**
  * Switching between the tabs of a page (Allocations / Firewall / Connections, Mounts / Devices, Backups /
  * System Backups, ...) opens another route, so the page is rebuilt: some tabs show only a spinner until
  * their data is there (the header and the tabs disappear), others an empty list that fills a moment later.
  *
- * Now a tab switch puts a picture of the current page on top (with the clicked tab already active) while
- * the new tab renders underneath, and swaps it for the new tab at once when that has its content (at most
- * MAX_HOLD). The new tab shows up as it is, nothing on it fades (its header, tabs and tables), only the
- * server lists (All Servers / Grouped Servers) fade in below their tabs. The same for every tab bar. The
- * top bar and the sub navigation stay usable all along.
+ * Instead, a tab switch puts a picture of the current page on top (with the clicked tab already active)
+ * while the new tab renders underneath, and swaps it for the new tab at once when that has its content
+ * (at most MAX_HOLD). The new tab shows up as it is, nothing on it fades (its header, tabs and tables),
+ * only the server lists (All Servers / Grouped Servers) fade in below their tabs. The same for every tab
+ * bar. The top bar and the sub navigation stay usable all along.
  */
 const ROOT_SELECTOR = '#dashboard-root, #server-root';
-const PAGE_SELECTOR = '[data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div > div:first-child > *';
-// the same pages, inside one page root
+// the pages inside a page root, and the same from the document (only below the theme's navigation)
 const ROOT_PAGE_SELECTOR = ':scope > div > div:first-child > *';
+const PAGE_SELECTOR = '[data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div > div:first-child > *';
 const TAB_LINK_SELECTOR = '.mantine-Tabs-list a[href]';
 const PICTURE_CLASS = 'ptero-tab-hold';
 const MAX_HOLD = 1500;
-// the server lists, the panel starts on All Servers (/ and /grouped) or on Grouped Servers (/ and /all)
-const SERVER_LIST_PATHS = new Set(['/', '/all', '/grouped']);
+const CHECK_INTERVAL = 16;
 // The panel's spinners of a list loading, or of a whole page waiting for its data. Not the ones of single
 // rows: a server row waits for its live stats, which never come while its node is down.
 const LOADER_SELECTOR = '[data-testid="loader"]:not(tr *, .ptero-server-row *)';
-
-const normalize = (pathname: string) => pathname.replace(/\/+$/, '') || '/';
-
-let tabTarget: string | null = null;
-// the route that is on the page (set once the panel rendered it)
-let renderedPath: string | null = null;
-// the router's navigate, set by the component below once the router is there
-let navigateTo: NavigateFunction | null = null;
 
 interface Hold {
   root: HTMLElement;
@@ -47,6 +38,12 @@ interface Hold {
   rootMinHeight: string;
 }
 
+// the page a tab click opens, until that page is rendered
+let tabTarget: string | null = null;
+// the route that is on the page (set once the panel rendered it)
+let renderedPath: string | null = null;
+// the router's navigate, set by the component below once the router is there
+let navigateTo: NavigateFunction | null = null;
 let hold: Hold | null = null;
 
 /** A copy keeps neither where its lists were scrolled to nor what was typed into its fields. */
@@ -84,7 +81,7 @@ function showActiveTab(picture: HTMLElement, target: string) {
     const tab = link.querySelector('.mantine-Tabs-tab');
     if (!tab) continue;
 
-    const active = normalize(link.pathname) === target;
+    const active = normalizePath(link.pathname) === target;
     tab.toggleAttribute('data-active', active);
     tab.setAttribute('aria-selected', String(active));
   }
@@ -137,7 +134,7 @@ function endHold(arrived: boolean) {
   );
   for (const page of pages) page.setAttribute('data-ptero-page', 'still');
 
-  const content = arrived && SERVER_LIST_PATHS.has(current.target) ? contentBelowTabs(current.root) : null;
+  const content = arrived && isServerListPath(current.target) ? contentBelowTabs(current.root) : null;
   for (const element of content ?? []) element.removeAttribute('data-ptero-tab-content');
 
   if (content || !arrived) {
@@ -159,14 +156,16 @@ function checkHold() {
   const current = hold;
   if (!current) return;
 
+  const timedOut = performance.now() - current.start >= MAX_HOLD;
+
   // Another page was opened (sub navigation, back button), the picture goes once that page is rendered,
   // or the panel kept the page (unsaved changes), then it goes right away.
-  const path = normalize(window.location.pathname);
+  const path = normalizePath(window.location.pathname);
   if (path !== current.target) {
-    if (renderedPath === path || performance.now() - current.start >= MAX_HOLD) {
+    if (renderedPath === path || timedOut) {
       endHold(false);
     } else {
-      current.timer = window.setTimeout(checkHold, 16);
+      current.timer = window.setTimeout(checkHold, CHECK_INTERVAL);
     }
     return;
   }
@@ -178,12 +177,12 @@ function checkHold() {
     current.root.querySelector(LOADER_SELECTOR) === null;
   current.readyChecks = ready ? current.readyChecks + 1 : 0;
 
-  if (current.readyChecks >= 2 || performance.now() - current.start >= MAX_HOLD) {
+  if (current.readyChecks >= 2 || timedOut) {
     endHold(true);
     return;
   }
 
-  current.timer = window.setTimeout(checkHold, 16);
+  current.timer = window.setTimeout(checkHold, CHECK_INTERVAL);
 }
 
 function startHold(root: HTMLElement, target: string) {
@@ -235,11 +234,35 @@ function startHold(root: HTMLElement, target: string) {
   root.style.minHeight = `${root.offsetHeight}px`;
   root.style.visibility = 'hidden';
 
-  hold.timer = window.setTimeout(checkHold, 16);
+  hold.timer = window.setTimeout(checkHold, CHECK_INTERVAL);
 }
 
 const isModified = (event: MouseEvent) =>
   event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+
+/** A click inside the picture: its tabs switch on, everything else waits for the new tab. */
+function onPictureClick(event: MouseEvent, link: Element | null) {
+  event.preventDefault();
+  event.stopImmediatePropagation();
+
+  const current = hold;
+  if (!current || !(link instanceof HTMLAnchorElement) || isModified(event)) return;
+
+  const next = normalizePath(link.pathname);
+  if (next === current.target) return;
+
+  if (!navigateTo) {
+    endHold(false);
+    return;
+  }
+
+  tabTarget = next;
+  current.target = next;
+  current.start = performance.now();
+  current.readyChecks = 0;
+  showActiveTab(current.picture, next);
+  navigateTo(`${link.pathname}${link.search}${link.hash}`);
+}
 
 function onClick(event: MouseEvent) {
   const element = event.target instanceof Element ? event.target : null;
@@ -247,39 +270,18 @@ function onClick(event: MouseEvent) {
 
   const link = element.closest(TAB_LINK_SELECTOR);
 
-  // the picture only stands in for the page: its tabs switch on, everything else waits for the new tab
   if (element.closest(`.${PICTURE_CLASS}`)) {
-    event.preventDefault();
-    event.stopImmediatePropagation();
-
-    const current = hold;
-    if (!current || !(link instanceof HTMLAnchorElement) || isModified(event)) return;
-
-    const next = normalize(link.pathname);
-    if (next === current.target) return;
-
-    if (!navigateTo) {
-      endHold(false);
-      return;
-    }
-
-    tabTarget = next;
-    current.target = next;
-    current.start = performance.now();
-    current.readyChecks = 0;
-    showActiveTab(current.picture, next);
-    navigateTo(`${link.pathname}${link.search}${link.hash}`);
+    onPictureClick(event, link);
     return;
   }
 
   if (!(link instanceof HTMLAnchorElement)) return;
 
-  const target = normalize(link.pathname);
-
   // clicks the browser handles itself (new tab or window) and the tab that is already open
+  const target = normalizePath(link.pathname);
   if (isModified(event)) return;
   if (link.target && link.target !== '_self') return;
-  if (target === normalize(window.location.pathname)) return;
+  if (target === normalizePath(window.location.pathname)) return;
 
   tabTarget = target;
 
@@ -297,6 +299,7 @@ export function trackTabNavigation() {
   document.addEventListener('click', onClick, true);
 }
 
+/** Marks the pages for their fade in (styles/loading.css), a tab switch skips it. */
 export default function PteroPageTransitions() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -311,7 +314,7 @@ export default function PteroPageTransitions() {
 
   // runs after the new page is in the DOM but before it is painted, so a skipped fade never shows
   useLayoutEffect(() => {
-    renderedPath = normalize(pathname);
+    renderedPath = normalizePath(pathname);
 
     const tabSwitch = tabTarget === renderedPath;
     tabTarget = null;

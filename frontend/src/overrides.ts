@@ -1,6 +1,9 @@
 // The panel components this theme replaces. The panel's build reads the defineOverride() calls (this file
 // never runs) and resolves every import of the original to the replacement. Inside a replacement the
 // original path still gives the stock component, which it renders off the themed pages.
+//
+// Only one extension may replace a component, the panel's build fails when two do. Keep this list short
+// and in step with the "Conflicts" section of EXTENSIONS.md.
 import Copyright from '@/elements/Copyright.tsx';
 import StatCard from '@/elements/data-display/StatCard.tsx';
 import DashboardActivity from '@/pages/dashboard/activity/DashboardActivity.tsx';

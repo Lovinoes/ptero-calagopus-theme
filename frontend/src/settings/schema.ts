@@ -1,19 +1,15 @@
 import { z } from 'zod';
 
 export const pteroAnimationSpeeds = ['very_slow', 'slow', 'normal', 'fast', 'very_fast'] as const;
-
 export type PteroAnimationSpeed = (typeof pteroAnimationSpeeds)[number];
 
 export const pteroFooterPositions = ['bottom', 'content', 'hidden'] as const;
-
 export type PteroFooterPosition = (typeof pteroFooterPositions)[number];
 
 export const pteroAuthHeaders = ['default', 'icon_name', 'icon', 'name', 'banner', 'banner_name', 'hidden'] as const;
-
 export type PteroAuthHeader = (typeof pteroAuthHeaders)[number];
 
 export const pteroColorPalettes = ['default', 'darker'] as const;
-
 export type PteroColorPalette = (typeof pteroColorPalettes)[number];
 
 // the limits of the backend, see src/settings.rs
@@ -33,12 +29,12 @@ export const pteroThemeSettingsSchema = z.object({
   colorPalette: z.enum(pteroColorPalettes),
 });
 
-/** The admin form, the footer text gets the backend's length limit there. */
+export type PteroThemeSettings = z.infer<typeof pteroThemeSettingsSchema>;
+
+/** The admin form, the footer text gets the backend's length limit there (counted in characters). */
 export const pteroThemeSettingsFormSchema = pteroThemeSettingsSchema.extend({
   footerText: z.string().refine((text) => [...text].length <= PTERO_MAX_FOOTER_TEXT_LENGTH),
 });
-
-export type PteroThemeSettings = z.infer<typeof pteroThemeSettingsSchema>;
 
 export const defaultPteroThemeSettings: PteroThemeSettings = {
   animations: true,

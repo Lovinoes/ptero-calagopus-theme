@@ -15,7 +15,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 ## Look
 - Pterodactyl colors, fonts (IBM Plex Sans headers), boxes, uppercase buttons and inputs
 - Dark mode like Pterodactyl, plus a matching light mode
-- No flash of the stock Calagopus colors while the panel loads. From Calagopus 1.2.8 that includes the first moment of a reload, in the palette and color scheme this browser last used
+- No flash of the stock Calagopus colors while the panel loads, not even in the first moment of a reload: the loading screen already has the palette an admin picked and the color scheme of the browser
 - Pterodactyl-style dialogs, tooltips, dropdowns and right-click menus
 - Tables as Pterodactyl boxes with a dark header bar and small uppercase labels
 - Code in Pterodactyl's dark boxes, long lines of code blocks (e.g. the backup metadata) wrap instead of running out of the dialog
@@ -30,7 +30,8 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 - The servers in All Servers can be dragged into any order, like the servers of a group, the order is saved with the account
 - The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons
 - The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic. Until the first stats arrive they show a spinner
-- Pterodactyl's activity log on the activity pages of a server and of the account: the avatar, "user — event", the IP and how long ago, the details on the right. The search, the filter by user and the file diff links work as before
+- The resource history of a server (the clock icon next to the console graphs) in the same stat blocks and graph boxes as the console
+- Pterodactyl's activity log on the activity pages of a server and of the account: the avatar, "user — event", the IP and how long ago, the details on the right. The search, the filter by user and the file diff links work as before, and entries an admin made while impersonating someone say so, like in the panel's own log
 - Pterodactyl's file list rows, and the Monaco file editor in Pterodactyl's ayu-mirage colors (dark mode)
 - The image viewer shows the image centered, at its own size or scaled down to fit, with zooming and panning
 - The login, register and password reset pages in the same dark Pterodactyl boxes, with the centered title

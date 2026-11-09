@@ -1,0 +1,174 @@
+/* ------------------------------------------------------------------------------------------------
+ * Server console
+ * --------------------------------------------------------------------------------------------- */
+
+/*
+ * The power buttons use Pterodactyl's newer button style: semibold, not uppercase, no border.
+ * Start is the primary (blue) button, restart the gray "text" button and stop the danger button.
+ */
+html[data-ptero-theme] #console-infobar {
+  --mantine-color-green-filled: var(--ptero-blue-600);
+  --mantine-color-green-filled-hover: var(--ptero-blue-500);
+  --mantine-color-gray-filled: var(--ptero-gray-500);
+  --mantine-color-gray-filled-hover: var(--ptero-gray-400);
+  --mantine-color-red-filled: var(--ptero-red-600);
+  --mantine-color-red-filled-hover: var(--ptero-red-500);
+}
+
+html[data-ptero-theme] #console-infobar .mantine-Button-root {
+  border-color: transparent !important;
+  font-size: 1rem;
+  font-weight: 600 !important;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+html[data-ptero-theme] #console-infobar .mantine-Button-root:is(:disabled, [data-disabled]):not([data-loading]) {
+  background-color: color-mix(in srgb, var(--button-bg) 75%, transparent) !important;
+  color: rgb(255 255 255 / 0.6) !important;
+  cursor: not-allowed;
+}
+
+html[data-ptero-theme] #console-infobar .mantine-Title-root {
+  color: var(--mantine-color-bright);
+  line-height: 1.625;
+}
+
+/* stat cards -> Pterodactyl StatBlock */
+html[data-ptero-theme] .mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root) {
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root) {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root) {
+  /* only the icon box uses this, colored (yellow/red) icons for high usage stay colored */
+  --mantine-color-blue-filled: var(--ptero-gray-700);
+  --mantine-primary-color-filled: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme] .mantine-Card-root > .flex.flex-row > .mantine-ThemeIcon-root {
+  width: 3rem;
+  height: 3rem;
+  min-width: 3rem;
+  border-radius: 0.5rem;
+  color: var(--ptero-gray-100);
+  box-shadow: var(--ptero-shadow-md);
+  transition: background-color 500ms;
+}
+
+html[data-ptero-theme]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > div
+  > span:first-child {
+  font-family: var(--ptero-font-header);
+  font-weight: 500;
+  line-height: 1.25;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > div
+  > span:first-child {
+  color: var(--ptero-gray-200);
+}
+
+html[data-ptero-theme] .mantine-Card-root > .flex.flex-row:has(> .mantine-ThemeIcon-root) > div > span {
+  font-weight: 600;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  .mantine-Card-root
+  > .flex.flex-row:has(> .mantine-ThemeIcon-root)
+  > div
+  > span {
+  color: var(--ptero-gray-50);
+}
+
+/*
+ * The value of a stat card (console/PteroStatCard.tsx) is cut off when it is too long for the card,
+ * like Pterodactyl's StatBlock, instead of scrolling sideways. The details (the network speeds) sit on
+ * their own line below it, in the small gray text they had next to the value.
+ */
+html[data-ptero-theme] .ptero-stat-value,
+html[data-ptero-theme] .ptero-stat-value > button,
+html[data-ptero-theme] .ptero-stat-details {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Right below the value: the tall line of the value leaves empty space under its text, the details move
+ * up into it. Smaller line heights would cut off letters like "y" and "p", as both lines clip their text.
+ */
+html[data-ptero-theme] .ptero-stat-details {
+  margin-top: -0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  color: var(--mantine-color-dimmed);
+}
+
+/*
+ * xterm measures its glyphs in the DOM and corrects every row with its own letter-spacing, which
+ * replaces the inherited 0.015em instead of adding to it. With the page's letter-spacing the text then
+ * ends up narrower than the cells and the selection drifts away from it, so terminals keep the normal one.
+ */
+html[data-ptero-theme] .xterm {
+  letter-spacing: normal;
+}
+
+/* the terminal is black with a darker command input, like Pterodactyl */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] #server-root .mantine-Card-root.font-mono.isolate {
+  background-color: var(--ptero-black);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  #server-root
+  .mantine-Card-root.font-mono.isolate
+  .mantine-Input-wrapper[data-variant="default"] {
+  --input-bg: var(--ptero-gray-900);
+  --input-bd: transparent;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  #server-root
+  .mantine-Card-root.font-mono.isolate
+  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-input:is(:focus, :focus-within) {
+  border-color: transparent transparent var(--ptero-cyan-500);
+  box-shadow: none;
+}
+
+/* graphs -> Pterodactyl chart_container: gray box with a thick bottom border */
+html[data-ptero-theme] #server-root .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.pt-4) {
+  border-bottom: 4px solid var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  #server-root
+  .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.pt-4) {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme] #server-root .mantine-Card-root > div.border-b.px-4.py-3:has(+ div.pt-4) {
+  padding-block: 0.5rem;
+  border-bottom-width: 0;
+}
+
+html[data-ptero-theme] #server-root .mantine-Card-root > div.border-b.px-4.py-3:has(+ div.pt-4) h3 {
+  font-family: var(--ptero-font-header);
+}

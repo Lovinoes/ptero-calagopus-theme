@@ -2,41 +2,24 @@ use shared::State;
 use utoipa_axum::{router::OpenApiRouter, routes};
 
 mod get {
-    use serde::Serialize;
-    use shared::{
-        GetState,
-        models::user::GetPermissionManager,
-        response::{ApiResponse, ApiResponseResult},
-    };
-    use utoipa::ToSchema;
+    use shared::{GetState, models::user::GetPermissionManager, response::ApiResponseResult};
 
-    #[derive(ToSchema, Serialize)]
-    struct Response<'a> {
-        #[schema(inline)]
-        settings: &'a crate::settings::ExtensionSettingsData,
-    }
+    use crate::routes::SettingsResponse;
 
     #[utoipa::path(get, path = "/", responses(
-        (status = OK, body = inline(Response)),
+        (status = OK, body = inline(SettingsResponse)),
     ))]
     pub async fn route(state: GetState, permissions: GetPermissionManager) -> ApiResponseResult {
         permissions.has_admin_permission("extensions.read")?;
 
-        let settings = state.settings.get().await?;
-        let extension_settings: &crate::settings::ExtensionSettingsData =
-            settings.find_extension_settings()?;
-
-        ApiResponse::new_serialized(Response {
-            settings: extension_settings,
-        })
-        .ok()
+        crate::routes::current_settings(&state).await
     }
 }
 
 mod put {
     use axum::http::StatusCode;
     use garde::Validate;
-    use serde::{Deserialize, Serialize};
+    use serde::Deserialize;
     use shared::{
         ApiError, GetState,
         models::{admin_activity::GetAdminActivityLogger, user::GetPermissionManager},
@@ -44,13 +27,26 @@ mod put {
     };
     use utoipa::ToSchema;
 
+    use crate::{
+        routes::SettingsResponse,
+        settings::{
+            AnimationSpeed, AuthHeader, ColorPalette, ExtensionSettingsData, FooterPosition,
+            MAX_FOOTER_TEXT_LENGTH, MAX_LOADING_BAR_DELAY,
+        },
+    };
+
+    // the attributes below need the limits as literals, these keep them in step with the constants
+    const _: () = assert!(MAX_LOADING_BAR_DELAY == 10_000);
+    const _: () = assert!(MAX_FOOTER_TEXT_LENGTH == 255);
+
+    /// Only the given settings change, the others keep their value.
     #[derive(ToSchema, Validate, Deserialize)]
     pub struct Payload {
         #[garde(skip)]
         animations: Option<bool>,
         #[garde(skip)]
         #[schema(inline)]
-        animation_speed: Option<crate::settings::AnimationSpeed>,
+        animation_speed: Option<AnimationSpeed>,
 
         #[garde(skip)]
         loading_bar: Option<bool>,
@@ -60,28 +56,51 @@ mod put {
 
         #[garde(skip)]
         #[schema(inline)]
-        footer_position: Option<crate::settings::FooterPosition>,
+        footer_position: Option<FooterPosition>,
         #[garde(length(chars, max = 255))]
         #[schema(max_length = 255)]
         footer_text: Option<compact_str::CompactString>,
 
         #[garde(skip)]
         #[schema(inline)]
-        auth_header: Option<crate::settings::AuthHeader>,
+        auth_header: Option<AuthHeader>,
 
         #[garde(skip)]
         #[schema(inline)]
-        color_palette: Option<crate::settings::ColorPalette>,
+        color_palette: Option<ColorPalette>,
     }
 
-    #[derive(ToSchema, Serialize)]
-    struct Response {
-        #[schema(inline)]
-        settings: crate::settings::ExtensionSettingsData,
+    impl Payload {
+        fn apply_to(self, settings: &mut ExtensionSettingsData) {
+            if let Some(animations) = self.animations {
+                settings.animations = animations;
+            }
+            if let Some(animation_speed) = self.animation_speed {
+                settings.animation_speed = animation_speed;
+            }
+            if let Some(loading_bar) = self.loading_bar {
+                settings.loading_bar = loading_bar;
+            }
+            if let Some(loading_bar_delay) = self.loading_bar_delay {
+                settings.loading_bar_delay = loading_bar_delay;
+            }
+            if let Some(footer_position) = self.footer_position {
+                settings.footer_position = footer_position;
+            }
+            if let Some(footer_text) = self.footer_text {
+                settings.footer_text = footer_text;
+            }
+            if let Some(auth_header) = self.auth_header {
+                settings.auth_header = auth_header;
+            }
+            if let Some(color_palette) = self.color_palette {
+                settings.color_palette = color_palette;
+            }
+        }
     }
 
     #[utoipa::path(put, path = "/", responses(
-        (status = OK, body = inline(Response)),
+        (status = OK, body = inline(SettingsResponse)),
         (status = BAD_REQUEST, body = ApiError),
     ), request_body = inline(Payload))]
     pub async fn route(
@@ -99,33 +118,10 @@ mod put {
         permissions.has_admin_permission("extensions.manage")?;
 
         let mut settings = state.settings.get_mut().await?;
-        let extension_settings: &mut crate::settings::ExtensionSettingsData =
+        let extension_settings: &mut ExtensionSettingsData =
             settings.find_mut_extension_settings()?;
 
-        if let Some(animations) = data.animations {
-            extension_settings.animations = animations;
-        }
-        if let Some(animation_speed) = data.animation_speed {
-            extension_settings.animation_speed = animation_speed;
-        }
-        if let Some(loading_bar) = data.loading_bar {
-            extension_settings.loading_bar = loading_bar;
-        }
-        if let Some(loading_bar_delay) = data.loading_bar_delay {
-            extension_settings.loading_bar_delay = loading_bar_delay;
-        }
-        if let Some(footer_position) = data.footer_position {
-            extension_settings.footer_position = footer_position;
-        }
-        if let Some(footer_text) = data.footer_text {
-            extension_settings.footer_text = footer_text;
-        }
-        if let Some(auth_header) = data.auth_header {
-            extension_settings.auth_header = auth_header;
-        }
-        if let Some(color_palette) = data.color_palette {
-            extension_settings.color_palette = color_palette;
-        }
+        data.apply_to(extension_settings);
 
         let updated = extension_settings.clone();
         settings.save().await?;
@@ -140,7 +136,7 @@ mod put {
             )
             .await;
 
-        ApiResponse::new_serialized(Response { settings: updated }).ok()
+        SettingsResponse::respond(&updated)
     }
 }
 

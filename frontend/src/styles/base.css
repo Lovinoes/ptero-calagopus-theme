@@ -1,0 +1,30 @@
+/* ------------------------------------------------------------------------------------------------
+ * Base
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] body {
+  font-family: var(--ptero-font-sans);
+}
+
+html[data-ptero-theme] :is(h1, h2, h3, h4, h5, h6) {
+  font-family: var(--ptero-font-header);
+  font-weight: 500;
+  letter-spacing: normal;
+}
+
+/*
+ * Scrollbars: thin, with a Pterodactyl gray thumb on a transparent track. The standard properties are
+ * used (no ::-webkit-scrollbar tricks, which render with arrow buttons in current browsers), and the
+ * width rule has zero specificity, so anything that styles or hides its own scrollbar still wins.
+ */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] {
+  scrollbar-color: var(--ptero-gray-500) transparent;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] {
+  scrollbar-color: var(--mantine-color-gray-5) transparent;
+}
+
+:where(html[data-ptero-theme]) :where(*) {
+  scrollbar-width: thin;
+}

@@ -12,7 +12,7 @@ import Switch from '@/elements/input/Switch.tsx';
 import TextInput from '@/elements/input/TextInput.tsx';
 import { useToast } from '@/providers/ToastProvider.tsx';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
-import { DEFAULT_FOOTER_TEXT } from '../footer/PteroCopyright.tsx';
+import { DEFAULT_FOOTER_TEXT } from '../footer/footerText.tsx';
 import { useExtTranslations } from '../translations.ts';
 import { getAdminThemeSettings, updateAdminThemeSettings } from './api.ts';
 import {
@@ -28,13 +28,15 @@ import {
 } from './schema.ts';
 import { setPteroThemeSettings } from './store.ts';
 
-/** admin area -> Extensions -> Pterodactyl Theme, uses the stock admin look like every other admin page */
+type Option<T extends string> = { value: T; label: string };
+
+/** Admin area -> Extensions -> Pterodactyl Theme, in the stock admin look like every other admin page. */
 export default function ConfigurationPage() {
   const { t } = useTranslations();
   const { t: tExt } = useExtTranslations();
   const { addToast } = useToast();
   const [loaded, setLoaded] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const form = useForm<PteroThemeSettings>({
     initialValues: defaultPteroThemeSettings,
@@ -42,17 +44,26 @@ export default function ConfigurationPage() {
     validate: zod4Resolver(pteroThemeSettingsFormSchema),
   });
 
+  const showSettings = (settings: PteroThemeSettings) => {
+    form.setValues(settings);
+    form.resetDirty(settings);
+  };
+
   useEffect(() => {
     getAdminThemeSettings()
       .then((settings) => {
-        form.setValues(settings);
-        form.resetDirty(settings);
+        showSettings(settings);
         setLoaded(true);
       })
       .catch((error) => addToast(httpErrorToHuman(error), 'error'));
   }, []);
 
-  const speedOptions: { value: PteroAnimationSpeed; label: string }[] = [
+  const colorPaletteOptions: Option<PteroColorPalette>[] = [
+    { value: 'default', label: tExt('settings.colorPalette.default', {}) },
+    { value: 'darker', label: tExt('settings.colorPalette.darker', {}) },
+  ];
+
+  const animationSpeedOptions: Option<PteroAnimationSpeed>[] = [
     { value: 'very_slow', label: tExt('settings.animationSpeed.verySlow', {}) },
     { value: 'slow', label: tExt('settings.animationSpeed.slow', {}) },
     { value: 'normal', label: tExt('settings.animationSpeed.normal', {}) },
@@ -60,18 +71,13 @@ export default function ConfigurationPage() {
     { value: 'very_fast', label: tExt('settings.animationSpeed.veryFast', {}) },
   ];
 
-  const footerOptions: { value: PteroFooterPosition; label: string }[] = [
+  const footerPositionOptions: Option<PteroFooterPosition>[] = [
     { value: 'bottom', label: tExt('settings.footerPosition.bottom', {}) },
     { value: 'content', label: tExt('settings.footerPosition.content', {}) },
     { value: 'hidden', label: tExt('settings.footerPosition.hidden', {}) },
   ];
 
-  const colorPaletteOptions: { value: PteroColorPalette; label: string }[] = [
-    { value: 'default', label: tExt('settings.colorPalette.default', {}) },
-    { value: 'darker', label: tExt('settings.colorPalette.darker', {}) },
-  ];
-
-  const authHeaderOptions: { value: PteroAuthHeader; label: string }[] = [
+  const authHeaderOptions: Option<PteroAuthHeader>[] = [
     { value: 'default', label: tExt('settings.authHeader.default', {}) },
     { value: 'icon_name', label: tExt('settings.authHeader.iconName', {}) },
     { value: 'icon', label: tExt('settings.authHeader.icon', {}) },
@@ -81,24 +87,23 @@ export default function ConfigurationPage() {
     { value: 'hidden', label: tExt('settings.authHeader.hidden', {}) },
   ];
 
-  const doSave = (values: PteroThemeSettings) => {
-    setLoading(true);
+  const save = (values: PteroThemeSettings) => {
+    setSaving(true);
 
     updateAdminThemeSettings(values)
       .then((settings) => {
-        form.setValues(settings);
-        form.resetDirty(settings);
+        showSettings(settings);
         // the pages this admin opens next use the new settings right away
         setPteroThemeSettings(settings);
         addToast(tExt('settings.toast.saved', {}), 'success');
       })
       .catch((error) => addToast(httpErrorToHuman(error), 'error'))
-      .finally(() => setLoading(false));
+      .finally(() => setSaving(false));
   };
 
   return (
     <TitleCard title={tExt('settings.title', {})}>
-      <form onSubmit={form.onSubmit(doSave)}>
+      <form onSubmit={form.onSubmit(save)}>
         <Stack>
           <Select
             label={tExt('settings.colorPalette.label', {})}
@@ -118,7 +123,7 @@ export default function ConfigurationPage() {
           <Select
             label={tExt('settings.animationSpeed.label', {})}
             description={tExt('settings.animationSpeed.description', {})}
-            data={speedOptions}
+            data={animationSpeedOptions}
             disabled={!loaded || !form.values.animations}
             {...form.getInputProps('animationSpeed')}
           />
@@ -146,7 +151,7 @@ export default function ConfigurationPage() {
           <Select
             label={tExt('settings.footerPosition.label', {})}
             description={tExt('settings.footerPosition.description', {})}
-            data={footerOptions}
+            data={footerPositionOptions}
             disabled={!loaded}
             {...form.getInputProps('footerPosition')}
           />
@@ -172,7 +177,7 @@ export default function ConfigurationPage() {
           />
 
           <AdminCan action='extensions.manage' cantSave>
-            <Button type='submit' loading={loading} disabled={!loaded || !form.isValid()} className='w-fit!'>
+            <Button type='submit' loading={saving} disabled={!loaded || !form.isValid()} className='w-fit!'>
               {t('common.button.save', {})}
             </Button>
           </AdminCan>

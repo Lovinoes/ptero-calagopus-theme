@@ -29,14 +29,11 @@ export function getPteroDialogTransition(): TransitionOverride {
 }
 
 /** Pterodactyl's tooltips pop in quickly (framer-motion scale 0.85 -> 1). */
-function tooltipTransition(settings: PteroThemeSettings): TransitionOverride {
-  return { transition: 'pop', duration: scaled(settings, 150) };
-}
+const tooltipTransition = (settings: PteroThemeSettings): TransitionOverride => ({
+  transition: 'pop',
+  duration: scaled(settings, 150),
+});
 
-export function getPteroTooltipTransition(): TransitionOverride {
-  return tooltipTransition(getPteroThemeSettings());
-}
+export const getPteroTooltipTransition = (): TransitionOverride => tooltipTransition(getPteroThemeSettings());
 
-export function usePteroTooltipTransition(): TransitionOverride {
-  return tooltipTransition(usePteroThemeSettings());
-}
+export const usePteroTooltipTransition = (): TransitionOverride => tooltipTransition(usePteroThemeSettings());

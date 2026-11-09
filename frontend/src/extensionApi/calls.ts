@@ -1,5 +1,5 @@
 import type { ExtensionContext } from 'shared';
-import { resolvePteroArea } from '../scope.tsx';
+import { resolvePteroArea } from '../core/paths.ts';
 import { getPteroThemeSettings } from '../settings/store.ts';
 import { addNavbarItem, parseNavbarItem, removeNavbarItem } from './navbarItems.ts';
 
@@ -23,7 +23,9 @@ export function handlePteroCall(ctx: ExtensionContext, name: string, args: objec
     case 'api_version':
       return PTERO_API_VERSION;
 
-    // whether the page that is open right now has the Pterodactyl look (not the admin area or the setup)
+    // Whether the page that is open right now has the Pterodactyl look (not the admin area or the setup).
+    // Only the page counts: a call reaches the theme only while it is enabled, and other extensions may
+    // ask in their initialize(), before window.extensionContext (which isPteroThemeActive reads) exists.
     case 'theme_active':
       return resolvePteroArea(window.location.pathname) !== null;
 

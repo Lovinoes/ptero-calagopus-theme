@@ -12,7 +12,7 @@ import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePag
 import { buildUserFilterSearch, useUserFilter } from '@/plugins/useUserFilter.ts';
 import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { useServerStore } from '@/stores/server.ts';
-import { usePteroThemeActive } from '../scope.tsx';
+import { usePteroThemeActive } from '../core/scope.tsx';
 import { PteroActivityEntry, PteroActivityLog } from './PteroActivityLog.tsx';
 
 /**
@@ -43,6 +43,9 @@ function PteroServerActivityLog() {
     queryKey: queryKeys.server(server.uuid).activity.all(filterUserUuid),
     fetcher: (page, search, perPage) => getServerActivity(server.uuid, filterUserUuid, page, search, perPage),
   });
+
+  // a file diff opened from the log goes back to the log, with its search and filter
+  const backTo = `/server/${server.uuidShort}/activity${searchParams.size > 0 ? `?${searchParams.toString()}` : ''}`;
 
   return (
     <ServerContentContainer
@@ -78,12 +81,7 @@ function PteroServerActivityLog() {
               avatar={activity.user}
               actions={
                 diffHref ? (
-                  <NavLink
-                    to={diffHref}
-                    state={{
-                      backTo: `/server/${server.uuidShort}/activity${searchParams.size > 0 ? `?${searchParams.toString()}` : ''}`,
-                    }}
-                  >
+                  <NavLink to={diffHref} state={{ backTo }}>
                     <ActionIcon>
                       <FontAwesomeIcon icon={faCodeBranch} />
                     </ActionIcon>

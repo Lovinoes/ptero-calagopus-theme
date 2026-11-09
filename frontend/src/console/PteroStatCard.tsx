@@ -12,14 +12,15 @@ import ThemeIcon from '@/elements/data-display/ThemeIcon.tsx';
 import Spinner from '@/elements/feedback/Spinner.tsx';
 import RedactedText from '@/elements/typography/RedactedText.tsx';
 import { usageColor } from '@/lib/format/usage.ts';
-import { usePteroThemeActive } from '../scope.tsx';
+import { usePteroThemeActive } from '../core/scope.tsx';
 
 type Props = ComponentProps<typeof StatCard>;
 
 /**
- * The stat cards of the console and database pages (elements/data-display/StatCard.tsx) like
- * Pterodactyl's StatBlock: a value too long for the card is cut off instead of scrolling sideways, and
- * the details (the network speeds) get their own line below it. Off the themed pages, the stock card.
+ * The stat cards (elements/data-display/StatCard.tsx) of the console, its resource history and the
+ * database pages like Pterodactyl's StatBlock: a value too long for the card is cut off instead of
+ * scrolling sideways, and the details (the network speeds) get their own line below it. Off the themed
+ * pages, the stock card.
  */
 export default function PteroStatCard(props: Props) {
   return usePteroThemeActive() ? <PteroStatBlock {...props} /> : <StatCard {...props} />;
@@ -42,13 +43,15 @@ function PteroStatBlock({
   redact,
   loading,
 }: Props) {
-  const displayValue = redact ? <RedactedText value={value} /> : value;
+  // Calagopus 1.2.9 also takes elements as the value (the history page), only text can be redacted and copied
+  const text = typeof value === 'string' ? value : null;
   const shownProgress = loading ? null : progress;
   const color = usageColor(shownProgress, total);
 
   const valueLine = (
     <>
-      {displayValue} {limit && <span className='text-sm text-(--mantine-color-dimmed)'>/ {limit}</span>}
+      {redact && text !== null ? <RedactedText value={text} /> : value}{' '}
+      {limit && <span className='text-sm text-(--mantine-color-dimmed)'>/ {limit}</span>}
     </>
   );
 
@@ -82,8 +85,8 @@ function PteroStatBlock({
               <span className='flex h-7 items-center'>
                 <Spinner size={18} />
               </span>
-            ) : copyOnClick ? (
-              <CopyOnClick content={value} className='text-left'>
+            ) : copyOnClick && text !== null ? (
+              <CopyOnClick content={text} className='text-left'>
                 {valueLine}
               </CopyOnClick>
             ) : (

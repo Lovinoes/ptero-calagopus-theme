@@ -1,11 +1,14 @@
 import type { Monaco } from '@/lib/editor/monacoLoader.ts';
-import { isPteroThemeActive } from '../scope.tsx';
+import { isPteroThemeActive } from '../core/scope.tsx';
 
 /**
  * Pterodactyl edits files with CodeMirror and its "ayu-mirage" theme. This is that theme for Monaco,
  * the colors are taken from codemirror/theme/ayu-mirage.css.
  */
 const THEME_NAME = 'ptero-ayu-mirage';
+
+// the panel applies its own theme after a color scheme switch, the theme is applied again after it did
+const RESYNC_DELAYS = [0, 150];
 
 let themeDefined = false;
 
@@ -70,13 +73,13 @@ function syncTheme(monaco: Monaco) {
   monaco.editor.setTheme(THEME_NAME);
 }
 
+/** Keeps an editor (or diff editor) in ayu-mirage until it is disposed. */
 export function attachPteroMonacoTheme(editor: { onDidDispose(listener: () => void): unknown }, monaco: Monaco) {
   syncTheme(monaco);
 
-  // the panel applies its own theme after a color scheme switch, so re-apply after it did
   const timers = new Set<ReturnType<typeof setTimeout>>();
-  const schedule = () => {
-    for (const delay of [0, 150]) {
+  const resync = () => {
+    for (const delay of RESYNC_DELAYS) {
       const timer = setTimeout(() => {
         timers.delete(timer);
         syncTheme(monaco);
@@ -85,7 +88,7 @@ export function attachPteroMonacoTheme(editor: { onDidDispose(listener: () => vo
     }
   };
 
-  const observer = new MutationObserver(schedule);
+  const observer = new MutationObserver(resync);
   observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-mantine-color-scheme'] });
 
   editor.onDidDispose(() => {

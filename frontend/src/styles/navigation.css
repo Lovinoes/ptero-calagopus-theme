@@ -1,0 +1,302 @@
+/* ------------------------------------------------------------------------------------------------
+ * Layout: top navigation bar, sub navigation and the centered 1200px content column
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme] div:has(> [data-ptero-nav]) {
+  display: block;
+}
+
+html[data-ptero-theme] .ptero-nav {
+  width: 100%;
+}
+
+html[data-ptero-theme] .ptero-navbar {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--ptero-gray-900);
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme] .ptero-navbar-inner {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: var(--ptero-max-width);
+  height: 3.5rem;
+  margin-inline: auto;
+}
+
+/* like Pterodactyl, the bars scroll sideways on small screens instead of wrapping */
+html[data-ptero-theme] :is(.ptero-navbar, .ptero-subnav) {
+  scrollbar-width: none;
+}
+
+html[data-ptero-theme] :is(.ptero-navbar, .ptero-subnav)::-webkit-scrollbar {
+  display: none;
+}
+
+html[data-ptero-theme] .ptero-navbar-logo {
+  flex: 1 0 auto;
+}
+
+/* the stock Calagopus app icon + name (or banner), sized to fit the 3.5rem bar */
+html[data-ptero-theme] .ptero-navbar-logo > a {
+  display: flex;
+  align-items: center;
+  height: 3.5rem;
+  padding-inline: 1rem;
+  color: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+html[data-ptero-theme] .ptero-navbar-logo > a > div {
+  width: auto;
+  height: 3.5rem;
+  margin-top: 0;
+}
+
+/* the app name next to the icon keeps the exact stock Calagopus look (not the Pterodactyl fonts) */
+html[data-ptero-theme] .ptero-navbar-logo > a > div > img + h1 {
+  font-family: "Helvetica", "Arial", "sans-serif";
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: normal;
+  color: #c9c9c9;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-logo > a > div > img + h1 {
+  color: #000;
+}
+
+/* the banner variant, rendered as wide as in the stock sidebar */
+html[data-ptero-theme] .ptero-navbar-logo > a > div:not(:has(> h1)) {
+  display: flex;
+  align-items: center;
+}
+
+html[data-ptero-theme] .ptero-navbar-logo > a > div:not(:has(> h1)) > img {
+  width: 14.5rem;
+  max-height: 3rem;
+  object-fit: contain;
+}
+
+html[data-ptero-theme] .ptero-navbar-right {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+html[data-ptero-theme] .ptero-navbar-right > a,
+html[data-ptero-theme] .ptero-navbar-right > button {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding-inline: 1.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--ptero-gray-300);
+  font: inherit;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 150ms;
+}
+
+@media (max-width: 40rem) {
+  html[data-ptero-theme] .ptero-navbar-right > a,
+  html[data-ptero-theme] .ptero-navbar-right > button {
+    padding-inline: 1rem;
+  }
+}
+
+html[data-ptero-theme] .ptero-navbar-right > a:hover,
+html[data-ptero-theme] .ptero-navbar-right > a:active,
+html[data-ptero-theme] .ptero-navbar-right > button:hover,
+html[data-ptero-theme] .ptero-navbar-right > button:active,
+html[data-ptero-theme] .ptero-navbar-right > button[aria-expanded="true"] {
+  color: var(--ptero-gray-100);
+  background-color: var(--ptero-black);
+}
+
+html[data-ptero-theme] .ptero-navbar-right > a:hover,
+html[data-ptero-theme] .ptero-navbar-right > a:active,
+html[data-ptero-theme] .ptero-navbar-right > a.active,
+html[data-ptero-theme] .ptero-navbar-right > button.active,
+html[data-ptero-theme] .ptero-navbar-right > button:hover,
+html[data-ptero-theme] .ptero-navbar-right > button:active,
+html[data-ptero-theme] .ptero-navbar-right > button[aria-expanded="true"] {
+  box-shadow: inset 0 -2px var(--ptero-cyan-600);
+}
+
+html[data-ptero-theme] .ptero-navbar-right > a:focus-visible,
+html[data-ptero-theme] .ptero-navbar-right > button:focus-visible {
+  outline: 2px solid var(--ptero-cyan-600);
+  outline-offset: -2px;
+}
+
+html[data-ptero-theme] .ptero-navbar-avatar {
+  display: flex;
+  align-items: center;
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+html[data-ptero-theme] .ptero-subnav {
+  width: 100%;
+  overflow-x: auto;
+  background-color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow);
+}
+
+html[data-ptero-theme] .ptero-subnav-inner {
+  display: flex;
+  align-items: center;
+  max-width: var(--ptero-max-width);
+  margin-inline: auto;
+  padding-inline: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* spacers, spinners and dividers of the stock sidebar have no place in a horizontal bar */
+html[data-ptero-theme] .ptero-subnav-inner > :not(a) {
+  display: none;
+}
+
+html[data-ptero-theme] .ptero-subnav-inner > a {
+  display: inline-block;
+  width: auto;
+  flex: none;
+  text-decoration: none;
+}
+
+html[data-ptero-theme] .ptero-subnav-inner > a ~ a {
+  margin-left: 0.5rem;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root {
+  width: auto;
+  height: auto;
+  padding: 0.75rem 1rem;
+  border: 0 !important;
+  border-radius: 0;
+  background: transparent !important;
+  color: var(--ptero-gray-300) !important;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  text-transform: none;
+  letter-spacing: inherit;
+  white-space: nowrap;
+  box-shadow: none;
+  transition: all 150ms;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root:hover,
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root.active {
+  color: var(--ptero-gray-100) !important;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root.active {
+  box-shadow: inset 0 -2px var(--ptero-cyan-600);
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-root:active {
+  transform: none;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-label {
+  width: auto !important;
+  overflow: visible;
+}
+
+html[data-ptero-theme] .ptero-subnav .mantine-Button-label > svg {
+  display: none;
+}
+
+/* Pterodactyl's external link icon to the server in the admin area, at the end of the bar */
+html[data-ptero-theme] .ptero-subnav-inner > a.ptero-subnav-admin {
+  padding: 0.75rem 1rem;
+  color: var(--ptero-gray-300);
+  line-height: 1.25rem;
+  transition: all 150ms;
+}
+
+html[data-ptero-theme] .ptero-subnav-inner > a.ptero-subnav-admin:hover {
+  color: var(--ptero-gray-100);
+}
+
+html[data-ptero-theme] .ptero-subnav-inner > a.ptero-subnav-admin:focus-visible {
+  outline: 2px solid var(--ptero-cyan-600);
+  outline-offset: -2px;
+}
+
+/*
+ * The panel adds the links of a server once it has loaded, the icon waits for them, so it doesn't show
+ * up on its own first and then jump to the end. Until then the bar keeps the height of its links.
+ */
+html[data-ptero-theme] .ptero-subnav-inner:not(:has(> a:not(.ptero-subnav-admin))) > a.ptero-subnav-admin {
+  display: none;
+}
+
+html[data-ptero-theme] .ptero-subnav-inner:has([data-testid="loader"]) {
+  min-height: 2.75rem;
+}
+
+/*
+ * The darker palette's bars are flat: the top bar and the sub navigation both in the darkest gray, each
+ * closed by a thin line instead of a shadow, so they read as one clean header above the page. The lines
+ * are inset shadows, the bars keep their height.
+ */
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-navbar {
+  box-shadow: inset 0 -1px var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="dark"] .ptero-subnav {
+  background-color: var(--ptero-gray-900);
+  box-shadow: inset 0 -1px var(--ptero-gray-700);
+}
+
+/* light scheme: light bars, so the light variant of the app icon / banner stays readable */
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar {
+  background-color: #fff;
+  color: var(--ptero-gray-800);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > a,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > button {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > a:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > a:active,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > button:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > button:active,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-navbar-right > button[aria-expanded="true"] {
+  color: var(--ptero-gray-800);
+  background-color: var(--ptero-gray-100);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav {
+  border-top: 1px solid var(--ptero-gray-100);
+  background-color: #fff;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine-Button-root {
+  color: var(--ptero-gray-500) !important;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine-Button-root:hover,
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav .mantine-Button-root.active {
+  color: var(--ptero-gray-800) !important;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav-inner > a.ptero-subnav-admin {
+  color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="light"] .ptero-subnav-inner > a.ptero-subnav-admin:hover {
+  color: var(--ptero-gray-800);
+}

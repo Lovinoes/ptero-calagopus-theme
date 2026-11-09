@@ -157,7 +157,24 @@ export default new MyExtension();
 An invalid item (no id or label, more than one of `to`, `href` and `onClick`, ...) is not added, the browser console says why. An icon that fails to render is left out of the bar and logged there too. To remove an item, call the function `navbar_add` returned, or `navbar_remove` with its id.
 
 ## Loading screen
-From Calagopus 1.2.8 the theme replaces the panel's loading screen with its `src/boot.html`. The panel only allows one extension to do that: its build fails when another installed extension has a `src/boot.html` as well.
+The theme replaces the panel's loading screen with its `src/boot.html`, so it already has the theme's colors. The panel only allows one extension to do that, see [Conflicts](#conflicts).
+
+## Conflicts
+Two things can't be shared between extensions. The panel enforces both while it builds, so they show up when the panel is built (installing or updating an extension), not later in the browser:
+
+- **Replaced components.** The theme replaces these panel components with its own (`src/overrides.ts`). The panel's build fails with "Duplicate override" when another extension replaces one of them too:
+
+  | Component | Replaced for |
+  | --- | --- |
+  | `elements/Copyright.tsx` | the footer text from the theme settings |
+  | `elements/data-display/StatCard.tsx` | Pterodactyl's stat blocks on the console, its resource history and the database pages |
+  | `pages/dashboard/home/ServerItem.tsx` | Pterodactyl's server rows |
+  | `pages/dashboard/home/DashboardHomeAll.tsx` | the draggable order of All Servers |
+  | `pages/server/activity/ServerActivity.tsx` | Pterodactyl's activity log of a server |
+  | `pages/dashboard/activity/DashboardActivity.tsx` | Pterodactyl's activity log of the account |
+
+  Hooking into them still works: the stock components and the theme's versions show the same extension slots (`ExtensionSlot`) and use the same registries, so additions of other extensions keep showing up.
+- **The loading screen.** Only one installed extension can have a `src/boot.html`, the panel's build fails when two do.
 
 ## Something missing?
 If your extension needs something from the theme that isn't here, or something of yours doesn't look right with it, [open an issue](https://github.com/Lovinoes/ptero-calagopus-theme/issues) or send a [pull request](https://github.com/Lovinoes/ptero-calagopus-theme/pulls).

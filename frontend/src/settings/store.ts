@@ -1,4 +1,5 @@
-import { useSyncExternalStore } from 'react';
+import { safeParseFromApi } from '@/lib/serialization/api-transform.ts';
+import { createStore, useStore } from '../core/createStore.ts';
 import { getPublicThemeSettings } from './api.ts';
 import {
   defaultPteroThemeSettings,
@@ -8,12 +9,12 @@ import {
 } from './schema.ts';
 
 /**
- * The theme settings (Admin -> Extensions -> Pterodactyl Theme). The last known ones are kept in the
- * browser, so a reload doesn't play animations an admin turned off before the current ones are fetched.
+ * The theme settings (Admin -> Extensions -> Pterodactyl Theme). The backend renders them into the page
+ * (an index.html variable), so they are known before anything is drawn. The last known ones are kept in
+ * the browser as well, for the boot script (public/assets/ptero-boot-2.js reads this key too) and for the
+ * rare page without the variable, which fetches them instead.
  */
 const CACHE_KEY = 'ptero-theme-settings';
-
-const listeners = new Set<() => void>();
 
 function readCache(): PteroThemeSettings {
   try {
@@ -34,32 +35,21 @@ function writeCache(settings: PteroThemeSettings) {
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify(settings));
   } catch {
-    // not being able to cache them only means the defaults are used until they are fetched
+    // not being able to cache them only means the defaults are used until they are known
   }
 }
 
-let current = readCache();
+const store = createStore(readCache());
 
-export function getPteroThemeSettings(): PteroThemeSettings {
-  return current;
-}
+export const getPteroThemeSettings = (): PteroThemeSettings => store.get();
 
-function subscribe(listener: () => void) {
-  listeners.add(listener);
-  return () => {
-    listeners.delete(listener);
-  };
-}
+export const usePteroThemeSettings = (): PteroThemeSettings => useStore(store);
 
-export function usePteroThemeSettings(): PteroThemeSettings {
-  return useSyncExternalStore(subscribe, getPteroThemeSettings);
-}
-
-/** The CSS (page fade, loading lists, footer, colors) reads the settings from the root element, see app.css. */
-export function applyPteroThemeSettings() {
+/** The CSS (page fade, loading lists, footer, colors) reads the settings from the root element, see styles/. */
+export function applyPteroThemeSettings(settings: PteroThemeSettings = store.get()) {
   const root = document.documentElement;
 
-  if (current.animations) {
+  if (settings.animations) {
     root.removeAttribute('data-ptero-animations');
   } else {
     root.setAttribute('data-ptero-animations', 'off');
@@ -67,13 +57,13 @@ export function applyPteroThemeSettings() {
   // 0 when the animations are off, so the loading spinners of lists simply appear after the delay
   root.style.setProperty(
     '--ptero-animation-scale',
-    String(current.animations ? pteroAnimationScale[current.animationSpeed] : 0),
+    String(settings.animations ? pteroAnimationScale[settings.animationSpeed] : 0),
   );
-  root.style.setProperty('--ptero-loading-delay', `${current.loadingBarDelay}ms`);
-  root.setAttribute('data-ptero-footer', current.footerPosition);
+  root.style.setProperty('--ptero-loading-delay', `${settings.loadingBarDelay}ms`);
+  root.setAttribute('data-ptero-footer', settings.footerPosition);
 
-  // the darker grays of the dark scheme, see app.css
-  if (current.colorPalette === 'darker') {
+  // the darker grays of the dark scheme, see styles/palette-darker.css
+  if (settings.colorPalette === 'darker') {
     root.setAttribute('data-ptero-palette', 'darker');
   } else {
     root.removeAttribute('data-ptero-palette');
@@ -81,14 +71,35 @@ export function applyPteroThemeSettings() {
 }
 
 export function setPteroThemeSettings(settings: PteroThemeSettings) {
-  current = settings;
   writeCache(settings);
-  applyPteroThemeSettings();
-
-  for (const listener of listeners) listener();
+  applyPteroThemeSettings(settings);
+  store.set(settings);
 }
 
-export function loadPteroThemeSettings() {
+/** The settings the backend rendered into the page, null when they are missing or don't fit the schema. */
+function parseRendered(rendered: unknown): PteroThemeSettings | null {
+  if (rendered === undefined || rendered === null) return null;
+
+  try {
+    const parsed = safeParseFromApi(pteroThemeSettingsSchema, rendered);
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Applies the settings the backend rendered into the page (see initialize_index_html in src/lib.rs).
+ * Without them, the last known ones are applied right away and the current ones are fetched.
+ */
+export function loadPteroThemeSettings(rendered: unknown) {
+  const settings = parseRendered(rendered);
+  if (settings) {
+    setPteroThemeSettings(settings);
+    return;
+  }
+
+  applyPteroThemeSettings();
   getPublicThemeSettings()
     .then(setPteroThemeSettings)
     .catch(() => {

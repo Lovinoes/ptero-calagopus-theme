@@ -1,0 +1,215 @@
+/* ------------------------------------------------------------------------------------------------
+ * Boxes (Pterodactyl ContentBox / GreyRowBox / TitledGreyBox)
+ * --------------------------------------------------------------------------------------------- */
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Card-root {
+  --paper-border-color: transparent;
+  background-color: var(--ptero-gray-700);
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Card-root.cursor-pointer:hover {
+  --paper-border-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] .mantine-Card-root.cursor-pointer {
+  transition:
+    border-color 150ms,
+    background-color 150ms;
+}
+
+/* cards nested inside cards are "chips", keep them flat */
+html[data-ptero-theme] .mantine-Card-root .mantine-Card-root {
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Card-root .mantine-Card-root {
+  background-color: var(--ptero-gray-600);
+}
+
+/*
+ * Tables -> one Pterodactyl box: the header is a dark bar like the TitledGreyBox header (neutral-900
+ * with a black bottom border, small uppercase labels), the rows are neutral-700 separated by a 1px gap
+ * of the page background instead of light lines. Only colors change, the row heights stay the same
+ * (the file manager list is virtualized).
+ */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-table {
+  --table-border-color: var(--ptero-gray-800);
+  --table-hover-color: var(--ptero-gray-600);
+}
+
+/* the stand-alone table box (tables inside a card have no box of their own) */
+/* biome-ignore format: Biome 2.5 (Calagopus 1.2.8) and 2.6 (1.2.9) wrap this selector differently */
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+div[style*="border"]:has(> .mantine-TableScrollContainer-scrollContainer) {
+  border-color: transparent !important;
+  border-radius: 0.25rem !important;
+  background-color: var(--ptero-gray-700) !important;
+  box-shadow: var(--ptero-shadow-md);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-thead {
+  --table-border-color: var(--ptero-black);
+  background-color: var(--ptero-gray-900);
+}
+
+/* smaller labels, but the line height of the original 0.875rem text so the header keeps its height */
+html[data-ptero-theme] .mantine-Table-th {
+  font-size: 0.75rem;
+  line-height: calc(0.875rem * var(--mantine-line-height));
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Table-th {
+  color: var(--ptero-gray-300);
+}
+
+/* the remaining separators (dividers, section borders) are subtle instead of light */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Divider-root {
+  --divider-color: var(--ptero-gray-600);
+}
+
+/* TitleCard -> TitledGreyBox */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] #title-card-header {
+  background-color: var(--ptero-gray-900);
+  border-bottom-color: var(--ptero-black) !important;
+}
+
+html[data-ptero-theme] #title-card-header {
+  padding: 0.75rem;
+}
+
+html[data-ptero-theme] #title-card-header > .mantine-Title-root {
+  font-family: var(--ptero-font-sans);
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.25rem;
+  text-transform: uppercase;
+}
+
+html[data-ptero-theme] #title-card-icon {
+  width: auto !important;
+  height: auto !important;
+  background: transparent !important;
+  color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme] #title-card-header + div {
+  padding: 0.75rem;
+}
+
+/* modals, drawers and popovers */
+html[data-ptero-theme][data-mantine-color-scheme="dark"] :is(.mantine-Modal-content, .mantine-Modal-header) {
+  background-color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Modal-content {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--ptero-gray-800) 80%, transparent),
+    var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme] .mantine-Modal-title {
+  font-family: var(--ptero-font-header);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--mantine-color-bright);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Modal-overlay {
+  --overlay-bg: color-mix(in srgb, var(--ptero-gray-900) 50%, transparent) !important;
+}
+
+/* dropdowns, popovers and menus (also the sub menus of right-click menus, popovers with role="menu") */
+/* biome-ignore format: Biome 2.5 (Calagopus 1.2.8) and 2.6 (1.2.9) wrap this selector differently */
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+:is(.mantine-Popover-dropdown, .mantine-Menu-dropdown, .mantine-Combobox-dropdown, .mantine-HoverCard-dropdown) {
+  border-color: var(--ptero-gray-500);
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Combobox-option:hover,
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Combobox-option[data-combobox-selected] {
+  background-color: var(--ptero-gray-500);
+}
+
+html[data-ptero-theme] :is(.mantine-Menu-dropdown, .mantine-Popover-dropdown[role="menu"]) {
+  border-radius: 0.25rem;
+  box-shadow: var(--ptero-shadow-lg);
+}
+
+html[data-ptero-theme] .mantine-Menu-label {
+  text-transform: uppercase;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tooltip-tooltip {
+  background-color: var(--ptero-gray-900);
+  color: var(--ptero-gray-100);
+}
+
+/*
+ * Code -> Pterodactyl's dark <Code>: a gray-900 box instead of the gray-700 of boxes and dialogs, in
+ * which it disappeared. Long lines of a code block (e.g. the backup metadata) wrap instead of running
+ * out of the dialog.
+ */
+html[data-ptero-theme] .mantine-Code-root {
+  border-radius: 0.25rem;
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Code-root {
+  background-color: var(--code-bg, var(--ptero-gray-900));
+}
+
+html[data-ptero-theme] .mantine-Code-root[data-block] {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/*
+ * Folder picker (Export to Files, Copy, Extract) -> like the file list: the path in a dark header bar,
+ * the folders as rows with the yellow folder icon of the file list, separated by thin lines.
+ */
+html[data-ptero-theme] div.rounded-md:has(> div.overflow-y-auto.max-h-52) {
+  border-radius: 0.25rem;
+}
+
+html[data-ptero-theme] div.rounded-md:has(> div.overflow-y-auto.max-h-52) > div.overflow-y-auto > button + button {
+  border-top: 1px solid var(--mantine-color-default-border);
+}
+
+html[data-ptero-theme] div.rounded-md:has(> div.overflow-y-auto.max-h-52) > div.overflow-y-auto > button > svg {
+  color: var(--mantine-color-yellow-5);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"] div.rounded-md:has(> div.overflow-y-auto.max-h-52) {
+  border-color: var(--ptero-gray-900);
+}
+
+/* header (path) and footer (pages) bars */
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  div.rounded-md:has(> div.overflow-y-auto.max-h-52)
+  > div:not(.overflow-y-auto) {
+  border-color: var(--ptero-black);
+  background-color: var(--ptero-gray-900);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  div.rounded-md:has(> div.overflow-y-auto.max-h-52)
+  > div.overflow-y-auto {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  div.rounded-md:has(> div.overflow-y-auto.max-h-52)
+  > div.overflow-y-auto
+  > button {
+  border-color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-mantine-color-scheme="dark"]
+  div.rounded-md:has(> div.overflow-y-auto.max-h-52)
+  > div.overflow-y-auto
+  > button:hover {
+  background-color: var(--ptero-gray-500);
+}
