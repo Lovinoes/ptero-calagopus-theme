@@ -49,7 +49,7 @@ Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/c
 
 ## Admin settings
 In **Admin → Extensions → Pterodactyl Theme**:
-- Pick the color palette of the dark mode: Default (Pterodactyl's blue-tinted grays) or Darker (deeper, neutral grays after Pterodactyl's dark theme extension: flat bars divided by thin lines, boxes, rows, tables, dialogs and menus set apart by thin outlines, quiet inputs and switches, tinted state badges and calmer status colors, one darker blue (Pterodactyl's blue-600) for everything blue and cyan: buttons, links, bars, the open tabs, the sub navigation line, the loading bar and the live graphs)
+- Pick the color palette of the dark mode: Default (Pterodactyl's blue-tinted grays) or Darker (deeper, neutral grays after Pterodactyl's dark theme extension: flat bars divided by thin lines, boxes, rows, tables, dialogs and menus set apart by thin outlines, quiet inputs and switches, tinted state badges, vivid red, orange, yellow and green everywhere (text, badges, alerts and buttons), one darker blue (Pterodactyl's blue-600) for everything blue and cyan: buttons, links, bars, the open tabs, the sub navigation line, the loading bar and the live graphs)
 - Turn the animations off or change their speed (very slow to very fast)
 - Turn the loading bar off, and change how long loading has to take before the loading bar and the spinners of lists show up
 - Put the footer at the bottom of the window, right below the content (like Pterodactyl) or hide it

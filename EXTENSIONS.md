@@ -51,7 +51,7 @@ These CSS variables exist on themed pages. Use a fallback (`var(--ptero-gray-700
 | `--ptero-gray-50` to `--ptero-gray-900`, `--ptero-black` | the Pterodactyl gray scale, `700` is the color of boxes, `800` of the page. With the darker palette (dark scheme) they hold its deeper grays, styles built on them follow it |
 | `--ptero-blue-50` to `--ptero-blue-900` | the primary color. With the darker palette (dark scheme) `300` to `500` hold `600`, its one blue |
 | `--ptero-cyan-400` to `--ptero-cyan-600` | the accent of active tabs and the loading bar. With the darker palette (dark scheme) they hold `--ptero-blue-600` as well |
-| `--ptero-red-400` to `--ptero-red-600`, `--ptero-green-500`, `--ptero-green-600`, `--ptero-yellow-500`, `--ptero-yellow-600` | status colors |
+| `--ptero-red-400` to `--ptero-red-700`, the same for `orange`, `yellow` and `green` | status colors: `400` for text, `500` for fills, `600` for their hover. With the darker palette (dark scheme) fills take `600` and hover `700`, and Mantine's red, orange, yellow and green (text, badges, alerts, buttons) use them too |
 | `--ptero-darker-line`, `--ptero-darker-raised`, `--ptero-darker-input`, `--ptero-darker-input-line` | only with the darker palette (dark scheme): the outline of boxes, the surface one step above a box (menus, stat cards), the fill and the border of inputs. Use a fallback, they are missing otherwise |
 | `--ptero-shadow`, `--ptero-shadow-md`, `--ptero-shadow-lg` | box shadows |
 | `--ptero-font-sans`, `--ptero-font-header` | the body font and the IBM Plex Sans heading font |

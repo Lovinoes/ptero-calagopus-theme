@@ -34,10 +34,19 @@ html[data-ptero-theme] {
   --ptero-red-400: #f87171;
   --ptero-red-500: #ef4444;
   --ptero-red-600: #dc2626;
+  --ptero-red-700: #b91c1c;
+  --ptero-orange-400: #fb923c;
+  --ptero-orange-500: #f97316;
+  --ptero-orange-600: #ea580c;
+  --ptero-orange-700: #c2410c;
+  --ptero-green-400: #4ade80;
   --ptero-green-500: #22c55e;
   --ptero-green-600: #16a34a;
+  --ptero-green-700: #15803d;
+  --ptero-yellow-400: #facc15;
   --ptero-yellow-500: #eab308;
   --ptero-yellow-600: #ca8a04;
+  --ptero-yellow-700: #a16207;
 
   --ptero-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   --ptero-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -242,7 +251,7 @@ html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="d
   --ptero-gray-100: oklch(0.93 0.008 264);
   --ptero-gray-200: oklch(0.86 0.01 264);
   --ptero-gray-300: oklch(0.74 0.015 264);
-  --ptero-gray-400: oklch(0.57 0.014 264);
+  --ptero-gray-400: oklch(0.61 0.016 264);
   --ptero-gray-500: oklch(0.4 0.012 264);
   --ptero-gray-600: oklch(0.33 0.012 264);
   --ptero-gray-700: oklch(0.245 0.011 264);
@@ -258,8 +267,8 @@ html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="d
   --ptero-darker-input: oklch(0.265 0.012 264);
   --ptero-darker-input-line: oklch(0.355 0.013 264);
   /* the small secondary text of the server rows (values and their limits) */
-  --ptero-darker-value: oklch(0.68 0.014 264);
-  --ptero-darker-limit: oklch(0.52 0.013 264);
+  --ptero-darker-value: oklch(0.76 0.016 264);
+  --ptero-darker-limit: oklch(0.6 0.016 264);
 
   /*
    * One blue: Pterodactyl's darker blue-600 for everything blue (filled, outlined and tinted buttons, bars,
@@ -280,14 +289,63 @@ html[data-ptero-theme][data-ptero-palette="darker"][data-mantine-color-scheme="d
   --mantine-primary-color-light: color-mix(in srgb, var(--ptero-blue-600) 18%, transparent);
   --mantine-primary-color-light-hover: color-mix(in srgb, var(--ptero-blue-600) 24%, transparent);
 
-  /* the status colors a little less saturated, so they sit calmly on the deep grays */
-  --ptero-red-400: oklch(0.72 0.15 23);
-  --ptero-red-500: oklch(0.64 0.19 25);
-  --ptero-red-600: oklch(0.58 0.19 26);
-  --ptero-green-500: oklch(0.72 0.16 150);
-  --ptero-green-600: oklch(0.64 0.15 151);
-  --ptero-yellow-500: oklch(0.8 0.15 85);
-  --ptero-yellow-600: oklch(0.72 0.14 80);
+  /*
+   * The status colors stay Pterodactyl's own (the same as the default palette), at full strength. Filled
+   * buttons and icons take the deeper 600 like Pterodactyl's danger buttons and this palette's blue, hover
+   * goes a step darker; the lighter 500 read as coral on the deep grays. Everything else in those colors
+   * uses them as well: text and errors, badges, alerts and light, subtle and outlined buttons. Mantine's own
+   * dark variants put near-white text on opaque dark red, brown and green, which looked washed out; they
+   * become the status color on a strong tint of it instead.
+   */
+  --mantine-color-error: var(--ptero-red-400);
+
+  --mantine-color-red-4: var(--ptero-red-400);
+  --mantine-color-red-5: var(--ptero-red-500);
+  --mantine-color-red-6: var(--ptero-red-600);
+  --mantine-color-red-text: var(--ptero-red-400);
+  --mantine-color-red-filled: var(--ptero-red-600);
+  --mantine-color-red-filled-hover: var(--ptero-red-700);
+  --mantine-color-red-light: color-mix(in srgb, var(--ptero-red-500) 25%, transparent);
+  --mantine-color-red-light-hover: color-mix(in srgb, var(--ptero-red-500) 33%, transparent);
+  --mantine-color-red-light-color: var(--ptero-red-400);
+  --mantine-color-red-outline: var(--ptero-red-400);
+  --mantine-color-red-outline-hover: color-mix(in srgb, var(--ptero-red-400) 8%, transparent);
+
+  --mantine-color-orange-4: var(--ptero-orange-400);
+  --mantine-color-orange-5: var(--ptero-orange-500);
+  --mantine-color-orange-6: var(--ptero-orange-600);
+  --mantine-color-orange-text: var(--ptero-orange-400);
+  --mantine-color-orange-filled: var(--ptero-orange-600);
+  --mantine-color-orange-filled-hover: var(--ptero-orange-700);
+  --mantine-color-orange-light: color-mix(in srgb, var(--ptero-orange-500) 25%, transparent);
+  --mantine-color-orange-light-hover: color-mix(in srgb, var(--ptero-orange-500) 33%, transparent);
+  --mantine-color-orange-light-color: var(--ptero-orange-400);
+  --mantine-color-orange-outline: var(--ptero-orange-400);
+  --mantine-color-orange-outline-hover: color-mix(in srgb, var(--ptero-orange-400) 8%, transparent);
+
+  --mantine-color-yellow-4: var(--ptero-yellow-400);
+  --mantine-color-yellow-5: var(--ptero-yellow-500);
+  --mantine-color-yellow-6: var(--ptero-yellow-600);
+  --mantine-color-yellow-text: var(--ptero-yellow-400);
+  --mantine-color-yellow-filled: var(--ptero-yellow-600);
+  --mantine-color-yellow-filled-hover: var(--ptero-yellow-700);
+  --mantine-color-yellow-light: color-mix(in srgb, var(--ptero-yellow-500) 25%, transparent);
+  --mantine-color-yellow-light-hover: color-mix(in srgb, var(--ptero-yellow-500) 33%, transparent);
+  --mantine-color-yellow-light-color: var(--ptero-yellow-400);
+  --mantine-color-yellow-outline: var(--ptero-yellow-400);
+  --mantine-color-yellow-outline-hover: color-mix(in srgb, var(--ptero-yellow-400) 8%, transparent);
+
+  --mantine-color-green-4: var(--ptero-green-400);
+  --mantine-color-green-5: var(--ptero-green-500);
+  --mantine-color-green-6: var(--ptero-green-600);
+  --mantine-color-green-text: var(--ptero-green-400);
+  --mantine-color-green-filled: var(--ptero-green-600);
+  --mantine-color-green-filled-hover: var(--ptero-green-700);
+  --mantine-color-green-light: color-mix(in srgb, var(--ptero-green-500) 25%, transparent);
+  --mantine-color-green-light-hover: color-mix(in srgb, var(--ptero-green-500) 33%, transparent);
+  --mantine-color-green-light-color: var(--ptero-green-400);
+  --mantine-color-green-outline: var(--ptero-green-400);
+  --mantine-color-green-outline-hover: color-mix(in srgb, var(--ptero-green-400) 8%, transparent);
 }
 
 /*
