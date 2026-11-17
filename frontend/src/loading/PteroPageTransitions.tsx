@@ -3,32 +3,23 @@ import { type NavigateFunction, useLocation, useNavigate } from 'react-router';
 import { isServerListPath, normalizePath, resolvePteroArea } from '../core/paths.ts';
 
 /**
- * Switching between the tabs of a page (Allocations / Firewall / Connections, Mounts / Devices, Backups /
- * System Backups, ...) opens another route, so the page is rebuilt: some tabs show only a spinner until
- * their data is there (the header and the tabs disappear), others an empty list that fills a moment later.
- *
- * Instead, a tab switch puts a picture of the current page on top (with the clicked tab already active)
- * while the new tab renders underneath, and swaps it for the new tab at once when that has its content
- * (at most MAX_HOLD). The new tab shows up as it is, nothing on it fades (its header, tabs and tables),
- * only the server lists (All Servers / Grouped Servers) fade in below their tabs. The same for every tab
- * bar. The top bar and the sub navigation stay usable all along.
+ * A tab switch rebuilds the page (spinner or empty list first). Instead a picture of the page stays
+ * on top, with the clicked tab active, until the new tab has its content (at most MAX_HOLD).
  */
 const ROOT_SELECTOR = '#dashboard-root, #server-root';
-// the pages inside a page root, and the same from the document (only below the theme's navigation)
 const ROOT_PAGE_SELECTOR = ':scope > div > div:first-child > *';
 const PAGE_SELECTOR = '[data-ptero-nav] ~ :is(#dashboard-root, #server-root) > div > div:first-child > *';
 const TAB_LINK_SELECTOR = '.mantine-Tabs-list a[href]';
+const FOCUSABLE_SELECTOR = 'a[href], button, input, select, textarea, [tabindex], [contenteditable]';
 const PICTURE_CLASS = 'ptero-tab-hold';
 const MAX_HOLD = 1500;
 const CHECK_INTERVAL = 16;
-// The panel's spinners of a list loading, or of a whole page waiting for its data. Not the ones of single
-// rows: a server row waits for its live stats, which never come while its node is down.
+// list and page spinners, not server rows: those wait for stats that never come while a node is down
 const LOADER_SELECTOR = '[data-testid="loader"]:not(tr *, .ptero-server-row *)';
 
 interface Hold {
   root: HTMLElement;
   picture: HTMLElement;
-  // the page's elements before the switch, the ones the panel keeps don't fade in again
   previousPages: Element[];
   target: string;
   start: number;
@@ -38,15 +29,12 @@ interface Hold {
   rootMinHeight: string;
 }
 
-// the page a tab click opens, until that page is rendered
 let tabTarget: string | null = null;
-// the route that is on the page (set once the panel rendered it)
 let renderedPath: string | null = null;
-// the router's navigate, set by the component below once the router is there
 let navigateTo: NavigateFunction | null = null;
 let hold: Hold | null = null;
 
-/** A copy keeps neither where its lists were scrolled to nor what was typed into its fields. */
+/** A clone loses scroll positions and typed input, copy them over. */
 function copyLiveState(from: Element, to: Element) {
   const source = document.createTreeWalker(from, NodeFilter.SHOW_ELEMENT);
   const copy = document.createTreeWalker(to, NodeFilter.SHOW_ELEMENT);
@@ -87,7 +75,6 @@ function showActiveTab(picture: HTMLElement, target: string) {
   }
 }
 
-/** The parent got a position for the picture, it gets its own back once no picture is left in it. */
 function restoreParent(parent: HTMLElement) {
   if (parent.dataset.pteroHoldPosition === undefined || parent.querySelector(`:scope > .${PICTURE_CLASS}`)) return;
 
@@ -101,7 +88,6 @@ function removePicture(picture: HTMLElement) {
   if (parent) restoreParent(parent);
 }
 
-/** What comes after the tab bar on its page (the content of the tab), not the header or the tabs. */
 function contentBelowTabs(root: HTMLElement): Element[] | null {
   const tabs = root.querySelector('.mantine-Tabs-list:has(> a[href])')?.closest('.mantine-Tabs-root');
   const page = tabs ? [...root.querySelectorAll(ROOT_PAGE_SELECTOR)].find((element) => element.contains(tabs)) : null;
@@ -115,12 +101,7 @@ function contentBelowTabs(root: HTMLElement): Element[] | null {
   return content;
 }
 
-/**
- * Swaps the picture for the page at once. A new tab shows up as it is: its header, its tabs and its
- * content (lists, tables) don't fade, only a server list fades in below its tabs (with the animations on).
- * When another page was opened instead, that page fades in as a whole like always. What stayed from the
- * page before (e.g. an alert) doesn't fade either way.
- */
+/** Swaps the picture for the page. Only server lists fade in below their tabs, another page fades as a whole. */
 function endHold(arrived: boolean) {
   const current = hold;
   if (!current) return;
@@ -128,7 +109,6 @@ function endHold(arrived: boolean) {
   hold = null;
   window.clearTimeout(current.timer);
 
-  // the new page rendered without its fade while it was hidden behind the picture
   const pages = [...current.root.querySelectorAll(ROOT_PAGE_SELECTOR)].filter(
     (page) => !current.previousPages.includes(page),
   );
@@ -138,7 +118,7 @@ function endHold(arrived: boolean) {
   for (const element of content ?? []) element.removeAttribute('data-ptero-tab-content');
 
   if (content || !arrived) {
-    // the browser has to see them without the fade once, otherwise it would not start again
+    // force a style flush so the fade restarts
     current.root.getBoundingClientRect();
     if (content) {
       for (const element of content) element.setAttribute('data-ptero-tab-content', '');
@@ -158,11 +138,12 @@ function checkHold() {
 
   const timedOut = performance.now() - current.start >= MAX_HOLD;
 
-  // Another page was opened (sub navigation, back button), the picture goes once that page is rendered,
-  // or the panel kept the page (unsaved changes), then it goes right away.
+  // another page was opened, or the panel kept this one (unsaved changes)
   const path = normalizePath(window.location.pathname);
   if (path !== current.target) {
     if (renderedPath === path || timedOut) {
+      // the tab never opened (unsaved changes), a later visit of it is no tab switch
+      if (tabTarget === current.target) tabTarget = null;
       endHold(false);
     } else {
       current.timer = window.setTimeout(checkHold, CHECK_INTERVAL);
@@ -170,7 +151,7 @@ function checkHold() {
     return;
   }
 
-  // the new tab is rendered and nothing in it is loading, twice in a row in case a request starts late
+  // rendered and nothing loading, twice in a row in case a request starts late
   const ready =
     renderedPath === current.target &&
     current.root.querySelector(ROOT_PAGE_SELECTOR) !== null &&
@@ -194,7 +175,6 @@ function startHold(root: HTMLElement, target: string) {
     if (getComputedStyle(parent).position === 'static') parent.style.position = 'relative';
   }
 
-  // positioned against the parent, otherwise the picture would not sit where the page is
   if (root.offsetParent !== parent) {
     restoreParent(parent);
     return;
@@ -203,6 +183,9 @@ function startHold(root: HTMLElement, target: string) {
   const picture = root.cloneNode(true) as HTMLElement;
   picture.classList.add(PICTURE_CLASS);
   picture.setAttribute('aria-hidden', 'true');
+  // the copy must not uncheck the page's radio groups or take focus; not inert, its tabs take clicks
+  for (const radio of picture.querySelectorAll('input[type="radio"][name]')) radio.removeAttribute('name');
+  for (const element of picture.querySelectorAll(FOCUSABLE_SELECTOR)) element.setAttribute('tabindex', '-1');
   Object.assign(picture.style, {
     position: 'absolute',
     top: `${root.offsetTop}px`,
@@ -213,7 +196,7 @@ function startHold(root: HTMLElement, target: string) {
     zIndex: '1',
   });
 
-  // after the page, so lookups by id still find the page itself first
+  // after the page, so id lookups still find the page first
   root.after(picture);
   copyLiveState(root, picture);
   showActiveTab(picture, target);
@@ -230,7 +213,6 @@ function startHold(root: HTMLElement, target: string) {
     rootMinHeight: root.style.minHeight,
   };
 
-  // the page keeps its height while the new tab renders hidden under the picture
   root.style.minHeight = `${root.offsetHeight}px`;
   root.style.visibility = 'hidden';
 
@@ -240,7 +222,6 @@ function startHold(root: HTMLElement, target: string) {
 const isModified = (event: MouseEvent) =>
   event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
 
-/** A click inside the picture: its tabs switch on, everything else waits for the new tab. */
 function onPictureClick(event: MouseEvent, link: Element | null) {
   event.preventDefault();
   event.stopImmediatePropagation();
@@ -277,7 +258,6 @@ function onClick(event: MouseEvent) {
 
   if (!(link instanceof HTMLAnchorElement)) return;
 
-  // clicks the browser handles itself (new tab or window) and the tab that is already open
   const target = normalizePath(link.pathname);
   if (isModified(event)) return;
   if (link.target && link.target !== '_self') return;
@@ -285,7 +265,6 @@ function onClick(event: MouseEvent) {
 
   tabTarget = target;
 
-  // the panel's link navigates as usual, the picture covers the page meanwhile
   const root = link.closest<HTMLElement>(ROOT_SELECTOR);
   if (!root || resolvePteroArea(window.location.pathname) === null) return;
   if (!root.parentElement?.querySelector(':scope > [data-ptero-nav]')) return;
@@ -294,12 +273,10 @@ function onClick(event: MouseEvent) {
   startHold(root, target);
 }
 
-/** Remembers which page a tab click opens and keeps the current page up while it loads. */
 export function trackTabNavigation() {
   document.addEventListener('click', onClick, true);
 }
 
-/** Marks the pages for their fade in (styles/loading.css), a tab switch skips it. */
 export default function PteroPageTransitions() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -312,7 +289,7 @@ export default function PteroPageTransitions() {
     };
   }, [navigate]);
 
-  // runs after the new page is in the DOM but before it is painted, so a skipped fade never shows
+  // after the DOM update, before paint, so a skipped fade never shows
   useLayoutEffect(() => {
     renderedPath = normalizePath(pathname);
 
@@ -320,7 +297,7 @@ export default function PteroPageTransitions() {
     tabTarget = null;
 
     for (const page of document.querySelectorAll(PAGE_SELECTOR)) {
-      // elements that stay on screen across pages (e.g. alerts) were marked when they appeared
+      // elements that stay across pages (e.g. alerts) were marked already
       if (page.hasAttribute('data-ptero-page')) continue;
 
       page.setAttribute('data-ptero-page', tabSwitch ? 'still' : '');

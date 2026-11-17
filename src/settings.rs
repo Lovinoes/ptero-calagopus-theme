@@ -11,23 +11,21 @@ pub const MAX_LOADING_BAR_DELAY: u32 = 10_000;
 pub const MAX_FOOTER_TEXT_LENGTH: usize = 255;
 
 /// How fast the theme animations (page fade, dialogs, tooltips) play.
-#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum AnimationSpeed {
     VerySlow,
     Slow,
-    #[default]
     Normal,
     Fast,
     VeryFast,
 }
 
 /// Where the copyright footer goes on the themed pages.
-#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum FooterPosition {
     /// at the bottom of the window, or below the content once the page is taller
-    #[default]
     Bottom,
     /// right below the content, like Pterodactyl
     Content,
@@ -35,11 +33,10 @@ pub enum FooterPosition {
 }
 
 /// What sits above the login, register and password pages.
-#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum AuthHeader {
     /// the panel's choice: the banner when one is uploaded, the icon and name otherwise
-    #[default]
     Default,
     IconName,
     Icon,
@@ -51,14 +48,15 @@ pub enum AuthHeader {
 }
 
 /// The colors of the themed pages in the dark scheme.
-#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug, Default, PartialEq, Eq)]
+#[derive(ToSchema, Serialize, Deserialize, Clone, Copy, Debug)]
 #[serde(rename_all = "snake_case")]
 pub enum ColorPalette {
     /// Pterodactyl's own blue-tinted grays
-    #[default]
     Default,
     /// deeper, neutral grays
     Darker,
+    /// the neutral grays and rounder shapes of shadcn/ui
+    Shadcn,
 }
 
 #[derive(ToSchema, Serialize, Deserialize, Clone, Debug)]

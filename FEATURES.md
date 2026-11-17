@@ -1,65 +1,54 @@
 # Features
 
-Everything ptero-calagopus-theme changes in the [Calagopus](https://github.com/calagopus/panel) panel. Only the user side is themed, the admin area and the first-time setup keep the stock Calagopus look.
+Only the user side is themed. The admin area and the first-time setup keep the stock look.
 
 ## Layout
-- Pterodactyl's top navigation bar instead of the Calagopus sidebar, with the stock Calagopus app icon / banner on the left
-- Pterodactyl's five icons on the right: search (quick actions), dashboard, admin area, account and sign out. The icon of the page being opened is underlined right away, while it still loads
-- On a server page, admins get Pterodactyl's external link icon at the end of the sub navigation, which opens that server in the admin area
-- The account avatar opens a menu with the account link, the theme switcher (auto, dark, light), hiding addresses and resetting device overrides
-- Pterodactyl's horizontal sub navigation on account and server pages, routes added by other extensions and the admin's route order keep working
-- The centered 1200px content column
-- The tabs of a page (e.g. All Servers / Grouped Servers, Backups / System Backups) as buttons in a small Pterodactyl box
-- The footer sits at the bottom of the window on every page, including the login pages, the file manager and the editor leave room for it
+- Pterodactyl's top navigation bar instead of the sidebar, with the panel's icon or banner on the left
+- Icons on the right: search (quick actions), dashboard, admin, account, sign out
+- Avatar menu with account link, color scheme switch, hide addresses and reset device overrides
+- Horizontal sub navigation on account and server pages, with the panel's link icons; extension routes and the admin's route order still work
+- Admins get a link from a server page to that server in the admin area
+- Centered 1200px content column
+- Page tabs (All / Grouped Servers, Backups / System Backups, ...) as buttons in a small box
+- Footer at the bottom of the window everywhere; the file manager, editor and crash history leave room for it
 
 ## Look
-- Pterodactyl colors, fonts (IBM Plex Sans headers), boxes, uppercase buttons and inputs
+- Pterodactyl colors, IBM Plex Sans headings, boxes, uppercase buttons and inputs
 - Dark mode like Pterodactyl, plus a matching light mode
-- No flash of the stock Calagopus colors while the panel loads, not even in the first moment of a reload: the loading screen already has the palette an admin picked and the color scheme of the browser
-- Pterodactyl-style dialogs, tooltips, dropdowns and right-click menus
-- Tables as Pterodactyl boxes with a dark header bar and small uppercase labels
-- Code in Pterodactyl's dark boxes, long lines of code blocks (e.g. the backup metadata) wrap instead of running out of the dialog
-- The folder picker of Export to Files, Copy and Extract looks like the file list
-- Thin scrollbars without arrow buttons
+- No flash of stock colors on reload, the loading screen already uses the right palette and scheme
+- Pterodactyl-style dialogs, tooltips, dropdowns, context menus and tables
+- Code blocks in dark boxes, long lines wrap
+- Thin scrollbars
 
 ## Pages
-- Pterodactyl's server list rows (name, description, allocation, CPU / memory / disk and the status bar), also inside the Calagopus server groups. When a server's node can't be reached, its row says so instead of loading forever
-- Enter in the search of All Servers opens the first server of the list, in your own order
-- A list that fails to load shows the error with a Retry button, an account without servers gets the panel's empty state
-- The activity pages can show more entries per page
-- The servers in All Servers can be dragged into any order, like the servers of a group, the order is saved with the account
-- The Pterodactyl console page with stat blocks, black terminal, graphs and the Start / Restart / Stop buttons
-- The values of the stat blocks stay still instead of scrolling sideways, the network speeds sit on their own line below the traffic. Until the first stats arrive they show a spinner
-- The resource history of a server (the clock icon next to the console graphs) in the same stat blocks and graph boxes as the console
-- Pterodactyl's activity log on the activity pages of a server and of the account: the avatar, "user — event", the IP and how long ago, the details on the right. The search, the filter by user and the file diff links work as before, and entries an admin made while impersonating someone say so, like in the panel's own log
-- Pterodactyl's file list rows, and the Monaco file editor in Pterodactyl's ayu-mirage colors (dark mode)
-- The image viewer shows the image centered, at its own size or scaled down to fit, with zooming and panning
-- The login, register and password reset pages in the same dark Pterodactyl boxes, with the centered title
-- Captchas (Turnstile, hCaptcha, reCAPTCHA, ...) sit at the bottom of the login box instead of on their own below it
-- The Calagopus-only features (quick actions, server groups, hiding addresses and more) styled to match
+- Pterodactyl server rows (name, description, address, CPU / memory / disk, status bar), also inside server groups. Unreachable nodes are shown as such instead of loading forever
+- Drag servers in All Servers into your own order, saved with the account
+- Enter in the server search opens the first server
+- Console with stat blocks, black terminal, graphs and power buttons. Stat values don't scroll sideways, network speeds get their own line
+- Resource history and crash history in the same boxes as the console, crash logs in the black terminal
+- Pterodactyl activity log for servers and the account. Search, user filter, file diff links and crash links all work
+- Pterodactyl file list and the ayu-mirage editor theme (dark mode)
+- Image viewer that centers and scales the image, with zoom and pan
+- Login, register and password reset pages in Pterodactyl boxes, captchas inside the box
 
 ## Animations and loading
-- Pterodactyl's loading bar at the top (cyan, blue with the darker palette) while a page opens or loads, in place of the panel's own bar. It only shows up when loading takes a moment, so quick page changes don't flicker
-- Pages fade in, dialogs and tooltips pop in like on Pterodactyl
-- Switching between the tabs of a page (e.g. Allocations / Firewall / Connections, Mounts / Devices, Backups / System Backups) keeps the page on screen, with the clicked tab already active, until the new tab has loaded, instead of showing a spinner or an empty list first. It doesn't wait for the live stats of the server rows, so servers whose node is down don't slow it down. The new tab then shows up as it is, nothing on it fades, only the server lists (All Servers / Grouped Servers) fade in below their tabs when the animations are on. The top bar and the sub navigation stay usable meanwhile
-- Lists only dim and show a spinner when loading takes a moment
-- Coming back to a tab reloads its data quietly, without the loading bar or loading lists
-- The buttons of a list page wait until the list has loaded, so they don't jump into the "No ..." box of an empty list
-- The page fade and the loading bar's motion follow the browser's reduced motion setting
+- Pterodactyl's loading bar at the top, only shown when loading takes a moment
+- Page fade-in, dialog and tooltip pop-in
+- Switching tabs keeps the current page up, with the new tab already active, until the new tab has loaded
+- Lists only dim and show a spinner when loading is slow
+- Coming back to a tab refreshes it quietly
+- Respects the browser's reduced motion setting
 
 ## Admin settings
 In **Admin → Extensions → Pterodactyl Theme**:
-- Pick the color palette of the dark mode: Default (Pterodactyl's blue-tinted grays) or Darker (deeper, neutral grays after Pterodactyl's dark theme extension: flat bars divided by thin lines, boxes, rows, tables, dialogs and menus set apart by thin outlines, quiet inputs and switches, tinted state badges, vivid red, orange, yellow and green everywhere (text, badges, alerts and buttons), one darker blue (Pterodactyl's blue-600) for everything blue and cyan: buttons, links, bars, the open tabs, the sub navigation line, the loading bar and the live graphs)
-- Turn the animations off or change their speed (very slow to very fast)
-- Turn the loading bar off, and change how long loading has to take before the loading bar and the spinners of lists show up
-- Put the footer at the bottom of the window, right below the content (like Pterodactyl) or hide it
-- Write your own footer text with the variables {app} (panel name), {url} (panel address) and {year} (current year) and links like [text](https://example.com), links keep the footer's color
-- Choose what sits above the login pages: the panel's default, icon and name, only the icon, only the name, the uploaded banner, banner and name, or nothing
+- Color palette for dark mode: Default (Pterodactyl's blue grays), Darker (deeper neutral grays with thin outlines and one blue accent) or shadcn (shadcn/ui's neutral grays with softened whites, one font, rounder boxes, plain-case controls, gray buttons, shadcn-style tabs and a gray pill for the open page)
+- Animations on/off and their speed
+- Loading bar on/off and its delay
+- Footer position: bottom of the window, below the content, or hidden
+- Footer text with `{app}`, `{url}`, `{year}` and `[text](https://...)` links
+- What sits above the login pages: default, icon and/or name, banner with or without name, or nothing
 
 ## Other extensions
-- Pages, footer components and other additions of other extensions keep working and get the Pterodactyl look
-- Other extensions can add icons to the top navigation bar, read the theme settings and style their own parts with the theme's colors, see [EXTENSIONS.md](EXTENSIONS.md)
-
-## Admin area
-- The admin area and the first-time setup are not touched
-- The theme can be turned off and on in **Admin → Extensions** without a rebuild
+- Their pages and components keep working and get the Pterodactyl look
+- They can add navigation bar icons, read the theme settings and use the theme's colors, see [EXTENSIONS.md](EXTENSIONS.md)
+- The theme can be turned on and off in **Admin → Extensions** without a rebuild

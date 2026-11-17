@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getExtTranslations } from '../translations.ts';
 
 export const pteroAnimationSpeeds = ['very_slow', 'slow', 'normal', 'fast', 'very_fast'] as const;
 export type PteroAnimationSpeed = (typeof pteroAnimationSpeeds)[number];
@@ -9,21 +10,21 @@ export type PteroFooterPosition = (typeof pteroFooterPositions)[number];
 export const pteroAuthHeaders = ['default', 'icon_name', 'icon', 'name', 'banner', 'banner_name', 'hidden'] as const;
 export type PteroAuthHeader = (typeof pteroAuthHeaders)[number];
 
-export const pteroColorPalettes = ['default', 'darker'] as const;
+export const pteroColorPalettes = ['default', 'darker', 'shadcn'] as const;
 export type PteroColorPalette = (typeof pteroColorPalettes)[number];
 
-// the limits of the backend, see src/settings.rs
+// backend limits, see src/settings.rs
 export const PTERO_MAX_LOADING_BAR_DELAY = 10_000;
 export const PTERO_MAX_FOOTER_TEXT_LENGTH = 255;
 
-/** Mirrors ExtensionSettingsData in src/settings.rs, see there for the defaults. */
+/** Mirrors ExtensionSettingsData in src/settings.rs. */
 export const pteroThemeSettingsSchema = z.object({
   animations: z.boolean(),
   animationSpeed: z.enum(pteroAnimationSpeeds),
   loadingBar: z.boolean(),
   loadingBarDelay: z.number().int().min(0).max(PTERO_MAX_LOADING_BAR_DELAY),
   footerPosition: z.enum(pteroFooterPositions),
-  // the length is checked by the backend and the form, zod would count emoji twice here
+  // the form checks the length, zod counts emoji twice
   footerText: z.string(),
   authHeader: z.enum(pteroAuthHeaders),
   colorPalette: z.enum(pteroColorPalettes),
@@ -31,9 +32,11 @@ export const pteroThemeSettingsSchema = z.object({
 
 export type PteroThemeSettings = z.infer<typeof pteroThemeSettingsSchema>;
 
-/** The admin form, the footer text gets the backend's length limit there (counted in characters). */
 export const pteroThemeSettingsFormSchema = pteroThemeSettingsSchema.extend({
-  footerText: z.string().refine((text) => [...text].length <= PTERO_MAX_FOOTER_TEXT_LENGTH),
+  footerText: z.string().refine((text) => [...text].length <= PTERO_MAX_FOOTER_TEXT_LENGTH, {
+    // lazy, so it is in the current language
+    error: () => getExtTranslations().t('settings.footerText.tooLong', { max: String(PTERO_MAX_FOOTER_TEXT_LENGTH) }),
+  }),
 });
 
 export const defaultPteroThemeSettings: PteroThemeSettings = {
@@ -47,7 +50,6 @@ export const defaultPteroThemeSettings: PteroThemeSettings = {
   colorPalette: 'default',
 };
 
-/** Multiplier for every animation duration of the theme. */
 export const pteroAnimationScale: Record<PteroAnimationSpeed, number> = {
   very_slow: 2,
   slow: 1.5,

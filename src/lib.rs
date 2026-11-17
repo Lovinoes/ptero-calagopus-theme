@@ -23,9 +23,7 @@ impl Extension for ExtensionStruct {
         state: State,
         builder: ExtensionRouteBuilder,
     ) -> ExtensionRouteBuilder {
-        // the admin form uses /api/admin/extensions/dev.lovinoes.pterodactyl/settings, every
-        // visitor (and other extensions) can read them from
-        // /api/auth/extensions/dev.lovinoes.pterodactyl/settings, the login pages are themed as well
+        // admin form: /api/admin/..., everyone (login pages, other extensions): /api/auth/...
         let base = format!("/extensions/{PACKAGE_NAME}");
 
         builder
@@ -38,9 +36,8 @@ impl Extension for ExtensionStruct {
         _state: State,
         builder: IndexHtmlBuilder,
     ) -> IndexHtmlBuilder {
-        // The settings rendered into every page, so the frontend (and the boot screen, see
-        // frontend/public/assets/ptero-boot-2.js) has them before its first paint. The same shape as
-        // the `settings` of the settings routes. Nothing in them is secret.
+        // rendered into every page so the frontend and the boot script have them before the first paint;
+        // nothing in them is secret
         builder.add_variable("settings", |app_settings| {
             let settings: &settings::ExtensionSettingsData =
                 app_settings.find_extension_settings()?;

@@ -17,36 +17,30 @@ import PteroSidebar, { PteroSidebarLinkGate } from './navigation/PteroSidebar.ts
 import ConfigurationPage from './settings/ConfigurationPage.tsx';
 import { loadPteroThemeSettings } from './settings/store.ts';
 
-/**
- * The Pterodactyl theme. The panel only calls initialize() while the extension is enabled, and from
- * Calagopus 1.2.8 it leaves out the boot script (boot.html) and the stylesheet of a disabled extension,
- * so nothing of the theme runs or shows then.
- */
+/** The theme. The panel skips initialize(), boot.html and the CSS of a disabled extension. */
 class DevLovinoesPterodactylExtension extends Extension {
-  // admin area -> Extensions -> Pterodactyl Theme: colors, animations, loading, footer and the login pages
   public cardConfigurationPage: React.FC | null = ConfigurationPage;
   public cardComponent: React.FC | null = null;
 
   public initialize(ctx: ExtensionContext): void {
-    // the scope before React renders anything, so the first paint already has the right look
+    // before React renders, so the first paint is already themed
     applyPteroScope(window.location.pathname);
 
-    // the settings the backend rendered into the page (see initialize_index_html in src/lib.rs)
+    // rendered into the page by initialize_index_html in src/lib.rs
     loadPteroThemeSettings(this.getIndexVariable('settings'));
 
     ctx.extensionRegistry.enterGlobal((global) =>
       global.prependComponent(PteroScope).prependComponent(PteroProgressBar).prependComponent(PteroPageTransitions),
     );
 
-    // switching between the tabs of a page doesn't replay the page fade
+    // tab switches keep the page up instead of replaying the fade
     trackTabNavigation();
 
-    // Pterodactyl's loading bar follows the API requests, not the refreshes when a tab is shown again
+    // background refreshes don't count for the loading bar
     trackBackgroundRefreshes();
     trackRequests(axiosInstance);
 
-    // Pterodactyl's dialog and tooltip animations, on the themed pages only and only where a dialog or
-    // tooltip sets none itself, so they follow the animation settings as well
+    // Pterodactyl's dialog and tooltip animations, unless one sets its own
     Modal.addPropsInterceptor((props) =>
       props.transitionProps === undefined && isPteroThemeActive()
         ? { ...props, transitionProps: getPteroDialogTransition() }
@@ -58,7 +52,6 @@ class DevLovinoesPterodactylExtension extends Extension {
         : props,
     );
 
-    // Pterodactyl's editor colors (ayu-mirage) for the file editor and diffs on the themed pages
     ctx.extensionRegistry.enterElements((elements) =>
       elements.enterMonacoEditor((monacoEditor) =>
         monacoEditor
@@ -67,13 +60,12 @@ class DevLovinoesPterodactylExtension extends Extension {
       ),
     );
 
-    // what sits above the login pages (icon, name, banner or nothing) is a theme setting
     AppIcon.addRenderInterceptor(
       (element, props) =>
         (<PteroAuthHeader original={element} className={props.className} />) as ReactElement<typeof props>,
     );
 
-    // the top navigation bar and the sub navigation in place of the sidebar
+    // top navigation bar and sub navigation instead of the sidebar
     Sidebar.addRenderInterceptor(
       (element, props) => (<PteroSidebar {...props} original={element} />) as ReactElement<typeof props>,
     );
@@ -82,7 +74,7 @@ class DevLovinoesPterodactylExtension extends Extension {
     );
   }
 
-  // what other extensions can ask the theme (navigation bar icons, its settings), see EXTENSIONS.md
+  // calls from other extensions, see EXTENSIONS.md
   public processCall(ctx: ExtensionContext, name: string, args: object): unknown {
     return handlePteroCall(ctx, name, args);
   }

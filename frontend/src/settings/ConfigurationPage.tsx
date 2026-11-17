@@ -6,6 +6,7 @@ import { httpErrorToHuman } from '@/api/axios.ts';
 import Button from '@/elements/buttons/Button.tsx';
 import { AdminCan } from '@/elements/Can.tsx';
 import TitleCard from '@/elements/data-display/TitleCard.tsx';
+import ErrorState from '@/elements/feedback/ErrorState.tsx';
 import NumberInput from '@/elements/input/NumberInput.tsx';
 import Select from '@/elements/input/Select.tsx';
 import Switch from '@/elements/input/Switch.tsx';
@@ -17,7 +18,6 @@ import { useExtTranslations } from '../translations.ts';
 import { getAdminThemeSettings, updateAdminThemeSettings } from './api.ts';
 import {
   defaultPteroThemeSettings,
-  PTERO_MAX_FOOTER_TEXT_LENGTH,
   PTERO_MAX_LOADING_BAR_DELAY,
   type PteroAnimationSpeed,
   type PteroAuthHeader,
@@ -30,12 +30,13 @@ import { setPteroThemeSettings } from './store.ts';
 
 type Option<T extends string> = { value: T; label: string };
 
-/** Admin area -> Extensions -> Pterodactyl Theme, in the stock admin look like every other admin page. */
 export default function ConfigurationPage() {
   const { t } = useTranslations();
   const { t: tExt } = useExtTranslations();
   const { addToast } = useToast();
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [retrying, setRetrying] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const form = useForm<PteroThemeSettings>({
@@ -49,18 +50,23 @@ export default function ConfigurationPage() {
     form.resetDirty(settings);
   };
 
-  useEffect(() => {
+  const load = () =>
     getAdminThemeSettings()
       .then((settings) => {
         showSettings(settings);
+        setLoadError(null);
         setLoaded(true);
       })
-      .catch((error) => addToast(httpErrorToHuman(error), 'error'));
+      .catch((error) => setLoadError(httpErrorToHuman(error)));
+
+  useEffect(() => {
+    load();
   }, []);
 
   const colorPaletteOptions: Option<PteroColorPalette>[] = [
     { value: 'default', label: tExt('settings.colorPalette.default', {}) },
     { value: 'darker', label: tExt('settings.colorPalette.darker', {}) },
+    { value: 'shadcn', label: tExt('settings.colorPalette.shadcn', {}) },
   ];
 
   const animationSpeedOptions: Option<PteroAnimationSpeed>[] = [
@@ -93,7 +99,7 @@ export default function ConfigurationPage() {
     updateAdminThemeSettings(values)
       .then((settings) => {
         showSettings(settings);
-        // the pages this admin opens next use the new settings right away
+        // this admin's next pages use the new settings right away
         setPteroThemeSettings(settings);
         addToast(tExt('settings.toast.saved', {}), 'success');
       })
@@ -103,86 +109,96 @@ export default function ConfigurationPage() {
 
   return (
     <TitleCard title={tExt('settings.title', {})}>
-      <form onSubmit={form.onSubmit(save)}>
-        <Stack>
-          <Select
-            label={tExt('settings.colorPalette.label', {})}
-            description={tExt('settings.colorPalette.description', {})}
-            data={colorPaletteOptions}
-            disabled={!loaded}
-            {...form.getInputProps('colorPalette')}
-          />
+      {loadError ? (
+        <ErrorState
+          error={loadError}
+          retrying={retrying}
+          onRetry={() => {
+            setRetrying(true);
+            load().finally(() => setRetrying(false));
+          }}
+        />
+      ) : (
+        <form onSubmit={form.onSubmit(save)}>
+          <Stack>
+            <Select
+              label={tExt('settings.colorPalette.label', {})}
+              description={tExt('settings.colorPalette.description', {})}
+              data={colorPaletteOptions}
+              disabled={!loaded}
+              {...form.getInputProps('colorPalette')}
+            />
 
-          <Switch
-            label={tExt('settings.animations.label', {})}
-            description={tExt('settings.animations.description', {})}
-            disabled={!loaded}
-            {...form.getInputProps('animations', { type: 'checkbox' })}
-          />
+            <Switch
+              label={tExt('settings.animations.label', {})}
+              description={tExt('settings.animations.description', {})}
+              disabled={!loaded}
+              {...form.getInputProps('animations', { type: 'checkbox' })}
+            />
 
-          <Select
-            label={tExt('settings.animationSpeed.label', {})}
-            description={tExt('settings.animationSpeed.description', {})}
-            data={animationSpeedOptions}
-            disabled={!loaded || !form.values.animations}
-            {...form.getInputProps('animationSpeed')}
-          />
+            <Select
+              label={tExt('settings.animationSpeed.label', {})}
+              description={tExt('settings.animationSpeed.description', {})}
+              data={animationSpeedOptions}
+              disabled={!loaded || !form.values.animations}
+              {...form.getInputProps('animationSpeed')}
+            />
 
-          <Switch
-            label={tExt('settings.loadingBar.label', {})}
-            description={tExt('settings.loadingBar.description', {})}
-            disabled={!loaded}
-            {...form.getInputProps('loadingBar', { type: 'checkbox' })}
-          />
+            <Switch
+              label={tExt('settings.loadingBar.label', {})}
+              description={tExt('settings.loadingBar.description', {})}
+              disabled={!loaded}
+              {...form.getInputProps('loadingBar', { type: 'checkbox' })}
+            />
 
-          <NumberInput
-            label={tExt('settings.loadingBarDelay.label', {})}
-            description={tExt('settings.loadingBarDelay.description', {})}
-            min={0}
-            max={PTERO_MAX_LOADING_BAR_DELAY}
-            step={50}
-            allowDecimal={false}
-            allowNegative={false}
-            suffix=' ms'
-            disabled={!loaded}
-            {...form.getInputProps('loadingBarDelay')}
-          />
+            <NumberInput
+              label={tExt('settings.loadingBarDelay.label', {})}
+              description={tExt('settings.loadingBarDelay.description', {})}
+              min={0}
+              max={PTERO_MAX_LOADING_BAR_DELAY}
+              step={50}
+              allowDecimal={false}
+              allowNegative={false}
+              suffix=' ms'
+              disabled={!loaded}
+              {...form.getInputProps('loadingBarDelay')}
+            />
 
-          <Select
-            label={tExt('settings.footerPosition.label', {})}
-            description={tExt('settings.footerPosition.description', {})}
-            data={footerPositionOptions}
-            disabled={!loaded}
-            {...form.getInputProps('footerPosition')}
-          />
+            <Select
+              label={tExt('settings.footerPosition.label', {})}
+              description={tExt('settings.footerPosition.description', {})}
+              data={footerPositionOptions}
+              disabled={!loaded}
+              {...form.getInputProps('footerPosition')}
+            />
 
-          <TextInput
-            label={tExt('settings.footerText.label', {})}
-            description={tExt('settings.footerText.description', {
-              variables: '{app}, {url}, {year}',
-              links: '[text](https://example.com)',
-            })}
-            placeholder={DEFAULT_FOOTER_TEXT}
-            maxLength={PTERO_MAX_FOOTER_TEXT_LENGTH}
-            disabled={!loaded || form.values.footerPosition === 'hidden'}
-            {...form.getInputProps('footerText')}
-          />
+            <TextInput
+              label={tExt('settings.footerText.label', {})}
+              description={tExt('settings.footerText.description', {
+                variables: '{app}, {url}, {year}',
+                links: '[text](https://example.com)',
+              })}
+              placeholder={DEFAULT_FOOTER_TEXT}
+              disabled={!loaded || form.values.footerPosition === 'hidden'}
+              {...form.getInputProps('footerText')}
+            />
 
-          <Select
-            label={tExt('settings.authHeader.label', {})}
-            description={tExt('settings.authHeader.description', {})}
-            data={authHeaderOptions}
-            disabled={!loaded}
-            {...form.getInputProps('authHeader')}
-          />
+            <Select
+              label={tExt('settings.authHeader.label', {})}
+              description={tExt('settings.authHeader.description', {})}
+              data={authHeaderOptions}
+              disabled={!loaded}
+              {...form.getInputProps('authHeader')}
+            />
 
-          <AdminCan action='extensions.manage' cantSave>
-            <Button type='submit' loading={saving} disabled={!loaded || !form.isValid()} className='w-fit!'>
-              {t('common.button.save', {})}
-            </Button>
-          </AdminCan>
-        </Stack>
-      </form>
+            <AdminCan action='extensions.manage' cantSave>
+              <Button type='submit' loading={saving} disabled={!loaded || !form.isValid()} className='w-fit!'>
+                {t('common.button.save', {})}
+              </Button>
+            </AdminCan>
+          </Stack>
+        </form>
+      )}
     </TitleCard>
   );
 }

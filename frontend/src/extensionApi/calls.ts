@@ -4,15 +4,11 @@ import { getPteroThemeSettings } from '../settings/store.ts';
 import { addNavbarItem, parseNavbarItem, removeNavbarItem } from './navbarItems.ts';
 
 /**
- * What other extensions can ask the theme through its extension calls (processCall), documented in
- * EXTENSIONS.md. They call this extension's processCall directly: the panel's own ctx.call() can't
- * pass a call on to the next extension (its ctx.skip() result is never recognized as a skip), so it
- * only ever reaches the first extension.
- *
- * Raise PTERO_API_VERSION when a call is added or changes, extensions can check it before using one.
- * 2: `settings` has `colorPalette`.
+ * Calls other extensions can make (EXTENSIONS.md). They call processCall directly: the panel's
+ * ctx.call() only ever reaches the first extension.
+ * Bump PTERO_API_VERSION when calls change. 2: settings.colorPalette. 3: colorPalette 'shadcn'.
  */
-export const PTERO_API_VERSION = 2;
+export const PTERO_API_VERSION = 3;
 
 const CALL_PREFIX = 'lovinoes_pterodactyl_';
 
@@ -23,13 +19,10 @@ export function handlePteroCall(ctx: ExtensionContext, name: string, args: objec
     case 'api_version':
       return PTERO_API_VERSION;
 
-    // Whether the page that is open right now has the Pterodactyl look (not the admin area or the setup).
-    // Only the page counts: a call reaches the theme only while it is enabled, and other extensions may
-    // ask in their initialize(), before window.extensionContext (which isPteroThemeActive reads) exists.
+    // only the page counts: extensions may ask before window.extensionContext exists
     case 'theme_active':
       return resolvePteroArea(window.location.pathname) !== null;
 
-    // a copy, changing it changes nothing
     case 'settings':
       return Object.freeze({ ...getPteroThemeSettings() });
 
@@ -46,7 +39,6 @@ export function handlePteroCall(ctx: ExtensionContext, name: string, args: objec
       return true;
     }
 
-    // a call of a later version of the theme
     default:
       return null;
   }

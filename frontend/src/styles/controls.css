@@ -1,6 +1,4 @@
-/* ------------------------------------------------------------------------------------------------
- * Buttons (Pterodactyl's uppercase buttons with a slightly darker border)
- * --------------------------------------------------------------------------------------------- */
+/* Buttons */
 
 html[data-ptero-theme] .mantine-Button-root {
   font-family: var(--ptero-font-sans);
@@ -9,34 +7,32 @@ html[data-ptero-theme] .mantine-Button-root {
   transition: all 150ms;
 }
 
-html[data-ptero-theme] .mantine-Button-root[data-variant="filled"]:not(:disabled, [data-disabled]) {
+html[data-ptero-theme] .mantine-Button-root[data-variant='filled']:not(:disabled, [data-disabled]) {
   border-color: color-mix(in srgb, var(--button-bg) 80%, #000) !important;
 }
 
-/* ------------------------------------------------------------------------------------------------
- * Inputs (Pterodactyl's 2px bordered inputs and small uppercase labels)
- * --------------------------------------------------------------------------------------------- */
+/* Inputs */
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Input-wrapper[data-variant="default"] {
+html[data-ptero-theme][data-mantine-color-scheme='dark'] .mantine-Input-wrapper[data-variant='default'] {
   --input-bg: var(--ptero-gray-600);
   --input-bd: var(--ptero-gray-500);
 }
 
-html[data-ptero-theme] .mantine-Input-wrapper[data-variant="default"] .mantine-Input-input {
+html[data-ptero-theme] .mantine-Input-wrapper[data-variant='default'] .mantine-Input-input {
   border-width: 2px;
   transition:
     border-color 150ms,
     box-shadow 150ms;
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"]
-  .mantine-Input-wrapper[data-variant="default"]
+html[data-ptero-theme][data-mantine-color-scheme='dark']
+  .mantine-Input-wrapper[data-variant='default']
   .mantine-Input-input:hover:not(:disabled, :focus, :focus-within, [data-error]) {
   border-color: var(--ptero-gray-400);
 }
 
 html[data-ptero-theme]
-  .mantine-Input-wrapper[data-variant="default"]
+  .mantine-Input-wrapper[data-variant='default']
   .mantine-Input-input:is(:focus, :focus-within):not([data-error]) {
   border-color: var(--ptero-blue-300);
   box-shadow: 0 0 0 2px rgb(96 165 250 / 0.5);
@@ -49,13 +45,11 @@ html[data-ptero-theme] .mantine-InputWrapper-label {
   text-transform: uppercase;
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-InputWrapper-label {
+html[data-ptero-theme][data-mantine-color-scheme='dark'] .mantine-InputWrapper-label {
   color: var(--ptero-gray-200);
 }
 
-/* ------------------------------------------------------------------------------------------------
- * Tabs (the in-page sub navigations), styled like the Pterodactyl sub navigation
- * --------------------------------------------------------------------------------------------- */
+/* Tabs */
 
 html[data-ptero-theme] .mantine-Tabs-list {
   --tabs-color: var(--ptero-cyan-600);
@@ -66,21 +60,17 @@ html[data-ptero-theme] .mantine-Tabs-tab {
   transition: color 150ms;
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-tab {
+html[data-ptero-theme][data-mantine-color-scheme='dark'] .mantine-Tabs-tab {
   color: var(--ptero-gray-300);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-tab:hover,
-html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-tab[data-active] {
+html[data-ptero-theme][data-mantine-color-scheme='dark'] .mantine-Tabs-tab:hover,
+html[data-ptero-theme][data-mantine-color-scheme='dark'] .mantine-Tabs-tab[data-active] {
   color: var(--ptero-gray-100);
   background-color: transparent;
 }
 
-/*
- * The tabs of a page (All Servers / Grouped Servers, Backups / System Backups, ...) sit in a small
- * Pterodactyl box as buttons, instead of a full width line that looked like the head of a table.
- * Only these tabs are links, the tabs inside the file editor and the database explorer stay as they are.
- */
+/* page tabs (links) as buttons in a small box; tabs inside the editor and database explorer stay */
 html[data-ptero-theme] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
   flex-wrap: nowrap;
   gap: 0.25rem;
@@ -88,7 +78,7 @@ html[data-ptero-theme] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
   max-width: 100%;
   padding: 0.25rem;
   overflow-x: auto;
-  border-radius: 0.25rem;
+  border-radius: var(--mantine-radius-default);
   scrollbar-width: none;
 }
 
@@ -101,7 +91,7 @@ html[data-ptero-theme] .mantine-Tabs-list > a > .mantine-Tabs-tab {
   margin: 0;
   padding-inline: 0.875rem;
   border: 0;
-  border-radius: 0.25rem;
+  border-radius: var(--mantine-radius-sm);
   white-space: nowrap;
   transition:
     color 150ms,
@@ -112,31 +102,31 @@ html[data-ptero-theme] .mantine-Tabs-list > a > .mantine-Tabs-tab[data-active] .
   color: var(--ptero-cyan-400);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
+html[data-ptero-theme][data-mantine-color-scheme='dark'] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
   background-color: var(--ptero-gray-700);
   box-shadow: var(--ptero-shadow-md);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-list > a > .mantine-Tabs-tab:hover {
+html[data-ptero-theme][data-mantine-color-scheme='dark'] .mantine-Tabs-list > a > .mantine-Tabs-tab:hover {
   background-color: var(--ptero-gray-600);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="dark"] .mantine-Tabs-list > a > .mantine-Tabs-tab[data-active] {
+html[data-ptero-theme][data-mantine-color-scheme='dark'] .mantine-Tabs-list > a > .mantine-Tabs-tab[data-active] {
   color: var(--ptero-gray-50);
   background-color: var(--ptero-gray-600);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
+html[data-ptero-theme][data-mantine-color-scheme='light'] .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
   background-color: #fff;
   box-shadow: var(--ptero-shadow);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-list > a > .mantine-Tabs-tab:hover,
-html[data-ptero-theme][data-mantine-color-scheme="light"] .mantine-Tabs-list > a > .mantine-Tabs-tab[data-active] {
+html[data-ptero-theme][data-mantine-color-scheme='light'] .mantine-Tabs-list > a > .mantine-Tabs-tab:hover,
+html[data-ptero-theme][data-mantine-color-scheme='light'] .mantine-Tabs-list > a > .mantine-Tabs-tab[data-active] {
   background-color: var(--ptero-gray-100);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="light"]
+html[data-ptero-theme][data-mantine-color-scheme='light']
   .mantine-Tabs-list
   > a
   > .mantine-Tabs-tab[data-active]
@@ -144,9 +134,7 @@ html[data-ptero-theme][data-mantine-color-scheme="light"]
   color: var(--ptero-cyan-600);
 }
 
-/* ------------------------------------------------------------------------------------------------
- * Alerts (Pterodactyl's thick left border)
- * --------------------------------------------------------------------------------------------- */
+/* Alerts */
 
 html[data-ptero-theme] .mantine-Alert-root {
   border-left: 0.5rem solid var(--alert-color);

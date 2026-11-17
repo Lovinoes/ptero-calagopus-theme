@@ -1,9 +1,9 @@
 import { Tooltip, type TransitionOverride } from '@mantine/core';
 import { Component, type ReactNode } from 'react';
 import { Link } from 'react-router';
+import type { PteroNavbarItem } from '../extensionApi/navbarItems.ts';
 import { LOG_PREFIX } from '../core/constants.ts';
 import { isWithinLink } from '../core/paths.ts';
-import type { PteroNavbarItem } from '../extensionApi/navbarItems.ts';
 
 interface BoundaryProps {
   item: PteroNavbarItem;
@@ -15,11 +15,10 @@ interface BoundaryState {
   failed: boolean;
 }
 
-/** An icon of another extension that fails to render is left out, instead of taking down the whole bar. */
+/** A broken icon from another extension is left out instead of breaking the bar. */
 class NavbarItemBoundary extends Component<BoundaryProps, BoundaryState> {
   override state: BoundaryState = { item: this.props.item, failed: false };
 
-  // a replacement with the same id gets a new try
   static getDerivedStateFromProps(props: BoundaryProps, state: BoundaryState): Partial<BoundaryState> | null {
     return props.item === state.item ? null : { item: props.item, failed: false };
   }
@@ -61,7 +60,7 @@ function NavbarItemLink({
   return (
     <Tooltip label={item.label} position='bottom' transitionProps={transitionProps}>
       {item.to ? (
-        <Link to={item.to} aria-label={item.label} className={className}>
+        <Link to={item.to} aria-label={item.label} aria-current={className ? 'page' : undefined} className={className}>
           {item.icon}
         </Link>
       ) : item.href ? (
@@ -77,7 +76,6 @@ function NavbarItemLink({
   );
 }
 
-/** An icon another extension added to the top bar (extensionApi/navbarItems.ts). */
 export default function ExtensionNavbarItem(props: {
   item: PteroNavbarItem;
   pathname: string;

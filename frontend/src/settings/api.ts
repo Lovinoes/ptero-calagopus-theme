@@ -3,7 +3,7 @@ import { parseFromApi, serializeForApi } from '@/lib/serialization/api-transform
 import { PACKAGE_NAME } from '../core/constants.ts';
 import { type PteroThemeSettings, pteroThemeSettingsSchema } from './schema.ts';
 
-/** Read-only for every visitor, the login pages are themed as well. */
+/** public, the login pages are themed too */
 export async function getPublicThemeSettings(): Promise<PteroThemeSettings> {
   const { data } = await axiosInstance.get(`/api/auth/extensions/${PACKAGE_NAME}/settings`);
   return parseFromApi(pteroThemeSettingsSchema, data.settings);

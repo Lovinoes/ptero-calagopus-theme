@@ -3,10 +3,7 @@ import { useLocation } from 'react-router';
 import { PACKAGE_NAME } from './constants.ts';
 import { resolvePteroArea } from './paths.ts';
 
-/**
- * Every style of this theme is scoped to `html[data-ptero-theme]`, toggling the attribute is what
- * switches between the Pterodactyl look and the stock look (for the admin area).
- */
+/** All theme CSS is scoped to html[data-ptero-theme], this toggles it. */
 export function applyPteroScope(pathname: string) {
   const root = document.documentElement;
   const area = resolvePteroArea(pathname);
@@ -20,31 +17,23 @@ export function applyPteroScope(pathname: string) {
   }
 }
 
-/**
- * Whether this extension is enabled. The core components it replaces (overrides.ts) are compiled into
- * the panel either way, so they check this to fall back to the stock component.
- */
+/** The replaced components are compiled in even when the extension is disabled, they check this. */
 export function isPteroExtensionEnabled(): boolean {
   return !!window.extensionContext?.extensions.some((extension) => extension.packageName === PACKAGE_NAME);
 }
 
-/**
- * Whether the theme styles the current page: the extension is enabled and the page is not excluded.
- * It reads the address, which the router updates before it renders the new page, so it is right while
- * that page renders as well (the data-ptero-theme attribute only follows after the render).
- */
+/** Reads the address, which updates before the new page renders (the attribute only after). */
 export function isPteroThemeActive(): boolean {
   return isPteroExtensionEnabled() && resolvePteroArea(window.location.pathname) !== null;
 }
 
-/** The same as a hook, components using it render again when the route changes. */
+/** Also checks the address bar: a virtual window runs its own router at another path. */
 export function usePteroThemeActive(): boolean {
   const { pathname } = useLocation();
 
-  return isPteroExtensionEnabled() && resolvePteroArea(pathname) !== null;
+  return isPteroThemeActive() && resolvePteroArea(pathname) !== null;
 }
 
-/** Keeps the scope attributes on the root element in step with the route. */
 export default function PteroScope() {
   const { pathname } = useLocation();
 

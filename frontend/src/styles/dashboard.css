@@ -1,8 +1,6 @@
-/* ------------------------------------------------------------------------------------------------
- * Dashboard header: Pterodactyl's server list has no page heading, the tabs lead the page
- * --------------------------------------------------------------------------------------------- */
+/* Dashboard: no page heading, the tabs lead the page like on Pterodactyl */
 
-html[data-ptero-theme][data-ptero-area="dashboard"]
+html[data-ptero-theme][data-ptero-area='dashboard']
   #dashboard-root
   div.mb-4:has(> .mantine-Title-root:only-child):has(+ .mantine-Tabs-root) {
   display: none;

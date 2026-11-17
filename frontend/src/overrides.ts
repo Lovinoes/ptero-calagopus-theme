@@ -1,9 +1,6 @@
-// The panel components this theme replaces. The panel's build reads the defineOverride() calls (this file
-// never runs) and resolves every import of the original to the replacement. Inside a replacement the
-// original path still gives the stock component, which it renders off the themed pages.
-//
-// Only one extension may replace a component, the panel's build fails when two do. Keep this list short
-// and in step with the "Conflicts" section of EXTENSIONS.md.
+// Panel components this theme replaces. The build reads defineOverride() (this file never runs) and
+// resolves every import of the original to the replacement; inside a replacement the original path is
+// still the stock component. Two extensions can't replace the same one, keep EXTENSIONS.md in step.
 import Copyright from '@/elements/Copyright.tsx';
 import StatCard from '@/elements/data-display/StatCard.tsx';
 import DashboardActivity from '@/pages/dashboard/activity/DashboardActivity.tsx';
@@ -22,15 +19,10 @@ function defineOverride<T>(original: T, replacement: NoInfer<T>) {
 }
 
 export default [
-  // the rows of the server lists as Pterodactyl's server rows
   defineOverride(ServerItem, PteroServerItem),
-  // the "All Servers" list, its servers can be dragged into an order
   defineOverride(DashboardHomeAll, PteroDashboardHomeAll),
-  // the footer, its text can be set in the theme settings
   defineOverride(Copyright, PteroCopyright),
-  // the stat cards of the console, the value is cut off instead of scrolling, the details get their own line
   defineOverride(StatCard, PteroStatCard),
-  // the activity pages of a server and the account as Pterodactyl's activity log
   defineOverride(ServerActivity, PteroServerActivity),
   defineOverride(DashboardActivity, PteroDashboardActivity),
 ];

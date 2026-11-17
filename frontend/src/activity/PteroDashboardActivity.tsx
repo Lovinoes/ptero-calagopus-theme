@@ -1,7 +1,7 @@
 import getUserActivity from '@/api/me/getUserActivity.ts';
 import AccountContentContainer from '@/elements/containers/AccountContentContainer.tsx';
 import { queryKeys } from '@/lib/queryKeys.ts';
-// inside this file the path resolves to the stock page, see overrides.ts
+// the stock one here, see overrides.ts
 import DashboardActivity from '@/pages/dashboard/activity/DashboardActivity.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePaginatedTable.ts';
 import { useAuth } from '@/providers/AuthProvider.tsx';
@@ -9,11 +9,7 @@ import { useTranslations } from '@/providers/TranslationProvider.tsx';
 import { usePteroThemeActive } from '../core/scope.tsx';
 import { PteroActivityEntry, PteroActivityLog } from './PteroActivityLog.tsx';
 
-/**
- * The account activity page (pages/dashboard/activity/DashboardActivity.tsx) as Pterodactyl's
- * activity log. Every entry is the account's own, an admin impersonating it shows with their avatar
- * like on the stock page. Off the themed pages the stock page is rendered.
- */
+/** Account activity as Pterodactyl's log, the stock page off the themed pages. */
 export default function PteroDashboardActivity() {
   return usePteroThemeActive() ? <PteroAccountActivityLog /> : <DashboardActivity />;
 }

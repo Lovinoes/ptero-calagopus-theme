@@ -4,7 +4,7 @@ const translations = defineTranslations({
   items: {},
   translations: {
     serverRow: {
-      // shown under each resource of a server row, e.g. "of 8 GiB"
+      // under each resource of a server row, e.g. "of 8 GiB"
       ofLimit: 'of {limit}',
     },
     settings: {
@@ -12,9 +12,10 @@ const translations = defineTranslations({
       colorPalette: {
         label: 'Color Palette',
         description:
-          "The colors of the dark mode: Pterodactyl's own blue-tinted grays, or deeper, neutral ones. Light mode stays as it is.",
+          "The colors of the dark mode: Pterodactyl's own blue-tinted grays, deeper neutral ones, or the neutral grays and rounder shapes of shadcn/ui. Light mode stays as it is.",
         default: 'Default',
         darker: 'Darker',
+        shadcn: 'shadcn',
       },
       animations: {
         label: 'Animations',
@@ -47,9 +48,10 @@ const translations = defineTranslations({
       },
       footerText: {
         label: 'Footer Text',
-        // {variables} and {links} are filled in by the configuration page, so the syntax shows up literally
+        // filled in by the configuration page, so the syntax shows literally
         description:
           "Replaces the copyright line, leave it empty for the panel's own one. Variables: {variables} (the panel name, the panel address and the current year). Links: {links}",
+        tooLong: 'At most {max} characters.',
       },
       authHeader: {
         label: 'Above the Login Pages',

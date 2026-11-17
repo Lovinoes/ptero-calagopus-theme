@@ -1,21 +1,20 @@
 import { z } from 'zod';
 import { useUserSetting } from '@/lib/userSettings.ts';
 
-/**
- * The order the servers of "All Servers" were dragged into, a user setting so it follows the account to
- * every device. Only the servers that were moved are in it, the others keep the order of the panel.
- */
+/** Order of the dragged servers of All Servers, a user setting. Unmoved servers keep the panel order. */
 const SERVER_ORDER_KEY = 'dev.lovinoes.pterodactyl::server_order';
 const serverOrderSchema = z.array(z.string());
 const EMPTY_ORDER: string[] = [];
+// shortcut: deleted servers can't be told apart from other users' ones, so the order is capped instead of
+// cleaned up, raise it if accounts ever see more servers than this
+const MAX_ORDER = 500;
 
 export const useServerOrder = () => useUserSetting(SERVER_ORDER_KEY, serverOrderSchema, EMPTY_ORDER);
 
-/** The servers in the saved order, the ones without a saved position after them in the panel's order. */
 export function sortByOrder<T extends { uuid: string }>(servers: T[], order: string[]): T[] {
   const positions = new Map(order.map((uuid, index) => [uuid, index]));
 
-  // Array.prototype.sort is stable, so servers without a saved position keep the panel's order
+  // stable sort: servers without a position keep the panel's order
   return [...servers].sort((a, b) => {
     const positionA = positions.get(a.uuid);
     const positionB = positions.get(b.uuid);
@@ -27,10 +26,7 @@ export function sortByOrder<T extends { uuid: string }>(servers: T[], order: str
   });
 }
 
-/**
- * Writes the new order of the shown servers (one page of the list) into the saved order: the shown
- * servers take the places the shown servers had, the servers of other pages stay put.
- */
+/** Writes a reordered page into the saved order, other pages' servers stay put. */
 export function mergeOrder(order: string[], shown: string[], reordered: string[]): string[] {
   const merged = [...order];
   for (const uuid of shown) {
@@ -43,5 +39,7 @@ export function mergeOrder(order: string[], shown: string[], reordered: string[]
     merged[slot] = reordered[index];
   });
 
-  return merged;
+  // the shown page keeps its order even past the cap
+  const shownSet = new Set(shown);
+  return merged.filter((uuid, index) => index < MAX_ORDER || shownSet.has(uuid));
 }

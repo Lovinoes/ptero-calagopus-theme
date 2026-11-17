@@ -1,27 +1,25 @@
 # Extensions
 
-How other Calagopus extensions work together with ptero-calagopus-theme. Everything here is optional: an extension that does none of it still works, it just keeps the default look for its own custom elements.
+How other Calagopus extensions can work with the theme. All of this is optional.
 
-## What works on its own
-- Pages added through the panel's route registry show up in the Pterodactyl sub navigation, in the admin's route order
-- Everything built from Mantine and the panel's elements (boxes, tables, buttons, inputs, dialogs, menus, tabs, code) gets the Pterodactyl look
-- Components added to the footer (`extensionRegistry.elements.copyright`), quick actions, context menus and global components keep working
-- Tailwind's `neutral-*` and `gray-*` colors are mapped to the Pterodactyl grays
+## Works out of the box
+- Routes from the route registry show up in the sub navigation, in the admin's order
+- Anything built from Mantine and the panel's elements gets the Pterodactyl look
+- Footer components (`extensionRegistry.elements.copyright`), quick actions, context menus and global components keep working
+- Tailwind's `neutral-*` and `gray-*` map to the Pterodactyl grays
 
 ## Detecting the theme
 
-### In CSS
-While a page has the Pterodactyl look, the `<html>` element has these attributes:
+### CSS
+On themed pages `<html>` has these attributes:
 
 | Attribute | Values |
 | --- | --- |
-| `data-ptero-theme` | present on every themed page, missing in the admin area and the first-time setup |
-| `data-ptero-area` | `auth` (login, register, password pages), `dashboard`, `account` or `server` |
-| `data-ptero-animations` | `off` when an admin turned the animations off, missing otherwise. It stays in the admin area too, use it together with `data-ptero-theme` |
-| `data-ptero-palette` | `darker` when an admin picked the darker color palette, missing otherwise. It only changes the dark scheme, and it stays in the admin area too, use it together with `data-ptero-theme` |
+| `data-ptero-theme` | set on themed pages, missing in the admin area and first-time setup |
+| `data-ptero-area` | `auth`, `dashboard`, `account` or `server` |
+| `data-ptero-animations` | `off` when animations are disabled. Also set in the admin area, so combine it with `data-ptero-theme` |
+| `data-ptero-palette` | `darker` or `shadcn` when that palette is picked, missing for the default one. Both only change the dark scheme, and shadcn builds on darker (`[data-ptero-palette]` matches both). Also set in the admin area, so combine it with `data-ptero-theme` |
 | `data-mantine-color-scheme` | `dark` or `light`, set by the panel |
-
-Scope your styles to them, so the admin area keeps your default look:
 
 ```css
 html[data-ptero-theme] .my-extension-box {
@@ -29,36 +27,34 @@ html[data-ptero-theme] .my-extension-box {
   background-color: var(--ptero-gray-700);
 }
 
-html[data-ptero-theme][data-mantine-color-scheme="light"] .my-extension-box {
+html[data-ptero-theme][data-mantine-color-scheme='light'] .my-extension-box {
   background-color: #fff;
 }
 ```
 
-### In code
-Ask the theme with the `callPteroTheme` helper from [Calls](#calls):
+### Code
+With the `callPteroTheme` helper from [Calls](#calls):
 
 ```ts
 const themed = callPteroTheme(window.extensionContext, 'theme_active') === true;
 ```
 
-The answer is for the page that is open right now, ask again after a navigation (e.g. with `useLocation()` from react-router as a dependency). Without the theme installed, or with it disabled, the call returns `null`.
+The answer is for the current page, so ask again after navigating. Returns `null` without the theme.
 
-## Colors and other variables
-These CSS variables exist on themed pages. Use a fallback (`var(--ptero-gray-700, #3f4d5a)`) if your styles can apply without the theme.
+## CSS variables
+Available on themed pages. Add a fallback (`var(--ptero-gray-700, #3f4d5a)`) if your styles also apply without the theme.
 
 | Variables | What |
 | --- | --- |
-| `--ptero-gray-50` to `--ptero-gray-900`, `--ptero-black` | the Pterodactyl gray scale, `700` is the color of boxes, `800` of the page. With the darker palette (dark scheme) they hold its deeper grays, styles built on them follow it |
-| `--ptero-blue-50` to `--ptero-blue-900` | the primary color. With the darker palette (dark scheme) `300` to `500` hold `600`, its one blue |
-| `--ptero-cyan-400` to `--ptero-cyan-600` | the accent of active tabs and the loading bar. With the darker palette (dark scheme) they hold `--ptero-blue-600` as well |
-| `--ptero-red-400` to `--ptero-red-700`, the same for `orange`, `yellow` and `green` | status colors: `400` for text, `500` for fills, `600` for their hover. With the darker palette (dark scheme) fills take `600` and hover `700`, and Mantine's red, orange, yellow and green (text, badges, alerts, buttons) use them too |
-| `--ptero-darker-line`, `--ptero-darker-raised`, `--ptero-darker-input`, `--ptero-darker-input-line` | only with the darker palette (dark scheme): the outline of boxes, the surface one step above a box (menus, stat cards), the fill and the border of inputs. Use a fallback, they are missing otherwise |
+| `--ptero-gray-50` … `--ptero-gray-900`, `--ptero-black` | gray scale, `700` = boxes, `800` = page. Darker and shadcn palettes: their own neutral grays |
+| `--ptero-blue-50` … `--ptero-blue-900` | primary color. Darker palette: `300`–`500` hold `600`. shadcn palette: neutral grays, `600` fills, `300` light text |
+| `--ptero-cyan-400` … `--ptero-cyan-600` | accent for active tabs and the loading bar. Darker palette: `--ptero-blue-600`. shadcn palette: near white |
+| `--ptero-red-400` … `--ptero-red-700`, same for `orange`, `yellow`, `green` | `400` text, `500` fill, `600` hover. Darker palette: fill `600`, hover `700` |
+| `--ptero-darker-line`, `--ptero-darker-raised`, `--ptero-darker-input`, `--ptero-darker-input-line` | darker and shadcn palettes only: box outline, raised surface, input fill and border |
 | `--ptero-shadow`, `--ptero-shadow-md`, `--ptero-shadow-lg` | box shadows |
-| `--ptero-font-sans`, `--ptero-font-header` | the body font and the IBM Plex Sans heading font |
-| `--ptero-max-width` | the width of the content column (1200px) |
-| `--ptero-animation-scale` | multiplier for animation durations, `0` when the animations are off |
-
-To make your own animations follow the admin's animation setting:
+| `--ptero-font-sans`, `--ptero-font-header` | body font, IBM Plex Sans headings |
+| `--ptero-max-width` | content column width (1200px) |
+| `--ptero-animation-scale` | duration multiplier, `0` when animations are off |
 
 ```css
 html[data-ptero-theme] .my-extension-panel {
@@ -67,7 +63,7 @@ html[data-ptero-theme] .my-extension-panel {
 ```
 
 ## Calls
-The theme answers calls through its `processCall`. Copy this helper into your extension, it finds the theme among the enabled extensions and returns `null` when the theme isn't installed or is disabled:
+Copy this helper into your extension. It returns `null` when the theme isn't installed or is disabled:
 
 ```ts
 import type { ExtensionContext } from 'shared';
@@ -79,59 +75,55 @@ export function callPteroTheme(ctx: ExtensionContext, name: string, args: object
 }
 ```
 
-Pass the `ctx` your `initialize` gets, elsewhere `window.extensionContext`. The panel's own `ctx.call()` can't be used for this right now, it only ever reaches the first enabled extension.
+Pass the `ctx` from `initialize`, or `window.extensionContext` elsewhere. The panel's `ctx.call()` doesn't work for this, it only reaches the first enabled extension.
 
 | Call | Args | Returns |
 | --- | --- | --- |
-| `api_version` | `{}` | the version of these calls, currently `2` |
-| `theme_active` | `{}` | `true` when the open page has the Pterodactyl look |
-| `settings` | `{}` | the theme settings an admin picked (read only), see below |
-| `navbar_add` | a navbar item, see below | a function that removes the item again, `null` if the item is invalid |
-| `navbar_remove` | `{ id: string }` | `true`, `false` without an id |
+| `api_version` | `{}` | `3` |
+| `theme_active` | `{}` | `true` if the current page is themed |
+| `settings` | `{}` | the theme settings (read only) |
+| `navbar_add` | a navbar item | a function that removes it, or `null` if the item is invalid |
+| `navbar_remove` | `{ id: string }` | `true`, or `false` without an id |
 
-New or changed calls raise the version, calls the installed theme doesn't know return `null`. Version 2 added `colorPalette` to `settings`. Check the version before relying on something that came later:
+Unknown calls return `null`. The version goes up when calls change; version 2 added `colorPalette` to `settings`, version 3 its `shadcn` value.
 
 ```ts
 const version = callPteroTheme(ctx, 'api_version');
 if (typeof version === 'number' && version >= 2) {
-  // the settings have colorPalette
+  // settings has colorPalette
 }
 ```
 
 ### Settings
-`settings` returns:
-
 ```ts
 interface PteroThemeSettings {
   animations: boolean;
   animationSpeed: 'very_slow' | 'slow' | 'normal' | 'fast' | 'very_fast';
   loadingBar: boolean;
-  loadingBarDelay: number; // milliseconds
+  loadingBarDelay: number; // ms
   footerPosition: 'bottom' | 'content' | 'hidden';
   footerText: string;
   authHeader: 'default' | 'icon_name' | 'icon' | 'name' | 'banner' | 'banner_name' | 'hidden';
-  colorPalette: 'default' | 'darker'; // the grays of the dark scheme, since version 2
+  colorPalette: 'default' | 'darker' | 'shadcn'; // since version 2, 'shadcn' since 3
 }
 ```
 
 ## Navigation bar icons
-Extensions can add icons to the top navigation bar. They show up after the theme's own icons (search, dashboard, admin) and before the account avatar, with a tooltip and the active underline, like the theme's own icons. They are hidden for suspended users, like the other icons.
+Extra icons go after the theme's own (search, dashboard, admin) and before the avatar, with a tooltip and the active underline. Hidden for suspended users.
 
 ```ts
 interface PteroNavbarItem {
-  id: string; // unique, prefix it with your extension, the same id replaces the item
-  label: string; // the tooltip and the accessible name
-  icon: React.ReactNode; // a React element (usually a FontAwesomeIcon) or text
+  id: string; // unique, prefix it with your extension; the same id replaces the item
+  label: string; // tooltip and accessible name
+  icon: React.ReactNode;
   // exactly one of these three
-  to?: string; // a page of the panel starting with /, e.g. '/notifications'
-  href?: string; // an outside address, opens in a new tab
+  to?: string; // panel page starting with /
+  href?: string; // external link, opens in a new tab
   onClick?: () => void;
-  isActive?: (pathname: string) => boolean; // when it is underlined, by default on `to` and the pages below it
-  order?: number; // lower comes first, 0 when left out
+  isActive?: (pathname: string) => boolean; // default: `to` and pages below it
+  order?: number; // lower first, default 0
 }
 ```
-
-Add them in your extension's `initialize` (with the helper from [Calls](#calls) saved as `callPteroTheme.ts`):
 
 ```tsx
 import { faBell } from '@fortawesome/free-solid-svg-icons';
@@ -141,7 +133,7 @@ import { callPteroTheme } from './callPteroTheme.ts';
 
 class MyExtension extends Extension {
   public initialize(ctx: ExtensionContext): void {
-    // does nothing (returns null) without the Pterodactyl theme
+    // no-op without the theme
     callPteroTheme(ctx, 'navbar_add', {
       id: 'yourname_yourextension_notifications',
       label: 'Notifications',
@@ -154,27 +146,24 @@ class MyExtension extends Extension {
 export default new MyExtension();
 ```
 
-An invalid item (no id or label, more than one of `to`, `href` and `onClick`, ...) is not added, the browser console says why. An icon that fails to render is left out of the bar and logged there too. To remove an item, call the function `navbar_add` returned, or `navbar_remove` with its id.
-
-## Loading screen
-The theme replaces the panel's loading screen with its `src/boot.html`, so it already has the theme's colors. The panel only allows one extension to do that, see [Conflicts](#conflicts).
+Invalid items are skipped with a console message, and so are icons that fail to render. Remove an item with the function `navbar_add` returned, or with `navbar_remove`.
 
 ## Conflicts
-Two things can't be shared between extensions. The panel enforces both while it builds, so they show up when the panel is built (installing or updating an extension), not later in the browser:
+The panel build fails if two extensions do either of these:
 
-- **Replaced components.** The theme replaces these panel components with its own (`src/overrides.ts`). The panel's build fails with "Duplicate override" when another extension replaces one of them too:
+- **Replace the same component.** The theme replaces these (`src/overrides.ts`):
 
-  | Component | Replaced for |
+  | Component | For |
   | --- | --- |
-  | `elements/Copyright.tsx` | the footer text from the theme settings |
-  | `elements/data-display/StatCard.tsx` | Pterodactyl's stat blocks on the console, its resource history and the database pages |
-  | `pages/dashboard/home/ServerItem.tsx` | Pterodactyl's server rows |
-  | `pages/dashboard/home/DashboardHomeAll.tsx` | the draggable order of All Servers |
-  | `pages/server/activity/ServerActivity.tsx` | Pterodactyl's activity log of a server |
-  | `pages/dashboard/activity/DashboardActivity.tsx` | Pterodactyl's activity log of the account |
+  | `elements/Copyright.tsx` | custom footer text |
+  | `elements/data-display/StatCard.tsx` | console, resource history and database stat blocks |
+  | `pages/dashboard/home/ServerItem.tsx` | server rows |
+  | `pages/dashboard/home/DashboardHomeAll.tsx` | draggable server order |
+  | `pages/server/activity/ServerActivity.tsx` | server activity log |
+  | `pages/dashboard/activity/DashboardActivity.tsx` | account activity log |
 
-  Hooking into them still works: the stock components and the theme's versions show the same extension slots (`ExtensionSlot`) and use the same registries, so additions of other extensions keep showing up.
-- **The loading screen.** Only one installed extension can have a `src/boot.html`, the panel's build fails when two do.
+  The replacements keep the same extension slots and registries, so hooking into them still works.
+- **Ship a `src/boot.html`.** The theme uses one for its loading screen, and only one extension can.
 
-## Something missing?
-If your extension needs something from the theme that isn't here, or something of yours doesn't look right with it, [open an issue](https://github.com/Lovinoes/ptero-calagopus-theme/issues) or send a [pull request](https://github.com/Lovinoes/ptero-calagopus-theme/pulls).
+## Missing something?
+[Open an issue](https://github.com/Lovinoes/ptero-calagopus-theme/issues) or send a [pull request](https://github.com/Lovinoes/ptero-calagopus-theme/pulls).

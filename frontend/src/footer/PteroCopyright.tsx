@@ -1,6 +1,6 @@
 import classNames from 'classnames';
 import { type RefObject, useLayoutEffect, useRef } from 'react';
-// inside this file the path resolves to the stock component, see overrides.ts
+// the stock one here, see overrides.ts
 import Copyright from '@/elements/Copyright.tsx';
 import ExtensionSlot from '@/elements/ExtensionSlot.tsx';
 import { useGlobalStore } from '@/stores/global.ts';
@@ -8,11 +8,7 @@ import { usePteroThemeActive } from '../core/scope.tsx';
 import { usePteroThemeSettings } from '../settings/store.ts';
 import { DEFAULT_FOOTER_TEXT, type FooterVariables, renderFooterText } from './footerText.tsx';
 
-/**
- * The file manager and the editor fill the window down to its bottom edge. They leave this much room
- * for the footer (--ptero-footer-space, see styles/files.css), measured so it fits any text and the
- * extra "connected to" line, and 0 when the footer is hidden.
- */
+/** Room the full-height file manager and editor leave for the footer (--ptero-footer-space), 0 when hidden. */
 function useFooterSpace(ref: RefObject<HTMLDivElement | null>, enabled: boolean) {
   useLayoutEffect(() => {
     const footer = ref.current?.parentElement;
@@ -38,10 +34,7 @@ function useFooterSpace(ref: RefObject<HTMLDivElement | null>, enabled: boolean)
   }, [ref, enabled]);
 }
 
-/**
- * The copyright line of the panel (elements/Copyright.tsx) with the text an admin set in the theme
- * settings, see footerText.tsx. The admin area and a disabled theme get the stock one.
- */
+/** The panel's copyright line with the admin's footer text, the stock one off the themed pages. */
 export default function PteroCopyright({ className }: { className?: string }) {
   const { footerText } = usePteroThemeSettings();
   const app = useGlobalStore((state) => state.settings.app);

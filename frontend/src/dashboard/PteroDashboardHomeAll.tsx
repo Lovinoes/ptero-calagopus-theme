@@ -1,6 +1,6 @@
 import { faServer } from '@fortawesome/free-solid-svg-icons';
 import classNames from 'classnames';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { z } from 'zod';
 import { getEmptyPaginationSet, httpErrorToHuman } from '@/api/axios.ts';
@@ -20,14 +20,14 @@ import Divider from '@/elements/layout/Divider.tsx';
 import Group from '@/elements/layout/Group.tsx';
 import { ObjectSet } from '@/lib/objectSet.ts';
 import { queryKeys } from '@/lib/queryKeys.ts';
-import { eventKeyMatches } from '@/lib/quickActions/shortcuts.ts';
 import { serverPowerAction, serverSchema } from '@/lib/schemas/server/server.ts';
 import BulkActionBar from '@/pages/dashboard/home/BulkActionBar.tsx';
-// inside this file the path resolves to the stock page, see overrides.ts
+// the stock one here, see overrides.ts
 import DashboardHomeAll from '@/pages/dashboard/home/DashboardHomeAll.tsx';
 import DashboardHomeTitle from '@/pages/dashboard/home/DashboardHomeTitle.tsx';
 import ServerItem from '@/pages/dashboard/home/ServerItem.tsx';
 import { useSearchablePaginatedTable } from '@/plugins/resource/useSearchablePaginatedTable.ts';
+import { useSelectKeyHeld } from '@/plugins/selection/useSelectKeyHeld.ts';
 import { useBulkPowerActions } from '@/plugins/server/useBulkPowerActions.ts';
 import { useServerListShowOthers } from '@/plugins/server/useServerListShowOthers.ts';
 import { useToast } from '@/providers/ToastProvider.tsx';
@@ -38,46 +38,11 @@ import { mergeOrder, sortByOrder, useServerOrder } from './serverOrder.ts';
 
 type Server = z.infer<typeof serverSchema>;
 
-/** The panel's own page when the theme is turned off, this replacement is compiled in either way. */
 export default function PteroDashboardHomeAll() {
   return usePteroThemeActive() ? <PteroServerList /> : <DashboardHomeAll />;
 }
 
-/** Whether S is held down (outside of text fields), a click on a server then selects it instead. */
-function useSKeyPressed() {
-  const pressed = useRef(false);
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (!eventKeyMatches(e, 's')) return;
-
-      const target = e.target as HTMLElement;
-      if (target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA' && !target.isContentEditable) {
-        pressed.current = true;
-      }
-    };
-
-    const handleKeyUp = (e: KeyboardEvent) => {
-      if (eventKeyMatches(e, 's')) pressed.current = false;
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-      window.removeEventListener('keyup', handleKeyUp);
-    };
-  }, []);
-
-  return pressed;
-}
-
-/**
- * The "All Servers" page of the panel (pages/dashboard/home/DashboardHomeAll.tsx) with one addition:
- * the servers can be dragged into an order, like the servers inside a group (see serverOrder.ts). With
- * more servers than fit on one page, they are ordered within their page.
- */
+/** All Servers with drag-and-drop ordering (serverOrder.ts), ordered per page. */
 function PteroServerList() {
   const { t } = useTranslations();
   const navigate = useNavigate();
@@ -87,7 +52,7 @@ function PteroServerList() {
   const { addToast } = useToast();
 
   const [selectedServers, setSelectedServers] = useState(new ObjectSet<Server, 'uuid'>('uuid'));
-  const sKeyPressedRef = useSKeyPressed();
+  const sKeyPressedRef = useSelectKeyHeld();
 
   const { handleBulkPowerAction, bulkActionLoading } = useBulkPowerActions();
 
@@ -116,12 +81,9 @@ function PteroServerList() {
     deps: [serverListShowOthers],
   });
 
-  // the saved order is parsed anew on every render, so its content (serverOrderKey) decides when the
-  // list changes, a new list would reset the drag and drop state
-  const serverOrderKey = serverOrder.join(',');
   const sortableServers = useMemo(
     () => sortByOrder(servers?.data ?? [], serverOrder).map((server) => ({ id: server.uuid, server })),
-    [servers?.data, serverOrderKey],
+    [servers?.data, serverOrder],
   );
 
   const selectedPageCount = servers?.data.filter((server) => selectedServers.has(server)).length ?? 0;
@@ -202,7 +164,7 @@ function PteroServerList() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyDown={(e) => {
-              // Enter opens the first server of the list as shown (in the saved order), once the search is done
+              // Enter opens the first server as shown, once the search settled
               const firstServer = sortableServers[0]?.server;
               if (e.key === 'Enter' && firstServer && !loading && search === debouncedSearch) {
                 e.preventDefault();
@@ -216,10 +178,7 @@ function PteroServerList() {
           <Switch
             label={t('pages.account.home.tabs.allServers.page.input.showOtherUsersServers', {})}
             checked={serverListShowOthers}
-            onChange={(e) => {
-              setPage(1);
-              setServerListShowOthers(e.currentTarget.checked);
-            }}
+            onChange={(e) => setServerListShowOthers(e.currentTarget.checked)}
           />
         </AdminCan>
       </Group>

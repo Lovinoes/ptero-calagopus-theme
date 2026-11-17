@@ -1,7 +1,7 @@
-import { faTerminal } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import type { ReactNode } from 'react';
 import type { To } from 'react-router';
+import { faTerminal } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { z } from 'zod';
 import ActivityInfoButton from '@/elements/activity/ActivityInfoButton.tsx';
 import Avatar from '@/elements/data-display/Avatar.tsx';
@@ -29,17 +29,12 @@ interface PteroActivityLogProps {
   loading: boolean;
   error: string | null | undefined;
   onPageSelect: (page: number) => void;
-  /** loads the log again after an error */
   onRetry: () => void;
-  /** how many entries a page shows, picked below the log */
   onPerPageSelect: (perPage: number) => void;
   children: ReactNode;
 }
 
-/**
- * Pterodactyl's activity log (ActivityLogContainer): one gray box with an entry below the other instead
- * of a table, the pages below it. Loading, errors and an empty log look like the panel's tables.
- */
+/** Pterodactyl's activity log: one box of entries instead of a table. */
 export function PteroActivityLog({
   activities,
   loading,
@@ -82,19 +77,14 @@ export function PteroActivityLog({
 
 interface PteroActivityEntryProps {
   activity: Activity;
-  /** who did it, the panel's "System" or "Schedule" when nobody did */
+  /** the panel's "System" or "Schedule" when no user did it */
   actorName: string;
-  /** filters the log by that user */
   actorLink?: To | null;
   avatar: AvatarSource;
   actions?: ReactNode;
 }
 
-/**
- * One entry of Pterodactyl's activity log (ActivityLogEntry): the avatar, "user — event" with an icon when
- * it came through the API, the IP and how long ago below it, the details button on the right. An entry an
- * admin made while impersonating the user says so after the user, like the panel's own log.
- */
+/** One entry: avatar, "user — event", IP and time, details on the right. */
 export function PteroActivityEntry({ activity, actorName, actorLink, avatar, actions }: PteroActivityEntryProps) {
   const { t } = useTranslations();
   const hasDetails = Object.keys(activity.data ?? {}).length > 0;
@@ -121,13 +111,12 @@ export function PteroActivityEntry({ activity, actorName, actorLink, avatar, act
               </span>
             )}
             <span className='ptero-activity-entry__separator'>&nbsp;&mdash;&nbsp;</span>
-            {/* the icon follows the event inline, so it stays next to it when the line wraps */}
             <span className='ptero-activity-entry__event'>
               {activity.event}
               {activity.isApi && (
                 <span className='ptero-activity-entry__icons'>
                   <Tooltip label={t('common.api', {})}>
-                    <FontAwesomeIcon icon={faTerminal} />
+                    <FontAwesomeIcon icon={faTerminal} title={t('common.api', {})} />
                   </Tooltip>
                 </span>
               )}
@@ -135,12 +124,9 @@ export function PteroActivityEntry({ activity, actorName, actorLink, avatar, act
           </div>
 
           <div className='ptero-activity-entry__meta'>
-            {activity.ip && (
-              <>
-                <RedactedText value={activity.ip} />
-                <span className='ptero-activity-entry__separator'>&nbsp;|&nbsp;</span>
-              </>
-            )}
+            {/* null when the panel hides it (Admin -> Settings -> Activity -> Hide Server Activity IPs) */}
+            {activity.ip ? <RedactedText value={activity.ip} /> : t('common.na', {})}
+            <span className='ptero-activity-entry__separator'>&nbsp;|&nbsp;</span>
             <FormattedTimestamp timestamp={activity.created} />
           </div>
         </div>

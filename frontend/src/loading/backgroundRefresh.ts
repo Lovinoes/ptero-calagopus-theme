@@ -1,9 +1,6 @@
 /**
- * The panel reloads every list and value of a page when its tab is shown again (react-query's
- * refetchOnWindowFocus). Those are refreshes of data that is already on screen, not page loads, so the
- * loading bar and the loading lists stay quiet for them: requests made while the tab is hidden or in
- * the first moment after it comes back don't count. A refresh that takes longer than that still shows
- * up the normal way (styles/loading.css, data-ptero-refreshing).
+ * Refetches when a tab is shown again (refetchOnWindowFocus) are not page loads: requests while
+ * hidden or right after return stay quiet. A slow one still shows (data-ptero-refreshing).
  */
 const QUIET_AFTER_RETURN = 1000;
 
@@ -26,12 +23,10 @@ function startQuietWindow() {
   for (const listener of returnListeners) listener();
 }
 
-/** Whether a request starting now is one of these refreshes. */
 export function isBackgroundRefresh(): boolean {
   return document.visibilityState === 'hidden' || performance.now() < quietUntil;
 }
 
-/** Runs when the tab is shown again, e.g. to drop a loading bar that was stuck while it was hidden. */
 export function onTabReturn(listener: () => void): () => void {
   returnListeners.add(listener);
   return () => {

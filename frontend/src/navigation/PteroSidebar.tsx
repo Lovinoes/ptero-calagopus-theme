@@ -16,10 +16,7 @@ type SidebarLinkProps = ComponentProps<typeof Sidebar.Link>;
 
 const InPteroSubNavigationContext = createContext(false);
 
-/**
- * Pterodactyl's external link icon at the end of the server sub navigation, to the server in the admin
- * area. It replaces the stock "View in Admin Area" sidebar link and shows under the same conditions.
- */
+/** Pterodactyl's admin link icon at the end of the server sub navigation, replaces "View in Admin Area". */
 function PteroServerAdminLink({ pathname }: { pathname: string }) {
   const { t } = useTranslations();
   const { user } = useAuth();
@@ -40,16 +37,14 @@ function PteroServerAdminLink({ pathname }: { pathname: string }) {
 }
 
 /**
- * Replaces the Calagopus sidebar with the Pterodactyl layout: a top navigation bar, plus a horizontal
- * sub navigation on account and server pages. The links inside the sub navigation are the stock
- * sidebar links (so route ordering, permissions and extension routes keep working), only restyled.
- * The admin area and the login pages keep the original sidebar.
+ * The top bar plus a horizontal sub navigation made of the stock sidebar links (ordering, permissions
+ * and extension routes keep working). The admin area keeps the stock sidebar.
  */
 export default function PteroSidebar({ original, children }: SidebarProps & { original: ReactElement }) {
   const { pathname } = useLocation();
   const area = resolvePteroArea(pathname);
 
-  if (area === null || area === 'auth') {
+  if (area === null) {
     return original;
   }
 
@@ -71,11 +66,7 @@ export default function PteroSidebar({ original, children }: SidebarProps & { or
   );
 }
 
-/**
- * The server sidebar repeats the "Servers" and "Admin" links, which already live in the top navigation
- * bar, so they are left out of the sub navigation. So is "View in Admin Area", Pterodactyl's icon at its
- * end replaces it (PteroServerAdminLink). Admin-configured redirects have no `end` and are kept.
- */
+/** Drops links the top bar already has (Servers, Admin, View in Admin Area). Redirects have no `end` and stay. */
 export function PteroSidebarLinkGate({ original, linkProps }: { original: ReactElement; linkProps: SidebarLinkProps }) {
   const inSubNavigation = useContext(InPteroSubNavigationContext);
   const repeatsTopBar = linkProps.end && (linkProps.to === '/' || isWithin(linkProps.to, '/admin'));

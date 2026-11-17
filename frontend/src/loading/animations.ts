@@ -1,16 +1,12 @@
 import type { MantineTransition, TransitionOverride } from '@mantine/core';
-import { type PteroThemeSettings, pteroAnimationScale } from '../settings/schema.ts';
-import { getPteroThemeSettings, usePteroThemeSettings } from '../settings/store.ts';
+import type { PteroThemeSettings } from '../settings/schema.ts';
+import { getPteroThemeSettings, pteroAnimationScaleOf, usePteroThemeSettings } from '../settings/store.ts';
 
-/** Scales a duration by the animation speed an admin picked, 0 when animations are turned off. */
 function scaled(settings: PteroThemeSettings, duration: number): number {
-  return settings.animations ? Math.round(duration * pteroAnimationScale[settings.animationSpeed]) : 0;
+  return Math.round(duration * pteroAnimationScaleOf(settings));
 }
 
-/**
- * Pterodactyl's dialogs (components/elements/dialog/Dialog.tsx) open with "ease-out duration-200"
- * from opacity-0 scale-95 and close with "ease-in duration-100".
- */
+/** Pterodactyl's dialog: ease-out 200ms from opacity-0 scale-95, ease-in 100ms out. */
 const dialogScale: MantineTransition = {
   in: { opacity: 1, transform: 'scale(1)' },
   out: { opacity: 0, transform: 'scale(0.95)' },
@@ -28,7 +24,6 @@ export function getPteroDialogTransition(): TransitionOverride {
   };
 }
 
-/** Pterodactyl's tooltips pop in quickly (framer-motion scale 0.85 -> 1). */
 const tooltipTransition = (settings: PteroThemeSettings): TransitionOverride => ({
   transition: 'pop',
   duration: scaled(settings, 150),

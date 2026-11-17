@@ -2,10 +2,8 @@ import type { ReactNode } from 'react';
 import Anchor from '@/elements/typography/Anchor.tsx';
 
 /**
- * The footer text an admin can set in the theme settings, the panel's own line when it is empty.
- *
- * Variables: {app} the panel name, {url} the panel URL, {year} the current year.
- * Links: [text](https://example.com), only http(s) addresses become links.
+ * Footer text from the theme settings, the panel's line when empty.
+ * {app}, {url}, {year} and [text](https://...) links, http(s) only.
  */
 export const DEFAULT_FOOTER_TEXT = '[Calagopus](https://calagopus.com) © 2025 - {year}';
 

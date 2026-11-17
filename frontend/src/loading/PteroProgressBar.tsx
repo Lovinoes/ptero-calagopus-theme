@@ -18,16 +18,14 @@ type TrackableConfig = {
   [TRACKING_KEY]?: number;
 };
 
-/** The API requests that are running and count for the loading bar. */
 const pendingRequests = createStore(0);
 const requestTimers = new Map<number, ReturnType<typeof setTimeout>>();
 let nextRequestId = 1;
 
 function shouldTrack(config: TrackableConfig): boolean {
-  // Pterodactyl skips the resource polling as well; transfers with their own progress are skipped too
+  // like Pterodactyl, resource polling does not count
   if (config.url?.includes('/resources')) return false;
   if (config.onUploadProgress || config.onDownloadProgress) return false;
-  // the refreshes of a tab that is hidden or was just shown again, see backgroundRefresh.ts
   return !isBackgroundRefresh();
 }
 
@@ -54,7 +52,6 @@ function finishRequest(id: number | undefined) {
   pendingRequests.set(Math.max(0, pendingRequests.get() - 1));
 }
 
-/** Counts the API requests of the panel for the loading bar. */
 export function trackRequests(instance: AxiosInstance) {
   instance.interceptors.request.use((config) => {
     startRequest(config as TrackableConfig);
@@ -76,18 +73,14 @@ export function trackRequests(instance: AxiosInstance) {
 const randomInt = (low: number, high: number) => Math.floor(Math.random() * (high - low) + low);
 
 /**
- * Pterodactyl's loading bar (components/elements/ProgressBar.tsx): a 2px bar at the top of the page,
- * cyan (blue with the darker palette), that starts at 20-30% while a page opens or API requests run,
- * creeps towards 90% and fills up when they are done. Unlike Pterodactyl it only appears once loading
- * takes longer than the delay an admin set (250ms by default), as Calagopus refreshes some data in the
- * background, which would otherwise make it flicker. Admins can turn it off as well.
+ * Pterodactyl's 2px loading bar. Unlike Pterodactyl it waits for the admin's delay (250ms default),
+ * so Calagopus' background refreshes don't make it flicker.
  */
 export default function PteroProgressBar() {
   const { pathname } = useLocation();
   const { loadingBar, loadingBarDelay } = usePteroThemeSettings();
   const requesting = useStore(pendingRequests, (count) => count > 0);
-  // the panel keeps the old page up while the next one loads, that is loading as well (this bar
-  // replaces the panel's own one on the themed pages, see styles/loading.css)
+  // a pending navigation counts as loading too
   const navigating = usePendingPathname() !== null;
   const loading = (requesting || navigating) && loadingBar;
 
@@ -104,7 +97,7 @@ export default function PteroProgressBar() {
 
   useEffect(() => clearTimers, []);
 
-  // timers barely run in a hidden tab, so a bar that was finishing then could still be up on return
+  // timers barely run in hidden tabs, a finishing bar could still be up on return
   useEffect(
     () =>
       onTabReturn(() => {
@@ -117,8 +110,7 @@ export default function PteroProgressBar() {
     [],
   );
 
-  // only the loading state starts and finishes the bar (progress and the delay are read without
-  // re-running), the progress itself is driven by the effect below
+  // only the loading state starts and finishes the bar, the effect below drives the progress
   useEffect(() => {
     clearTimers();
 
@@ -131,7 +123,6 @@ export default function PteroProgressBar() {
           }, loadingBarDelay),
         );
       } else {
-        // a new request came in while the bar was finishing, keep it up
         setShown(true);
         setProgress((current) => Math.min(current ?? 90, 90));
       }

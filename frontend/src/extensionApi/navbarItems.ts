@@ -2,31 +2,22 @@ import { isValidElement, type ReactNode } from 'react';
 import { LOG_PREFIX } from '../core/constants.ts';
 import { createStore, useStore } from '../core/createStore.ts';
 
-/**
- * Icons other extensions add to the top navigation bar (see EXTENSIONS.md), shown after the theme's
- * own icons and before the account avatar, sorted by `order` and then by when they were added.
- */
+/** Navbar icons from other extensions (EXTENSIONS.md), after the theme's own, by order then insertion. */
 export interface PteroNavbarItem {
-  /** unique, prefix it with your extension (e.g. `yourname_yourextension_bell`), the same id replaces */
+  /** unique, the same id replaces the item */
   id: string;
-  /** the tooltip and the accessible name */
   label: string;
-  /** a React element (usually a FontAwesomeIcon) or text */
   icon: ReactNode;
-  /** a page of the panel, e.g. `/notifications` */
   to?: string;
-  /** an outside address, opened in a new tab */
   href?: string;
-  /** a click handler instead of a link */
   onClick?: () => void;
-  /** whether the icon is underlined as active, by default the page of `to` and the pages below it */
+  /** default: `to` and the pages below it */
   isActive?: (pathname: string) => boolean;
-  /** lower numbers come first, 0 when left out */
   order?: number;
 }
 
 const items = createStore<PteroNavbarItem[]>([]);
-// when an id was first added, it keeps its place when the item is replaced
+// first insertion of an id, so a replaced item keeps its place
 const insertion = new Map<string, number>();
 let addedCount = 0;
 
@@ -38,7 +29,7 @@ function reject(message: string): null {
   return null;
 }
 
-/** Checks what another extension passed in, a broken item must not take the navigation bar down with it. */
+/** Validates input from other extensions, a broken item must not break the bar. */
 export function parseNavbarItem(value: unknown): PteroNavbarItem | null {
   if (typeof value !== 'object' || value === null) return reject('expected an object');
 
@@ -86,14 +77,13 @@ export function parseNavbarItem(value: unknown): PteroNavbarItem | null {
   };
 }
 
-/** Adds (or replaces) an item, the returned function removes it again. */
 export function addNavbarItem(item: PteroNavbarItem): () => void {
   if (!insertion.has(item.id)) insertion.set(item.id, addedCount++);
 
   items.set(sortItems([...items.get().filter((existing) => existing.id !== item.id), item]));
 
   return () => {
-    // only the item added here, a later replacement with the same id stays
+    // a later replacement with the same id stays
     if (items.get().includes(item)) removeNavbarItem(item.id);
   };
 }

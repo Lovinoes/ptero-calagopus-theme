@@ -97,7 +97,7 @@ function addFile(name, source) {
 }
 
 function addTree(prefix, directory) {
-  for (const item of fs.readdirSync(path.join(ROOT, directory), { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+  for (const item of fs.readdirSync(path.join(ROOT, directory), { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0))) {
     if (item.name === 'node_modules' || item.name.startsWith('.')) continue;
 
     const source = `${directory}/${item.name}`;

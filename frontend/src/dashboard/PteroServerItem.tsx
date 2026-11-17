@@ -33,7 +33,7 @@ import { formatAllocation, serverStatusInfo } from '@/lib/domain/server.ts';
 import { bytesToString, mbToBytes } from '@/lib/format/size.ts';
 import { serverPowerAction } from '@/lib/schemas/server/server.ts';
 import ServerAddGroupModal from '@/pages/dashboard/home/modals/ServerAddGroupModal.tsx';
-// inside this file the path resolves to the stock component, see overrides.ts
+// the stock one here, see overrides.ts
 import ServerItem from '@/pages/dashboard/home/ServerItem.tsx';
 import { useBulkPowerActions } from '@/plugins/server/useBulkPowerActions.ts';
 import { useServerListShowOthers } from '@/plugins/server/useServerListShowOthers.ts';
@@ -53,15 +53,11 @@ const ALARM_THRESHOLD = 0.9;
 const isAlarmState = (currentBytes: number, limitMiB: number) =>
   limitMiB > 0 && currentBytes / mbToBytes(limitMiB) >= ALARM_THRESHOLD;
 
-/**
- * The stock server card of the dashboard, replaced by Pterodactyl's ServerRow. When the theme is not
- * active (extension disabled without a rebuild) the stock card is rendered instead.
- */
+/** Pterodactyl's ServerRow in place of the stock card, the stock card when the theme is off. */
 export default function PteroServerItem(props: Props) {
   return usePteroThemeActive() ? <PteroServerRow {...props} /> : <ServerItem {...props} />;
 }
 
-/** Suspended, maintenance, transferring or installing: shown in place of the resources. */
 function useStateBadge(server: Server): { color: string; label: string } | null {
   const { t } = useTranslations();
 
@@ -157,7 +153,6 @@ function PteroServerRow({
 
   const [openModal, setOpenModal] = useState<'add-group' | 'kill' | null>(null);
   const stats = useServerStats(server);
-  // the node of the server can't be reached, its stats will not come
   const statsUnavailable = useServerStatsUnavailable(server);
 
   const availableServerGroups = useMemo(
@@ -251,7 +246,13 @@ function PteroServerRow({
 
       <ContextMenu enabled={showContextMenu} items={contextMenuItems}>
         {({ items, openMenu }) => (
-          <div className='ptero-server-row-wrapper'>
+          // the row's links and buttons keep Enter and Space, a drag around the row would take them
+          <div
+            className='ptero-server-row-wrapper'
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') e.stopPropagation();
+            }}
+          >
             <div
               onClick={onClick}
               onContextMenu={(e) => {
@@ -354,7 +355,18 @@ function PteroServerRow({
                 <div className='ptero-server-row__allocation'>
                   <div className='ptero-server-row__stat-line'>
                     <FontAwesomeIcon icon={faEthernet} className='ptero-server-row__stat-icon' />
-                    {server.allocation ? (
+                    {server.allocation && server.egg.separatePort ? (
+                      <>
+                        <CopyOnClick content={server.allocation.ipAlias ?? server.allocation.ip}>
+                          <p className='ptero-server-row__stat-value'>
+                            <RedactedText value={server.allocation.ipAlias ?? server.allocation.ip} />
+                          </p>
+                        </CopyOnClick>
+                        <CopyOnClick content={server.allocation.port.toString()}>
+                          <p className='ptero-server-row__stat-value'>:{server.allocation.port}</p>
+                        </CopyOnClick>
+                      </>
+                    ) : server.allocation ? (
                       <CopyOnClick content={formatAllocation(server.allocation)}>
                         <p className='ptero-server-row__stat-value'>
                           <RedactedText value={formatAllocation(server.allocation)} />

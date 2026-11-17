@@ -32,7 +32,6 @@ import { useNavbarItems } from '../extensionApi/navbarItems.ts';
 import { usePteroTooltipTransition } from '../loading/animations.ts';
 import ExtensionNavbarItem from './ExtensionNavbarItem.tsx';
 
-/** The color schemes of the account menu, in Pterodactyl's order. */
 function useColorSchemeItems(): { scheme: MantineColorScheme; icon: IconDefinition; label: string }[] {
   const { t } = useTranslations();
 
@@ -46,17 +45,13 @@ function useColorSchemeItems(): { scheme: MantineColorScheme; icon: IconDefiniti
 const checkMark = (checked: boolean) => checked && <FontAwesomeIcon icon={faCheck} size='sm' />;
 
 /**
- * The top bar of Pterodactyl: the stock Calagopus app icon / banner on the left and Pterodactyl's
- * five icons on the right (search, dashboard, admin, account, sign out). The Calagopus-only settings
- * (theme, hiding addresses) live in the menu of the account avatar, the link to a server in the admin
- * area sits at the end of the server sub navigation (PteroSidebar). Other extensions can add icons
- * before the avatar.
+ * Pterodactyl's top bar: app icon left; search, dashboard, admin, account, sign out right. Extension
+ * icons go before the avatar.
  */
 export default function PteroNavigationBar() {
   const { t } = useTranslations();
   const { pathname: currentPathname } = useLocation();
-  // the panel keeps the old page up while the next one loads, the icon of the next one is underlined
-  // meanwhile, like the panel's sidebar links
+  // underline the page being opened, like the panel's sidebar
   const pathname = usePendingPathname() ?? currentPathname;
   const { user, impersonating } = useAuth();
 

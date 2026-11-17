@@ -1,13 +1,10 @@
 import type { Monaco } from '@/lib/editor/monacoLoader.ts';
 import { isPteroThemeActive } from '../core/scope.tsx';
 
-/**
- * Pterodactyl edits files with CodeMirror and its "ayu-mirage" theme. This is that theme for Monaco,
- * the colors are taken from codemirror/theme/ayu-mirage.css.
- */
+/** Pterodactyl's CodeMirror ayu-mirage theme for Monaco (colors from ayu-mirage.css). */
 const THEME_NAME = 'ptero-ayu-mirage';
 
-// the panel applies its own theme after a color scheme switch, the theme is applied again after it did
+// the panel re-applies its theme after a scheme switch, ours goes on again after it
 const RESYNC_DELAYS = [0, 150];
 
 let themeDefined = false;
@@ -60,11 +57,7 @@ function defineTheme(monaco: Monaco) {
   themeDefined = true;
 }
 
-/**
- * The panel sets Monaco's (global) theme to vs-dark / light whenever an editor mounts or the color
- * scheme changes. Pages styled by this theme switch to ayu-mirage in dark mode, everything else
- * (the admin area, light mode, a disabled theme) keeps the theme the panel chose.
- */
+/** The panel resets Monaco's global theme on mount and scheme change, themed dark pages get ours. */
 function syncTheme(monaco: Monaco) {
   if (!isPteroThemeActive()) return;
   if (document.documentElement.getAttribute('data-mantine-color-scheme') !== 'dark') return;
@@ -73,7 +66,6 @@ function syncTheme(monaco: Monaco) {
   monaco.editor.setTheme(THEME_NAME);
 }
 
-/** Keeps an editor (or diff editor) in ayu-mirage until it is disposed. */
 export function attachPteroMonacoTheme(editor: { onDidDispose(listener: () => void): unknown }, monaco: Monaco) {
   syncTheme(monaco);
 

@@ -1,13 +1,12 @@
+import type { ReactElement } from 'react';
 import { useComputedColorScheme } from '@mantine/core';
 import classNames from 'classnames';
-import type { ReactElement } from 'react';
 import { useLocation } from 'react-router';
 import { useGlobalStore } from '@/stores/global.ts';
-import { resolvePteroArea } from '../core/paths.ts';
 import type { PteroAuthHeader as PteroAuthHeaderSetting } from '../settings/schema.ts';
+import { resolvePteroArea } from '../core/paths.ts';
 import { usePteroThemeSettings } from '../settings/store.ts';
 
-/** What each setting shows, the banner options fall back to the icon while no banner is uploaded. */
 function partsOf(setting: Exclude<PteroAuthHeaderSetting, 'default' | 'hidden'>, hasBanner: boolean) {
   const wantsBanner = setting === 'banner' || setting === 'banner_name';
 
@@ -18,11 +17,7 @@ function partsOf(setting: Exclude<PteroAuthHeaderSetting, 'default' | 'hidden'>,
   };
 }
 
-/**
- * What sits above the login, register and password pages (the panel's AppIcon there). An admin picks
- * it in the theme settings: the panel's own choice, the icon and/or the name, the uploaded banner with
- * or without the name, or nothing. Everywhere else the AppIcon stays as it is.
- */
+/** What sits above the auth pages, picked in the theme settings. Elsewhere the AppIcon stays. */
 export default function PteroAuthHeader({ original, className }: { original: ReactElement; className?: string }) {
   const { pathname } = useLocation();
   const { authHeader } = usePteroThemeSettings();
@@ -40,7 +35,7 @@ export default function PteroAuthHeader({ original, className }: { original: Rea
   const banner = app.banner ? (isLight ? (app.bannerLight ?? app.banner) : app.banner) : null;
   const icon = isLight ? (app.iconLight ?? app.icon) : app.icon;
   const show = partsOf(authHeader, !!banner);
-  // the name is the accessible text when it is shown, the images are decoration then
+  // with the name shown the images are decoration
   const imageAlt = show.name ? '' : app.name;
 
   return (

@@ -1,0 +1,180 @@
+/* shadcn palette (dark scheme only): the darker palette's outlines plus shadcn/ui's type and controls */
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Button-root {
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .mantine-Input-wrapper[data-variant='default']
+  .mantine-Input-input {
+  border-width: 1px;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-InputWrapper-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Table-th {
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* the focus ring would be the gray of the filled controls, too faint on the dark page */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .mantine-focus-auto:focus-visible {
+  outline-color: var(--ptero-gray-300);
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  :is(.mantine-Popover-dropdown, .mantine-Menu-dropdown, .mantine-Combobox-dropdown, .mantine-HoverCard-dropdown) {
+  border-color: var(--ptero-darker-line);
+  background-color: var(--ptero-gray-700);
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .ptero-progress__fill {
+  background-color: var(--ptero-cyan-400);
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] :is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 600;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  :is(#title-card-header > .mantine-Title-root, .mantine-Menu-label) {
+  font-weight: 500;
+  text-transform: none;
+}
+
+/* links in text would look like the text itself without the underline */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Anchor-root {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-server-row__stat-value[data-alarm] {
+  color: var(--ptero-gray-50);
+}
+
+/* page tabs as shadcn tabs: a muted strip, the open tab a faint bordered chip */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .mantine-Tabs-list:has(> a > .mantine-Tabs-tab) {
+  background-color: var(--ptero-gray-600);
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .mantine-Tabs-list
+  > a
+  > .mantine-Tabs-tab:hover {
+  background-color: transparent;
+  color: var(--ptero-gray-100);
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .mantine-Tabs-list
+  > a
+  > .mantine-Tabs-tab[data-active] {
+  background-color: var(--ptero-darker-input);
+  box-shadow: inset 0 0 0 1px var(--ptero-darker-input-line);
+  color: var(--ptero-gray-50);
+}
+
+/*
+ * Compact bars, the open page as a rounded gray pill instead of an underline. The pill is an ::after
+ * inset into the full-height link (Mantine's buttons use ::before), so the click area stays the same.
+ */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-navbar-right
+  > :is(a, button) {
+  position: relative;
+  isolation: isolate;
+  padding-inline: 0.75rem;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-subnav
+  :is(.mantine-Button-root, a.ptero-subnav-admin) {
+  isolation: isolate;
+  padding-inline: 0.625rem;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  :is(.ptero-navbar-right > :is(a, button), .ptero-subnav .mantine-Button-root)::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  border-radius: var(--mantine-radius-default);
+  background-color: var(--ptero-gray-600);
+  opacity: 0;
+  transition: opacity 150ms;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-navbar-right
+  > :is(a, button)::after {
+  inset: 0.625rem 0.25rem;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-subnav
+  .mantine-Button-root::after {
+  inset: 0.375rem 0.125rem;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-navbar-right
+  > :is(a:hover, a:active, a.active, button.active, button:hover, button:active, button[aria-expanded='true']) {
+  background-color: transparent;
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  :is(
+    .ptero-navbar-right
+      > :is(a:hover, a:active, a.active, button.active, button:hover, button:active, button[aria-expanded='true']),
+    .ptero-subnav .mantine-Button-root:is(:hover, .active)
+  )::after {
+  opacity: 1;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-subnav
+  .mantine-Button-root.active {
+  box-shadow: none;
+}
+
+/* the outline of stat blocks, graphs, the console and server rows lights up under the mouse, like shadcn cards */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  :is(
+    .mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root),
+    #server-root .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.pt-4),
+    #server-root .mantine-Card-root.font-mono.isolate,
+    .ptero-server-row
+  ) {
+  transition-property: color, background-color, border-color;
+  transition-duration: 150ms;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  :is(
+    .mantine-Card-root:has(> .flex.flex-row > .mantine-ThemeIcon-root),
+    #server-root .mantine-Card-root:has(> div.border-b.px-4.py-3 + div.pt-4),
+    #server-root .mantine-Card-root.font-mono.isolate
+  ):hover {
+  --paper-border-color: oklch(1 0 0 / 0.2);
+  border-bottom-color: oklch(1 0 0 / 0.2);
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-server-row:hover:not(.ptero-server-row--selected) {
+  border-color: oklch(1 0 0 / 0.2);
+}

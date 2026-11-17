@@ -1,12 +1,12 @@
+import type { ComponentProps } from 'react';
 import { faCog } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Popover } from '@mantine/core';
 import classNames from 'classnames';
-import type { ComponentProps } from 'react';
 import Button from '@/elements/buttons/Button.tsx';
 import CopyOnClick from '@/elements/CopyOnClick.tsx';
 import Card from '@/elements/data-display/Card.tsx';
-// inside this file the path resolves to the stock component, see overrides.ts
+// the stock one here, see overrides.ts
 import StatCard from '@/elements/data-display/StatCard.tsx';
 import ThemeIcon from '@/elements/data-display/ThemeIcon.tsx';
 import Spinner from '@/elements/feedback/Spinner.tsx';
@@ -16,12 +16,7 @@ import { usePteroThemeActive } from '../core/scope.tsx';
 
 type Props = ComponentProps<typeof StatCard>;
 
-/**
- * The stat cards (elements/data-display/StatCard.tsx) of the console, its resource history and the
- * database pages like Pterodactyl's StatBlock: a value too long for the card is cut off instead of
- * scrolling sideways, and the details (the network speeds) get their own line below it. Off the themed
- * pages, the stock card.
- */
+/** Stat cards like Pterodactyl's StatBlock: long values cut off, details on their own line. */
 export default function PteroStatCard(props: Props) {
   return usePteroThemeActive() ? <PteroStatBlock {...props} /> : <StatCard {...props} />;
 }
@@ -43,7 +38,7 @@ function PteroStatBlock({
   redact,
   loading,
 }: Props) {
-  // Calagopus 1.2.9 also takes elements as the value (the history page), only text can be redacted and copied
+  // the value can be an element (history page), only text is redacted and copied
   const text = typeof value === 'string' ? value : null;
   const shownProgress = loading ? null : progress;
   const color = usageColor(shownProgress, total);
