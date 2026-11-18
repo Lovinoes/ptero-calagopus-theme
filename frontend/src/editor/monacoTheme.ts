@@ -1,8 +1,11 @@
 import type { Monaco } from '@/lib/editor/monacoLoader.ts';
 import { isPteroThemeActive } from '../core/scope.tsx';
+import { getPteroThemeSettings } from '../settings/store.ts';
 
 /** Pterodactyl's CodeMirror ayu-mirage theme for Monaco (colors from ayu-mirage.css). */
 const THEME_NAME = 'ptero-ayu-mirage';
+/** The shadcn palette: VS Code's dark syntax colors on shadcn's neutral grays (styles/tokens.css). */
+const SHADCN_THEME_NAME = 'ptero-shadcn';
 
 // the panel re-applies its theme after a scheme switch, ours goes on again after it
 const RESYNC_DELAYS = [0, 150];
@@ -54,6 +57,28 @@ function defineTheme(monaco: Monaco) {
     },
   });
 
+  monaco.editor.defineTheme(SHADCN_THEME_NAME, {
+    base: 'vs-dark',
+    inherit: true,
+    rules: [],
+    colors: {
+      'editor.background': '#171717',
+      'editor.foreground': '#d4d4d4',
+      'editorGutter.background': '#171717',
+      'editorLineNumber.foreground': '#525252',
+      'editorLineNumber.activeForeground': '#a1a1a1',
+      'editorCursor.foreground': '#e5e5e5',
+      'editor.selectionBackground': '#404040',
+      'editor.inactiveSelectionBackground': '#40404080',
+      'editor.lineHighlightBackground': '#1f1f1f',
+      'editor.lineHighlightBorder': '#1f1f1f',
+      'editorIndentGuide.background1': '#262626',
+      'editorWidget.background': '#171717',
+      'editorWidget.border': '#ffffff1a',
+      'minimap.background': '#171717',
+    },
+  });
+
   themeDefined = true;
 }
 
@@ -63,7 +88,7 @@ function syncTheme(monaco: Monaco) {
   if (document.documentElement.getAttribute('data-mantine-color-scheme') !== 'dark') return;
 
   defineTheme(monaco);
-  monaco.editor.setTheme(THEME_NAME);
+  monaco.editor.setTheme(getPteroThemeSettings().colorPalette === 'shadcn' ? SHADCN_THEME_NAME : THEME_NAME);
 }
 
 export function attachPteroMonacoTheme(editor: { onDidDispose(listener: () => void): unknown }, monaco: Monaco) {

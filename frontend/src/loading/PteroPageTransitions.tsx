@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect } from 'react';
 import { type NavigateFunction, useLocation, useNavigate } from 'react-router';
-import { isServerListPath, normalizePath, resolvePteroArea } from '../core/paths.ts';
+import { normalizePath, resolvePteroArea } from '../core/paths.ts';
 
 /**
  * A tab switch rebuilds the page (spinner or empty list first). Instead a picture of the page stays
@@ -101,7 +101,7 @@ function contentBelowTabs(root: HTMLElement): Element[] | null {
   return content;
 }
 
-/** Swaps the picture for the page. Only server lists fade in below their tabs, another page fades as a whole. */
+/** Swaps the picture for the page. A new tab fades in below its tab bar, another page fades as a whole. */
 function endHold(arrived: boolean) {
   const current = hold;
   if (!current) return;
@@ -114,7 +114,7 @@ function endHold(arrived: boolean) {
   );
   for (const page of pages) page.setAttribute('data-ptero-page', 'still');
 
-  const content = arrived && isServerListPath(current.target) ? contentBelowTabs(current.root) : null;
+  const content = arrived ? contentBelowTabs(current.root) : null;
   for (const element of content ?? []) element.removeAttribute('data-ptero-tab-content');
 
   if (content || !arrived) {

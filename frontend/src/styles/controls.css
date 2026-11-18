@@ -137,7 +137,11 @@ html[data-ptero-theme][data-mantine-color-scheme='light']
 /* Alerts */
 
 html[data-ptero-theme] .mantine-Alert-root {
-  border-left: 0.5rem solid var(--alert-color);
   border-radius: 0.375rem;
   box-shadow: var(--ptero-shadow);
+}
+
+/* the stripe takes the text color, which is white on a filled alert, those are colored enough */
+html[data-ptero-theme] .mantine-Alert-root:not([data-variant='filled']) {
+  border-left: 0.5rem solid var(--alert-color);
 }

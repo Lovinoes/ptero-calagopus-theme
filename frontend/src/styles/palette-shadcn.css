@@ -107,6 +107,19 @@ html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='d
   padding-inline: 0.625rem;
 }
 
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .ptero-subnav-inner > a ~ a {
+  margin-left: 0;
+}
+
+/* the panel's link icons, the other palettes hide them like Pterodactyl */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .ptero-subnav
+  .mantine-Button-label
+  > svg {
+  display: inline-block;
+  margin-right: 0.375rem;
+}
+
 html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
   :is(.ptero-navbar-right > :is(a, button), .ptero-subnav .mantine-Button-root)::after {
   content: '';
@@ -177,4 +190,65 @@ html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='d
 html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
   .ptero-server-row:hover:not(.ptero-server-row--selected) {
   border-color: oklch(1 0 0 / 0.2);
+}
+
+/* tooltips inverted like shadcn's: light chip, dark text */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Tooltip-tooltip {
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--mantine-radius-default);
+  background-color: var(--ptero-gray-50);
+  color: var(--ptero-gray-800);
+  font-size: 0.75rem;
+  box-shadow: none;
+}
+
+/* dialogs on the page color, rounded like cards, over a plain dimmed backdrop */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  :is(.mantine-Modal-content, .mantine-Modal-header) {
+  background-color: var(--ptero-gray-800);
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Modal-content {
+  border-radius: var(--mantine-radius-md);
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Modal-title {
+  font-size: 1.125rem;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Modal-overlay {
+  --overlay-bg: rgb(0 0 0 / 0.5) !important;
+}
+
+/* alerts as shadcn's: a bordered card, the color only on the title and icon */
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .mantine-Alert-root:not([data-variant='filled']) {
+  border: 1px solid var(--ptero-darker-line);
+  border-radius: var(--mantine-radius-default);
+  background-color: var(--ptero-gray-700);
+  box-shadow: none;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Badge-root {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Menu-item {
+  border-radius: var(--mantine-radius-sm);
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark']
+  .mantine-Menu-item:is(:hover, [data-hovered]):not(:disabled, [data-disabled]) {
+  background-color: var(--ptero-gray-600);
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Code-root {
+  background-color: var(--code-bg, var(--ptero-gray-600));
+}
+
+html[data-ptero-theme][data-ptero-palette='shadcn'][data-mantine-color-scheme='dark'] .mantine-Checkbox-input {
+  border-radius: 0.25rem;
 }

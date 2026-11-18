@@ -168,14 +168,13 @@ html[data-ptero-theme] .ptero-subnav-inner > a {
 }
 
 html[data-ptero-theme] .ptero-subnav-inner > a ~ a {
-  margin-left: 0;
+  margin-left: 0.5rem;
 }
 
-/* less padding than Pterodactyl's px-4 + ml-2: the icon takes that room, so a link keeps its old width */
 html[data-ptero-theme] .ptero-subnav .mantine-Button-root {
   width: auto;
   height: auto;
-  padding: 0.75rem 0.5rem;
+  padding: 0.75rem 1rem;
   border: 0 !important;
   border-radius: 0;
   background: transparent !important;
@@ -209,7 +208,7 @@ html[data-ptero-theme] .ptero-subnav .mantine-Button-root:active {
 }
 
 html[data-ptero-theme] .ptero-subnav .mantine-Button-label > svg {
-  margin-right: 0.375rem;
+  display: none;
 }
 
 html[data-ptero-theme] .ptero-subnav .mantine-Button-label {

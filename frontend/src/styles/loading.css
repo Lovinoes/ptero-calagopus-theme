@@ -41,7 +41,7 @@ html[data-ptero-theme] .ptero-progress__fill {
   }
 
   /*
-   * pages fade in (opacity only); tab switches skip it except for the server lists, see
+   * pages fade in (opacity only); on a tab switch only what is below the tab bar fades, see
    * loading/PteroPageTransitions.tsx
    */
   html[data-ptero-theme]:not([data-ptero-animations='off'])
@@ -52,7 +52,7 @@ html[data-ptero-theme] .ptero-progress__fill {
     > :not([data-ptero-page='still']),
   html[data-ptero-theme]:not([data-ptero-animations='off'])
     [data-ptero-nav]
-    ~ #dashboard-root
+    ~ :is(#dashboard-root, #server-root)
     [data-ptero-tab-content] {
     animation: ptero-fade-in calc(150ms * var(--ptero-animation-scale, 1)) ease-in;
   }
